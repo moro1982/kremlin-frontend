@@ -5,6 +5,7 @@ import { Ministry } from '../models/ministry';
 import { Politico } from '../models/politico';
 import { MinistryService } from '../services/ministry.service';
 import { PoliticoService } from '../services/politico.service';
+import { InfluenceService } from '../services/influence.service';
 
 @Component({
   selector: 'app-controles',
@@ -20,6 +21,7 @@ import { PoliticoService } from '../services/politico.service';
 export class ControlesComponent implements OnInit {
   ministerios : Ministry[] = [];
   politicos : Politico[] = [];
+  politicoAsignar: Politico = new Politico;
   ministerioObjetivo : Ministry = new Ministry;
   ministerioOcupado : Ministry = new Ministry;
   ministerioVaciado : Ministry = new Ministry;
@@ -28,7 +30,8 @@ export class ControlesComponent implements OnInit {
 
   constructor(
     private ministryService : MinistryService,
-    private politicoService : PoliticoService
+    private politicoService : PoliticoService,
+    private influenceService : InfluenceService
   ){}
 
   ngOnInit(): void {
@@ -60,5 +63,7 @@ export class ControlesComponent implements OnInit {
         this.ministerioVaciado = min;
       });
   }
+
+  /* Definir métodos */
 
 }

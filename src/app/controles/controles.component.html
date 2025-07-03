@@ -28,7 +28,14 @@
         </select>
         <p> Ministerio vaciado: {{ ministerioVaciado.name }} </p>
         <p> Ministro eliminado: {{ ministroEliminado.name }} </p>
-
         <button (click)="quitarMinistro()"> Eliminar </button>
+    </div>
+    <div>
+        <h3> Asignar Influencia </h3>
+        <select name="selPolitico" [(ngModel)]="politicoAsignar">
+            <option [ngValue]="politico" *ngFor="let politico of politicos">
+                {{ politico.name }}
+            </option>
+        </select>
     </div>
 </div>
