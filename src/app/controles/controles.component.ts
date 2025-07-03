@@ -21,7 +21,9 @@ import { InfluenceService } from '../services/influence.service';
 export class ControlesComponent implements OnInit {
   ministerios : Ministry[] = [];
   politicos : Politico[] = [];
-  politicoAsignar: Politico = new Politico;
+  politicoAsignar : Politico = new Politico;
+  assignValue! : number;
+  possibleValues : number[] = [];
   ministerioObjetivo : Ministry = new Ministry;
   ministerioOcupado : Ministry = new Ministry;
   ministerioVaciado : Ministry = new Ministry;
@@ -64,6 +66,7 @@ export class ControlesComponent implements OnInit {
       });
   }
 
-  /* Definir métodos */
+  /* Métodos de Influencia */
+
 
 }

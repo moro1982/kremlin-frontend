@@ -37,5 +37,14 @@
                 {{ politico.name }}
             </option>
         </select>
+        <p> Político a Asignar Influencia: {{ politicoAsignar.name }} </p>
+        <select name="assignValue" [(ngModel)]="assignValue">
+            <!-- Traer valores posibles (descartando los valores ya tomados) -->
+            <option [ngValue]="possibleValue" *ngFor="let possibleValue of possibleValues">
+                {{ possibleValue }}
+            </option>
+        </select>
+        <p> Valor a Asignar: {{ assignValue }} </p>
+        <button> Asignar </button>
     </div>
 </div>
