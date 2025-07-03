@@ -1,0 +1,23 @@
+
+.tablero {
+    margin: 1rem 0 2rem 0;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    grid-column-gap: 1rem;
+    grid-row-gap: 1rem;
+
+    > * {
+        padding: 1rem;
+        border: 1px solid;
+    }
+}
+
+.min1 { grid-area: 1 / 6 / 2 / 9;}
+.min2 { grid-area: 2 / 2 / 3 / 5;}
+.min3 { grid-area: 2 / 5 / 3 / 8;}
+.min4 { grid-area: 2 / 8 / 3 / 11;}
+.min5 { grid-area: 3 / 1 / 4 / 4;}
+.min6 { grid-area: 3 / 4 / 4 / 7;}
+.min7 { grid-area: 3 / 7 / 4 / 10;}
+.min8 { grid-area: 3 / 10 / 4 / 13;}

@@ -1,0 +1,22 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import 'normalize.css/normalize.css';
+
+.bloque {
+    background-color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+}
+.boton {
+    background-color: grey;
+    padding: .5rem 1rem;
+    color: white;
+    font-weight: 400;
+    height: max-content;
+    width: max-content;
+}
+.titulo-boton {
+    color: white;
+}
