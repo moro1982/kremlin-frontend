@@ -6,6 +6,9 @@ import { Politico } from '../models/politico';
 import { MinistryService } from '../services/ministry.service';
 import { PoliticoService } from '../services/politico.service';
 import { InfluenceService } from '../services/influence.service';
+import { PlayerService } from '../services/player.service';
+import { Player } from '../models/player';
+import { InfluenceAssigned } from '../models/influence-assigned';
 
 @Component({
   selector: 'app-controles',
@@ -19,11 +22,17 @@ import { InfluenceService } from '../services/influence.service';
   styleUrl: './controles.component.scss'
 })
 export class ControlesComponent implements OnInit {
+  players : Player[] = [];
   ministerios : Ministry[] = [];
   politicos : Politico[] = [];
-  politicoAsignar : Politico = new Politico;
-  assignValue! : number;
+
   possibleValues : number[] = [];
+  playerAssign : Player = new Player;
+  politicoAssign : Politico = new Politico;
+  assignValue! : number;
+  assignment : InfluenceAssigned = new InfluenceAssigned;
+  assignConfirmation : InfluenceAssigned = new InfluenceAssigned;
+  
   ministerioObjetivo : Ministry = new Ministry;
   ministerioOcupado : Ministry = new Ministry;
   ministerioVaciado : Ministry = new Ministry;
@@ -33,7 +42,8 @@ export class ControlesComponent implements OnInit {
   constructor(
     private ministryService : MinistryService,
     private politicoService : PoliticoService,
-    private influenceService : InfluenceService
+    private influenceService : InfluenceService,
+    private playerService : PlayerService
   ){}
 
   ngOnInit(): void {
@@ -43,30 +53,46 @@ export class ControlesComponent implements OnInit {
       this.politicoService.getPoliticos().subscribe( pols => {
         this.politicos = pols;
       });
+      this.playerService.getAllPlayers().subscribe( players => {
+        this.players = players;
+      })
   }
 
-  asignarMinistro() {
+  /* Métodos de Ministerios */
+
+  assignMinister() {
     this.ministryService
-      .asignarMinistro(this.ministerioObjetivo.id, this.ministroAsignado.id)
+      .assignMinister(this.ministerioObjetivo.id, this.ministroAsignado.id)
       .subscribe( min => {
         this.ministerioOcupado = min;
       });
   }
 
-  quitarMinistro() {
+  removeMinister() {
     this.politicoService
       .getPoliticoByID(this.ministerioObjetivo.ministerId)
       .subscribe( pol => {
         this.ministroEliminado = pol;
       });
     this.ministryService
-      .quitarMinistro(this.ministerioObjetivo.id)
+      .removeMinister(this.ministerioObjetivo.id)
       .subscribe( min => {
         this.ministerioVaciado = min;
       });
   }
 
+
   /* Métodos de Influencia */
 
+  assignInfluence() {
+    this.assignment.playerID = this.playerAssign.id;
+    this.assignment.politicoID = this.politicoAssign.id;
+    this.assignment.points = this.assignValue;
+    this.influenceService
+          .assignInfluence(this.assignment)
+          .subscribe( res => {
+              this.assignConfirmation = res;
+          });
+  }
 
 }
