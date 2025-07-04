@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { InfluenceAssigned } from '../models/influence-assigned';
+import { InfluenceRequest } from '../models/influence-request';
 
 @Injectable({
   providedIn: 'root'
@@ -24,7 +25,7 @@ export class InfluenceService {
     return this.http.get<number[]>(this.apiURL + "/assigned/possibleValues/" + playerID);
   }
 
-  assignInfluence(assigned : InfluenceAssigned) : Observable<InfluenceAssigned> {
+  assignInfluence(assigned : InfluenceRequest) : Observable<InfluenceAssigned> {
     return this.http.post<InfluenceAssigned>(this.apiURL + "/assigned", assigned);
   }
 

@@ -2,8 +2,8 @@
 export class InfluenceAssigned {
     id! : number;
     points! : number;
-    playerID! : number;
-    politicoID! : number;
+    playerId! : number;
+    politicoId! : number;
 
     constructor(){}
 }

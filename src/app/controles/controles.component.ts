@@ -9,6 +9,7 @@ import { InfluenceService } from '../services/influence.service';
 import { PlayerService } from '../services/player.service';
 import { Player } from '../models/player';
 import { InfluenceAssigned } from '../models/influence-assigned';
+import { InfluenceRequest } from '../models/influence-request';
 
 @Component({
   selector: 'app-controles',
@@ -30,7 +31,7 @@ export class ControlesComponent implements OnInit {
   playerAssign : Player = new Player;
   politicoAssign : Politico = new Politico;
   assignValue! : number;
-  assignment : InfluenceAssigned = new InfluenceAssigned;
+  assignRequest : InfluenceRequest = new InfluenceRequest;
   assignConfirmation : InfluenceAssigned = new InfluenceAssigned;
   
   ministerioObjetivo : Ministry = new Ministry;
@@ -55,7 +56,7 @@ export class ControlesComponent implements OnInit {
       });
       this.playerService.getAllPlayers().subscribe( players => {
         this.players = players;
-      })
+      });
   }
 
   /* Métodos de Ministerios */
@@ -84,14 +85,25 @@ export class ControlesComponent implements OnInit {
 
   /* Métodos de Influencia */
 
+  getPossibleValues(player : Player) {
+    this.influenceService.getPossibleValues(player.id).subscribe( values => {
+      this.possibleValues = values;
+    });
+    this.possibleValues.forEach(element => {
+      console.log(element);
+    });
+  }
+
   assignInfluence() {
-    this.assignment.playerID = this.playerAssign.id;
-    this.assignment.politicoID = this.politicoAssign.id;
-    this.assignment.points = this.assignValue;
+    this.assignRequest.playerId = this.playerAssign.id;
+    this.assignRequest.politicoId = this.politicoAssign.id;
+    this.assignRequest.points = this.assignValue;
+    console.log(this.assignRequest);
     this.influenceService
-          .assignInfluence(this.assignment)
+          .assignInfluence(this.assignRequest)
           .subscribe( res => {
-              this.assignConfirmation = res;
+            this.assignConfirmation = res;
+            console.log(this.assignConfirmation);
           });
   }
 

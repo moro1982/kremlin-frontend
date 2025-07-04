@@ -1,6 +1,5 @@
 
-export class InfluenceDeclared {
-    id! : number;
+export class InfluenceRequest {
     points! : number;
     playerId! : number;
     politicoId! : number;
