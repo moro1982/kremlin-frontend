@@ -10,6 +10,7 @@ import { PlayerService } from '../services/player.service';
 import { Player } from '../models/player';
 import { InfluenceAssigned } from '../models/influence-assigned';
 import { InfluenceRequest } from '../models/influence-request';
+import { InfluenceDeclared } from '../models/influence-declared';
 
 @Component({
   selector: 'app-controles',
@@ -33,6 +34,8 @@ export class ControlesComponent implements OnInit {
   assignValue! : number;
   assignRequest : InfluenceRequest = new InfluenceRequest;
   assignConfirmation : InfluenceAssigned = new InfluenceAssigned;
+  declareRequest : InfluenceRequest = new InfluenceRequest;
+  declareConfirmation : InfluenceDeclared = new InfluenceDeclared;
   
   ministerioObjetivo : Ministry = new Ministry;
   ministerioOcupado : Ministry = new Ministry;
@@ -100,6 +103,11 @@ export class ControlesComponent implements OnInit {
           .subscribe( res => {
             this.assignConfirmation = res;
           });
+  }
+
+  declareInfluence() {
+    // this.declareRequest.playerId = this.playerDeclare.id;
+    // ...
   }
 
 }

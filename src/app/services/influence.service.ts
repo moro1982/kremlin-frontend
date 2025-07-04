@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { InfluenceAssigned } from '../models/influence-assigned';
 import { InfluenceRequest } from '../models/influence-request';
+import { InfluenceDeclared } from '../models/influence-declared';
 
 @Injectable({
   providedIn: 'root'
@@ -27,6 +28,10 @@ export class InfluenceService {
 
   assignInfluence(assigned : InfluenceRequest) : Observable<InfluenceAssigned> {
     return this.http.post<InfluenceAssigned>(this.apiURL + "/assigned", assigned);
+  }
+
+  declareInfluence( declared : InfluenceRequest ) : Observable<InfluenceDeclared> {
+    return this.http.post<InfluenceDeclared>(this.apiURL + "/declared", declared);
   }
 
 }
