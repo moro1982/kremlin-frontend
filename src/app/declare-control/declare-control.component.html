@@ -1,0 +1,50 @@
+
+<div class="controles-influencia">
+    <h2> Declarar Influencia </h2>
+    <!-- Traer todos los Jugadores -->
+    <div>
+        <p> Jugador que Declara influencia: {{ playerDeclare.name }} </p>
+        <select name="selPlayer" [(ngModel)]="playerDeclare" (ngModelChange)="getPlayerStatus($event)">
+            <option [ngValue]="player" *ngFor="let player of players">
+                {{ player.name }}
+            </option>
+        </select>
+    </div>
+    <!-- Traer todos los politicos -->
+    <div>
+        <p> Político a Declarar Influencia: {{ declaredPolitico.name }} </p>
+        <select name="selPolitico" [(ngModel)]="declaredPolitico">
+            <option [ngValue]="politico" *ngFor="let politico of politicos">
+                {{ politico.name }}
+            </option>
+        </select>
+    </div>
+    <!-- Traer valores posibles (descartando los valores inválidos) -->
+    <div>
+        <p> Valor a Declarar: {{ declaredValue }} </p>
+        <select name="declaredValue" [(ngModel)]="declaredValue">
+            <option [ngValue]="possibleValue" *ngFor="let possibleValue of possibleValues">
+                {{ possibleValue }}
+            </option>
+        </select>
+    </div>
+    <button (click)="declareInfluence()"> Declarar </button>
+    <!-- Tabla de resumen con los Politicos con Influencia Declarada del Jugador elegido -->
+    <div>
+        <h3> Tabla de Influencia Declarada del Jugador {{ playerDeclare.name }} </h3>
+        <table>
+            <thead>
+                <tr>
+                    <th scope="col"> Politico </th>
+                    <th scope="col"> Puntos Asignados </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let declared of declaredMany">
+                    <td> {{ declared.politicoId }} </td>
+                    <td> {{ declared.points }} </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
