@@ -22,8 +22,12 @@ export class InfluenceService {
     return this.http.get<InfluenceAssigned>(this.apiURL + "/assigned/" + id);
   }
 
+  getAssignedByPlayer(playerId : number) : Observable<InfluenceAssigned[]> {
+    return this.http.get<InfluenceAssigned[]>(this.apiURL + "/assigned/player/" + playerId);
+  }
+
   getPossibleValues(playerID : number) : Observable<number[]> {
-    return this.http.get<number[]>(this.apiURL + "/assigned/possibleValues/" + playerID);
+    return this.http.get<number[]>(this.apiURL + "/assigned/possibleValues/player/" + playerID);
   }
 
   assignInfluence(assigned : InfluenceRequest) : Observable<InfluenceAssigned> {

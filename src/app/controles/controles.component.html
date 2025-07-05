@@ -1,70 +1,8 @@
 
 <div class="controles">
 
-    <div class="controles-ministerio">
-        <h2> Ocupar / Desocupar Ministerio </h2>
-        <div>
-            <h3> Seleccionar Ministerio </h3>
-            <select name="selMinistry" [(ngModel)]="ministerioObjetivo">
-                <option [ngValue]="ministerio" *ngFor="let ministerio of ministerios">
-                    {{ ministerio.name }}
-                </option>
-            </select>
-            <p> Ministerio vacante: {{ ministerioObjetivo.name }} </p>
-        </div>
-        <div>
-            <h3> Asignar Ministro </h3>
-            <select name="selMinister" [(ngModel)]="ministroAsignado">
-                <option [ngValue]="politico" *ngFor="let politico of politicos">
-                    {{ politico.name }}
-                </option>
-            </select>
-            <p> Ministro asignado: {{ ministroAsignado.name }} </p>
-            <button (click)="assignMinister()"> Asignar </button>
-        </div>
-        <div>
-            <h3> Quitar Ministro </h3>
-            <select name="delMinister" [(ngModel)]="ministerioObjetivo">
-                <option [ngValue]="ministerio" *ngFor="let ministerio of ministerios">
-                    {{ ministerio.name }}
-                </option>
-            </select>
-            <p> Ministerio vaciado: {{ ministerioVaciado.name }} </p>
-            <p> Ministro eliminado: {{ ministroEliminado.name }} </p>
-            <button (click)="removeMinister()"> Eliminar </button>
-        </div>
-    </div>
+    <app-ministry-control></app-ministry-control>
 
-    <div class="controles-influencia">
-        <h2> Asignar Influencia </h2>
-        <!-- Traer todos los Jugadores -->
-        <div>
-            <select name="selPlayer" [(ngModel)]="playerAssign" (ngModelChange)="getPossibleValues($event)">
-                <option [ngValue]="player" *ngFor="let player of players">
-                    {{ player.name }}
-                </option>
-            </select>
-            <p> Jugador que asigna Influencia: {{ playerAssign.name }} </p>
-        </div>
-        <!-- Traer todos los politicos -->
-        <div>
-            <select name="selPolitico" [(ngModel)]="politicoAssign">
-                <option [ngValue]="politico" *ngFor="let politico of politicos">
-                    {{ politico.name }}
-                </option>
-            </select>
-            <p> Político a Asignar Influencia: {{ politicoAssign.name }} </p>
-        </div>
-        <!-- Traer valores posibles (descartando los valores ya tomados) -->
-        <div>
-            <select name="assignValue" [(ngModel)]="assignValue">
-                <option [ngValue]="possibleValue" *ngFor="let possibleValue of possibleValues">
-                    {{ possibleValue }}
-                </option>
-            </select>
-            <p> Valor a Asignar: {{ assignValue }} </p>
-        </div>
-        <button (click)="assignInfluence()"> Asignar </button>
-    </div>
+    <app-assign-control></app-assign-control>
 
 </div>

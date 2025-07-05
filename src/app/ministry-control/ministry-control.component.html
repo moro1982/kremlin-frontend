@@ -1,0 +1,34 @@
+
+<div class="controles-ministerio">
+    <h2> Ocupar / Desocupar Ministerio </h2>
+    <div>
+        <h3> Seleccionar Ministerio </h3>
+        <select name="selMinistry" [(ngModel)]="ministerioObjetivo">
+            <option [ngValue]="ministerio" *ngFor="let ministerio of ministerios">
+                {{ ministerio.name }}
+            </option>
+        </select>
+        <p> Ministerio vacante: {{ ministerioObjetivo.name }} </p>
+    </div>
+    <div>
+        <h3> Asignar Ministro </h3>
+        <select name="selMinister" [(ngModel)]="ministroAsignado">
+            <option [ngValue]="politico" *ngFor="let politico of politicos">
+                {{ politico.name }}
+            </option>
+        </select>
+        <p> Ministro asignado: {{ ministroAsignado.name }} </p>
+        <button (click)="assignMinister()"> Asignar </button>
+    </div>
+    <div>
+        <h3> Quitar Ministro </h3>
+        <select name="delMinister" [(ngModel)]="ministerioObjetivo">
+            <option [ngValue]="ministerio" *ngFor="let ministerio of ministerios">
+                {{ ministerio.name }}
+            </option>
+        </select>
+        <p> Ministerio vaciado: {{ ministerioVaciado.name }} </p>
+        <p> Ministro eliminado: {{ ministroEliminado.name }} </p>
+        <button (click)="removeMinister()"> Eliminar </button>
+    </div>
+</div>
