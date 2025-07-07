@@ -81,7 +81,9 @@ export class DeclareControlComponent {
   }
   
   declareInfluence() {
+    // Seguimos desde aquí
     throw new Error('Method not implemented.');
+
   }
 
 }

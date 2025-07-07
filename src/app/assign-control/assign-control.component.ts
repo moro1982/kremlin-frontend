@@ -50,8 +50,8 @@ export class AssignControlComponent implements OnInit {
     // y Jugador elegido acceda al panel de asignación (para garantizar que esta información
     // sólo sea visible para dicho Jugador)
   getPlayerStatus(player : Player) {
+    this.getPoliticosFreeForAssign(player);
     this.getPossibleAssignValues(player);
-    this.getAssignedByPlayer(player);
   }
 
   getPossibleAssignValues(player : Player) {
@@ -60,7 +60,7 @@ export class AssignControlComponent implements OnInit {
     });
   }
 
-  getAssignedByPlayer(player : Player) : void {
+  getPoliticosFreeForAssign(player : Player) : void {
     this.influenceService
           .getAssignedByPlayer(player.id)
           .subscribe(res => {
