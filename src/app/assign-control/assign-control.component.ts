@@ -23,7 +23,7 @@ export class AssignControlComponent implements OnInit {
   playerAssign : Player = new Player;
   assignedPolIDs : number[] = [];
   assignedPolitico : Politico = new Politico;
-  assignedPoliticos : Politico[] = [];
+  freePoliticos : Politico[] = [];
   assignedValue! : number;
   assignedRequest : InfluenceRequest = new InfluenceRequest;
   assignedSingle : InfluenceAssigned = new InfluenceAssigned;
@@ -65,9 +65,14 @@ export class AssignControlComponent implements OnInit {
           .getAssignedByPlayer(player.id)
           .subscribe(res => {
               this.assignedMany = res;
-              this.assignedPolIDs = this.assignedMany.map(assigned => assigned.politicoId);
-              this.assignedPoliticos = this.politicos.filter(politico => this.assignedPolIDs.includes(politico.id));
-          });
+              if (this.assignedMany.length == 0) {
+                this.freePoliticos = this.politicos;
+              } else {
+                this.assignedPolIDs = this.assignedMany.map(assigned => assigned.politicoId);
+                this.freePoliticos = this.politicos.filter(politico => !(this.assignedPolIDs.includes(politico.id)));
+              }
+            }
+          );
   }
 
   assignInfluence() : void {

@@ -14,7 +14,7 @@
     <div>
         <p> Político a Asignar Influencia: {{ assignedPolitico.name }} </p>
         <select name="selPolitico" [(ngModel)]="assignedPolitico">
-            <option [ngValue]="politico" *ngFor="let politico of politicos">
+            <option [ngValue]="politico" *ngFor="let politico of freePoliticos">
                 {{ politico.name }}
             </option>
         </select>
