@@ -26,7 +26,7 @@ export class InfluenceService {
     return this.http.get<InfluenceAssigned[]>(this.apiURL + "/assigned/player/" + playerId);
   }
 
-  getPossibleValues(playerID : number) : Observable<number[]> {
+  getPossibleAssignValues(playerID : number) : Observable<number[]> {
     return this.http.get<number[]>(this.apiURL + "/assigned/possibleValues/player/" + playerID);
   }
 
@@ -34,8 +34,14 @@ export class InfluenceService {
     return this.http.post<InfluenceAssigned>(this.apiURL + "/assigned", assigned);
   }
 
+  /* DECLARE INFLUENCE */
+
   declareInfluence( declared : InfluenceRequest ) : Observable<InfluenceDeclared> {
     return this.http.post<InfluenceDeclared>(this.apiURL + "/declared", declared);
+  }
+
+  getPossibleDeclareValues(polPlayerReq : InfluenceRequest) : Observable<number[]> {
+    return this.http.post<number[]>(this.apiURL + "/declared/possibleValues", polPlayerReq);
   }
 
 }

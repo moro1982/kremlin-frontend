@@ -21,6 +21,7 @@ export class AssignControlComponent implements OnInit {
   politicos : Politico[] = [];
   possibleValues : number[] = [];
   playerAssign : Player = new Player;
+  assignedPolIDs : number[] = [];
   assignedPolitico : Politico = new Politico;
   assignedPoliticos : Politico[] = [];
   assignedValue! : number;
@@ -49,21 +50,24 @@ export class AssignControlComponent implements OnInit {
     // y Jugador elegido acceda al panel de asignación (para garantizar que esta información
     // sólo sea visible para dicho Jugador)
   getPlayerStatus(player : Player) {
-    this.getPossibleValues(player);
+    this.getPossibleAssignValues(player);
     this.getAssignedByPlayer(player);
   }
 
-  getPossibleValues(player : Player) {
-    this.influenceService.getPossibleValues(player.id).subscribe( values => {
+  getPossibleAssignValues(player : Player) {
+    this.influenceService.getPossibleAssignValues(player.id).subscribe( values => {
       this.possibleValues = values;
     });
   }
 
   getAssignedByPlayer(player : Player) : void {
-    this.influenceService.getAssignedByPlayer(player.id)
-                         .subscribe(res => {
-                            this.assignedMany = res;
-                         });
+    this.influenceService
+          .getAssignedByPlayer(player.id)
+          .subscribe(res => {
+              this.assignedMany = res;
+              this.assignedPolIDs = this.assignedMany.map(assigned => assigned.politicoId);
+              this.assignedPoliticos = this.politicos.filter(politico => this.assignedPolIDs.includes(politico.id));
+          });
   }
 
   assignInfluence() : void {
@@ -77,8 +81,4 @@ export class AssignControlComponent implements OnInit {
           });
   }
 
-  declareInfluence() {
-    // this.declareRequest.playerId = this.playerDeclare.id;
-    // ...
-  }
 }

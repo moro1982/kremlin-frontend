@@ -13,8 +13,8 @@
     <!-- Traer todos los politicos -->
     <div>
         <p> Político a Declarar Influencia: {{ declaredPolitico.name }} </p>
-        <select name="selPolitico" [(ngModel)]="declaredPolitico">
-            <option [ngValue]="politico" *ngFor="let politico of politicos">
+        <select name="selPolitico" [(ngModel)]="declaredPolitico" (ngModelChange)="getPoliticoStatus($event)"> 
+            <option [ngValue]="politico" *ngFor="let politico of politicosAssigned">
                 {{ politico.name }}
             </option>
         </select>
@@ -36,7 +36,7 @@
             <thead>
                 <tr>
                     <th scope="col"> Politico </th>
-                    <th scope="col"> Puntos Asignados </th>
+                    <th scope="col"> Puntos Declarados </th>
                 </tr>
             </thead>
             <tbody>
