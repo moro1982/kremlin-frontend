@@ -32,6 +32,7 @@ export class DeclareControlComponent {
   declaredPolitico: Politico = new Politico;
   declaredValue!: number;
   declaredMany: InfluenceDeclared[] = [];
+  declaredSingle: InfluenceDeclared = new InfluenceDeclared;
   declareRequest : InfluenceRequest = new InfluenceRequest;
 
   constructor(
@@ -65,25 +66,40 @@ export class DeclareControlComponent {
     console.log(this.declareRequest);
     this.influenceService.getPossibleDeclareValues(this.declareRequest)
                          .subscribe(values => {
-                          this.possibleValues = values;
+                            this.possibleValues = values;
+                            console.log(this.possibleValues);
                          });
+  }
+
+  getDeclaredByPlayer(player : Player) : void {
+    this.influenceService
+          .getDeclaredByPlayer(player.id)
+          .subscribe( res => {
+            this.declaredMany = res;
+          });
   }
   
   // Get Player data (Politicos assigned by Player)
   getPlayerStatus(player : Player) {
     // Get Player's Assigned
     this.getAssignedByPlayer(player);
-    
+    // Get Player's Declared
+    this.getDeclaredByPlayer(player);
   }
 
   getPoliticoStatus(declaredPolitico : Politico) {
     this.getPossibleDeclareValues();
   }
   
-  declareInfluence() {
-    // Seguimos desde aquí
-    throw new Error('Method not implemented.');
-
+  declareInfluence() : void {
+    this.declareRequest.playerId = this.playerDeclare.id;
+    this.declareRequest.politicoId = this.declaredPolitico.id;
+    this.declareRequest.points = this.declaredValue;
+    this.influenceService
+          .declareInfluence(this.declareRequest)
+          .subscribe( res => {
+            this.declaredSingle = res;
+          });
   }
 
 }

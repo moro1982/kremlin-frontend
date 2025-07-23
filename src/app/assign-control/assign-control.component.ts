@@ -30,9 +30,9 @@ export class AssignControlComponent implements OnInit {
   assignedMany : InfluenceAssigned[] = [];
 
   constructor(
+    private playerService : PlayerService,
     private politicoService : PoliticoService,
-    private influenceService : InfluenceService,
-    private playerService : PlayerService
+    private influenceService : InfluenceService
   ){}
 
   ngOnInit(): void {
