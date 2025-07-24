@@ -41,7 +41,7 @@
             </thead>
             <tbody>
                 <tr *ngFor="let declared of declaredMany">
-                    <td> {{ declared.politicoId }} </td>
+                    <td> {{ getPoliticoNameByID(declared.politicoId) }} </td>
                     <td> {{ declared.points }} </td>
                 </tr>
             </tbody>

@@ -78,6 +78,11 @@ export class DeclareControlComponent {
             this.declaredMany = res;
           });
   }
+
+  getPoliticoNameByID(id : number) : string {
+      const politico = this.politicos.find(p => p.id === id);
+      return politico ? politico.name : "(Desconocido)";
+  }
   
   // Get Player data (Politicos assigned by Player)
   getPlayerStatus(player : Player) {
