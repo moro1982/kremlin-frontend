@@ -8,6 +8,7 @@ import { InfluenceService } from '../services/influence.service';
 import { PlayerService } from '../services/player.service';
 import { PoliticoService } from '../services/politico.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { PoliticoUtilsService } from '../services/politico-utils.service';
 
 @Component({
   selector: 'app-assign-control',
@@ -32,7 +33,8 @@ export class AssignControlComponent implements OnInit {
   constructor(
     private playerService : PlayerService,
     private politicoService : PoliticoService,
-    private influenceService : InfluenceService
+    private influenceService : InfluenceService,
+    private politicoUtils : PoliticoUtilsService
   ){}
 
   ngOnInit(): void {
@@ -84,6 +86,10 @@ export class AssignControlComponent implements OnInit {
           .subscribe( res => {
             this.assignedSingle = res;
           });
+  }
+
+  getPoliticoNameByID(id : number) : string {
+    return this.politicoUtils.getPoliticoNameByID(id, this.politicos);
   }
 
 }

@@ -1,6 +1,12 @@
+
 .controles {
     display: flex;
-    justify-content: space-around;
-    margin-bottom: 2rem;
+    flex-direction: column;
 }
 
+.influence-control {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-bottom: 2rem;
+}

@@ -20,3 +20,23 @@
 .titulo-boton {
     color: white;
 }
+
+// Influencia
+.control-titulo {
+    text-align: center;
+}
+.controles-influencia {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+}
+.table-cell {
+    text-align: center;
+    border: 1px solid #000;
+}
+.tabla-influencia {
+    display: flex;
+    flex-direction: column;
+}

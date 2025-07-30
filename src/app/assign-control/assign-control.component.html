@@ -1,6 +1,6 @@
 
+<h2 class="control-titulo"> Asignar Influencia </h2>
 <div class="controles-influencia">
-    <h2> Asignar Influencia </h2>
     <!-- Traer todos los Jugadores -->
     <div>
         <p> Jugador que asigna Influencia: {{ playerAssign.name }} </p>
@@ -29,22 +29,23 @@
         </select>
     </div>
     <button (click)="assignInfluence()"> Asignar </button>
-    <!-- Tabla de resumen con los Politicos con Influencia Asignada del Jugador elegido -->
-    <div>
-        <h3> Tabla de Influencia Asignada del Jugador {{ playerAssign.name }} </h3>
-        <table>
-            <thead>
-                <tr>
-                    <th scope="col"> Politico </th>
-                    <th scope="col"> Puntos Asignados </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let assigned of assignedMany">
-                    <td> {{ assigned.politicoId }} </td>
-                    <td> {{ assigned.points }} </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+</div>
+
+<!-- Tabla de resumen con los Politicos con Influencia Asignada del Jugador elegido -->
+<div class="tabla-influencia">
+    <h3 class="control-titulo"> Tabla de Influencia Asignada del Jugador {{ playerAssign.name }} </h3>
+    <table>
+        <thead>
+            <tr>
+                <th class="table-cell" scope="col"> Politico </th>
+                <th class="table-cell" scope="col"> Puntos Asignados </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let assigned of assignedMany">
+                <td class="table-cell"> {{ getPoliticoNameByID(assigned.politicoId) }} </td>
+                <td class="table-cell"> {{ assigned.points }} </td>
+            </tr>
+        </tbody>
+    </table>
 </div>

@@ -9,6 +9,7 @@ import { Politico } from '../models/politico';
 import { InfluenceRequest } from '../models/influence-request';
 import { PoliticoService } from '../services/politico.service';
 import { PlayerService } from '../services/player.service';
+import { PoliticoUtilsService } from '../services/politico-utils.service';
 
 @Component({
   selector: 'app-declare-control',
@@ -38,7 +39,8 @@ export class DeclareControlComponent {
   constructor(
     private playerService : PlayerService,
     private politicoService : PoliticoService,
-    private influenceService : InfluenceService
+    private influenceService : InfluenceService,
+    private politicoUtils : PoliticoUtilsService
   ){}
 
   ngOnInit(): void {
@@ -80,8 +82,7 @@ export class DeclareControlComponent {
   }
 
   getPoliticoNameByID(id : number) : string {
-      const politico = this.politicos.find(p => p.id === id);
-      return politico ? politico.name : "(Desconocido)";
+      return this.politicoUtils.getPoliticoNameByID(id, this.politicos);
   }
   
   // Get Player data (Politicos assigned by Player)
