@@ -22,7 +22,11 @@ export class TableroComponent implements OnInit {
   ministerios : Ministry[] = [];
   politicos : Politico[] = [];
   ministeriosConMinistro: (Ministry & { ministro: Politico })[] = [];
-  posiciones = ['min1', 'min2', 'min3', 'min4', 'min5', 'min6', 'min7', 'min8'];
+  posiciones = [
+                'min1', 'min2', 'min3', 'min4', 'min5', 'min6',
+                'min7', 'min8', 'min9', 'min10', 'min11', 'min12',
+                'min13', 'min14', 'min15', 'min16', 'min17'
+               ];
 
   constructor(
     private ministryService : MinistryService, 
