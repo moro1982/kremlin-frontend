@@ -18,7 +18,7 @@
             </option>
         </select>
         <p> Ministro asignado: {{ ministroAsignado.name }} </p>
-        <button (click)="assignMinister()"> Asignar </button>
+        <button class="boton" (click)="assignMinister()"> Asignar </button>
     </div>
     <div>
         <h3> Quitar Ministro </h3>
@@ -29,6 +29,6 @@
         </select>
         <p> Ministerio vaciado: {{ ministerioVaciado.name }} </p>
         <p> Ministro eliminado: {{ ministroEliminado.name }} </p>
-        <button (click)="removeMinister()"> Eliminar </button>
+        <button class="boton" (click)="removeMinister()"> Eliminar </button>
     </div>
 </div>

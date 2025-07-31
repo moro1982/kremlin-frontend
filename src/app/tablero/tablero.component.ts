@@ -21,7 +21,8 @@ import { PoliticoService } from '../services/politico.service';
 export class TableroComponent implements OnInit {
   ministerios : Ministry[] = [];
   politicos : Politico[] = [];
-  ministeriosConMinistro: (Ministry & { ministro: Politico })[] = [];
+  initialMinisterIDs : number[] = [];
+  ministeriosConMinistro : (Ministry & { ministro: Politico })[] = [];
   posiciones = [
                 'min1', 'min2', 'min3', 'min4', 'min5', 'min6',
                 'min7', 'min8', 'min9', 'min10', 'min11', 'min12',
@@ -49,6 +50,31 @@ export class TableroComponent implements OnInit {
     this.politicoService.getPoliticos().subscribe( pols => {
       this.politicos = pols;
     });
+  }
+
+  /* Este método funciona raro, posiblemente por problemas de concurrencia */
+  // Agregar forkjoin de rxJS
+    // o
+  // Llamar a un endpoint que llame a un método en el back que haga:
+  // - la selección de IDs
+  // - la asignación en los Ministerios.
+  // initialMinisterAssign() : void {
+  //   this.ministryService.selectRandomIDs().subscribe( ids => {
+  //     this.initialMinisterIDs = ids;
+  //     for (let index = 0; index < this.initialMinisterIDs.length; index++) {
+  //       this.ministryService.assignMinister(this.ministerios[index].id, 
+  //                                           this.initialMinisterIDs[index])
+  //                           .subscribe( min => {
+  //                             console.log(min);
+  //                           });
+  //     }
+  //   });
+  // }
+  initialMinisterAssign() : void {
+    this.ministryService.assignRandomMinisters().subscribe( ministries => {
+      this.ministerios = ministries;
+      console.log("Ministerios actualizados:\n", ministries);
+    })
   }
 
   getMinisteriosConMinistro() {

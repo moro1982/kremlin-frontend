@@ -29,4 +29,12 @@ export class MinistryService {
     return this.http.delete<Ministry>(this.apiURL + "/" + idMin + "/minister");
   }
 
+  selectRandomIDs() : Observable<number[]> {
+    return this.http.get<number[]>(this.apiURL + "/setup/random_ids");
+  }
+
+  assignRandomMinisters() : Observable<Ministry[]> {
+    return this.http.post<Ministry[]>(this.apiURL + "/setup/assign_all_ministers", null);
+  }
+
 }
