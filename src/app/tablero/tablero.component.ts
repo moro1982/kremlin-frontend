@@ -56,7 +56,7 @@ export class TableroComponent implements OnInit {
     this.ministryService.assignRandomMinisters().subscribe( ministries => {
       this.ministerios = ministries;
       console.log("Ministerios actualizados:\n", ministries);
-    })
+    });
   }
 
   getMinisteriosConMinistro() {
