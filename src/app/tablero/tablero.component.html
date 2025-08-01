@@ -1,8 +1,8 @@
 
 <div class="tablero">
-    <div 
+    <div
         *ngFor="let ministerio of ministeriosConMinistro; let i = index"
-         [ngClass]="posiciones[i % posiciones.length]"
+        [ngClass]="posiciones[i % posiciones.length]"
     >
         <p> {{ ministerio.name }} </p>
         <p> Número de purga >= {{ ministerio.purgeNr }} </p>
@@ -15,5 +15,6 @@
         <p id="name"> </p>
     </div> -->
 </div>
+
 <!-- Botón para asignación inicial de Ministros en Ministerios -->
 <button class="boton" (click)="initialMinisterAssign()"> Inicializar Ministros </button>

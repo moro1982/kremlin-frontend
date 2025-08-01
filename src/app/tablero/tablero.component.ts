@@ -52,24 +52,6 @@ export class TableroComponent implements OnInit {
     });
   }
 
-  /* Este método funciona raro, posiblemente por problemas de concurrencia */
-  // Agregar forkjoin de rxJS
-    // o
-  // Llamar a un endpoint que llame a un método en el back que haga:
-  // - la selección de IDs
-  // - la asignación en los Ministerios.
-  // initialMinisterAssign() : void {
-  //   this.ministryService.selectRandomIDs().subscribe( ids => {
-  //     this.initialMinisterIDs = ids;
-  //     for (let index = 0; index < this.initialMinisterIDs.length; index++) {
-  //       this.ministryService.assignMinister(this.ministerios[index].id, 
-  //                                           this.initialMinisterIDs[index])
-  //                           .subscribe( min => {
-  //                             console.log(min);
-  //                           });
-  //     }
-  //   });
-  // }
   initialMinisterAssign() : void {
     this.ministryService.assignRandomMinisters().subscribe( ministries => {
       this.ministerios = ministries;
