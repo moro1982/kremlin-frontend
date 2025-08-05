@@ -6,6 +6,7 @@ import { Ministry } from '../models/ministry';
 import { MinistryService } from '../services/ministry.service';
 import { Politico } from '../models/politico';
 import { PoliticoService } from '../services/politico.service';
+import { ControlPoliticoService } from '../services/control-politico.service';
 
 @Component({
   selector: 'app-tablero',
@@ -31,7 +32,8 @@ export class TableroComponent implements OnInit {
 
   constructor(
     private ministryService : MinistryService, 
-    private politicoService : PoliticoService
+    private politicoService : PoliticoService,
+    private controlService : ControlPoliticoService
   ){}
 
   ngOnInit(): void {

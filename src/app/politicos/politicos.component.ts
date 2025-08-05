@@ -41,13 +41,17 @@ export class PoliticosComponent {
     })
   }
 
-  crearPolitico() : void {
-    console.log(this.datosPolitico);
+  createPolitico() : void {
     const nuevoPolitico : Politico = this.datosPolitico.getRawValue();
-    console.log(nuevoPolitico); // Debug
     this.politicoService.crearPolitico(nuevoPolitico).subscribe({
       next : res => console.log("Guardado con éxito: ", res),
       error : err => console.log("Error al guardar: ", err)
+    });
+  }
+
+  loadPoliticos() : void {
+    this.politicoService.cargarPoliticos().subscribe(loaded => {
+      console.log(loaded);
     });
   }
 

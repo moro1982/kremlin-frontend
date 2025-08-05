@@ -39,6 +39,12 @@ export class MinistryControlComponent implements OnInit {
     });
   }
 
+  loadMinistries() : void {
+    this.ministryService.loadMinistries().subscribe(mins => {
+      console.log(mins);
+    })
+  }
+
   assignMinister() {
     this.ministryService
       .assignMinister(this.ministerioObjetivo.id, this.ministroAsignado.id)

@@ -24,5 +24,9 @@ export class PoliticoService {
   crearPolitico(politico : Politico) : Observable<Politico> {
     return this.http.post<Politico>(this.apiUrl + "/single", politico);
   }
+
+  cargarPoliticos() : Observable<Politico[]> {
+    return this.http.post<Politico[]>(this.apiUrl + "/loadAll", null);
+  }
   
 }

@@ -2,6 +2,10 @@
 <h2 class="control-titulo"> Ocupar / Desocupar Ministerio </h2>
 <div class="controles-ministerio">
     <div>
+        <h3> Cargar Ministerios </h3>
+        <button class="boton" (click)="loadMinistries()"> Cargar Ministerios </button>
+    </div>
+    <div>
         <h3> Seleccionar Ministerio </h3>
         <select name="selMinistry" [(ngModel)]="ministerioObjetivo">
             <option [ngValue]="ministerio" *ngFor="let ministerio of ministerios">

@@ -1,5 +1,10 @@
 
 <div class="politico-bloque">
+    <h1> Cargar Politicos </h1>
+    <button class="boton" (click)="loadPoliticos()"> Cargar Politicos </button>
+</div>
+
+<div class="politico-bloque">
     <h1> Listar Politicos </h1>
     <button class="boton" (click)="getPoliticos()"> Listar Politicos </button>
     <ul>
@@ -11,7 +16,7 @@
 
 <div class="politico-bloque">
     <h1> Crear Nuevo Politico </h1>
-    <form class="formulario" [formGroup]="datosPolitico" (ngSubmit)="crearPolitico()">
+    <form class="formulario" [formGroup]="datosPolitico" (ngSubmit)="createPolitico()">
         <label class="campo01"> Name:
             <input type="text" formControlName="name" required>
         </label>

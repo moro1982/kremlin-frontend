@@ -21,6 +21,10 @@ export class MinistryService {
     return this.http.get<Ministry[]>(this.apiURL + "/all");
   }
 
+  loadMinistries() : Observable<Ministry[]> {
+    return this.http.post<Ministry[]>(this.apiURL + "/loadAll", null);
+  }
+
   assignMinister(idMin : number, idPol : number) : Observable<Ministry> {
     return this.http.put<Ministry>(this.apiURL + "/" + idMin + "/minister/" +  idPol, null);
   }
