@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { NEVER, Observable } from 'rxjs';
 import { Player } from '../models/player';
 
 @Injectable({
@@ -18,5 +18,13 @@ export class PlayerService {
 
   getPlayerByID(id : number) : Observable<Player> {
     return this.http.get<Player>(this.apiURL + "/" + id);
+  }
+
+  getAllFactions() : Observable<string[]> {
+    return this.http.get<string[]>(this.apiURL + "/factions");
+  }
+
+  createSinglePlayer(player : Player) : Observable<Player> {
+    return this.http.post<Player>(this.apiURL + "/single", player);
   }
 }

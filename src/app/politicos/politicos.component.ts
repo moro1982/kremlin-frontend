@@ -1,6 +1,6 @@
 
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Politico } from '../models/politico';
 import { PoliticoService } from '../services/politico.service';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -9,10 +9,10 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
   selector: 'app-politicos',
   standalone: true,
   imports: [ 
-             CommonModule,
-             FormsModule,
-             ReactiveFormsModule
-           ],
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule
+  ],
   templateUrl: './politicos.component.html',
   styleUrl: './politicos.component.scss'
 })
@@ -41,16 +41,16 @@ export class PoliticosComponent {
     })
   }
 
-  createPolitico() : void {
+  createSinglePolitico() : void {
     const nuevoPolitico : Politico = this.datosPolitico.getRawValue();
-    this.politicoService.crearPolitico(nuevoPolitico).subscribe({
+    this.politicoService.createSinglePolitico(nuevoPolitico).subscribe({
       next : res => console.log("Guardado con éxito: ", res),
       error : err => console.log("Error al guardar: ", err)
     });
   }
 
   loadPoliticos() : void {
-    this.politicoService.cargarPoliticos().subscribe(loaded => {
+    this.politicoService.loadPoliticos().subscribe(loaded => {
       console.log(loaded);
     });
   }

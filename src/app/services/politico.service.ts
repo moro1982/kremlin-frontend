@@ -21,11 +21,11 @@ export class PoliticoService {
     return this.http.get<Politico[]>(this.apiUrl + "/all");
   }
 
-  crearPolitico(politico : Politico) : Observable<Politico> {
+  createSinglePolitico(politico : Politico) : Observable<Politico> {
     return this.http.post<Politico>(this.apiUrl + "/single", politico);
   }
 
-  cargarPoliticos() : Observable<Politico[]> {
+  loadPoliticos() : Observable<Politico[]> {
     return this.http.post<Politico[]>(this.apiUrl + "/loadAll", null);
   }
   

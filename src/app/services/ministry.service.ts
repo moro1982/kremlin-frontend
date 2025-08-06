@@ -17,7 +17,7 @@ export class MinistryService {
     return this.http.get<Ministry>(this.apiURL + "/" + id);
   }
 
-  getMinisterios() : Observable<Ministry[]> {
+  getMinistries() : Observable<Ministry[]> {
     return this.http.get<Ministry[]>(this.apiURL + "/all");
   }
 

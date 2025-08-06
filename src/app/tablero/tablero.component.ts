@@ -37,13 +37,13 @@ export class TableroComponent implements OnInit {
   ){}
 
   ngOnInit(): void {
-    this.getMinisterios();
+    this.getMinistries();
     this.getPoliticos();
     this.getMinisteriosConMinistro();
   }
   
-  getMinisterios() {
-    this.ministryService.getMinisterios().subscribe( mins => {
+  getMinistries() {
+    this.ministryService.getMinistries().subscribe( mins => {
       this.ministerios = mins;
     });
   }

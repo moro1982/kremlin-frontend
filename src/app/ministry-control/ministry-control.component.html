@@ -3,7 +3,7 @@
 <div class="controles-ministerio">
     <div>
         <h3> Cargar Ministerios </h3>
-        <button class="boton" (click)="loadMinistries()"> Cargar Ministerios </button>
+        <button class="boton" (click)="loadMinistries()" [disabled]="ministerios.length != 0"> Cargar Ministerios </button>
     </div>
     <div>
         <h3> Seleccionar Ministerio </h3>

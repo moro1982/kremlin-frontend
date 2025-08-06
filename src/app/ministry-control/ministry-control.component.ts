@@ -31,7 +31,7 @@ export class MinistryControlComponent implements OnInit {
   ){};
 
   ngOnInit(): void {
-    this.ministryService.getMinisterios().subscribe( mins => {
+    this.ministryService.getMinistries().subscribe( mins => {
       this.ministerios = mins;
     });
     this.politicoService.getPoliticos().subscribe( pols => {

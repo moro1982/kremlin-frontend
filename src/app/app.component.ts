@@ -4,6 +4,7 @@ import { FormsModule, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { PoliticosComponent } from './politicos/politicos.component';
 import { ControlesComponent } from './controles/controles.component';
 import { TableroComponent } from './tablero/tablero.component';
+import { PlayerComponent } from "./player/player.component";
 
 @Component({
   selector: 'app-root',
@@ -14,8 +15,9 @@ import { TableroComponent } from './tablero/tablero.component';
     ReactiveFormsModule,
     PoliticosComponent,
     ControlesComponent,
-    TableroComponent
-  ],
+    TableroComponent,
+    PlayerComponent
+],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
