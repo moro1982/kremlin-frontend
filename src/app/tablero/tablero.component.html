@@ -1,13 +1,27 @@
 
 <div class="tablero">
     <div
-        *ngFor="let ministerio of ministeriosConMinistro; let i = index"
+        *ngFor="let ministryStatus of allMinistryStatus; let i = index"
         [ngClass]="posiciones[i % posiciones.length]"
     >
-        <p> {{ ministerio.name }} </p>
-        <p> Número de purga >= {{ ministerio.purgeNr }} </p>
-        <p *ngIf="ministerio.ministro"> {{ ministerio.ministro.name }} </p>
-        <p *ngIf="!ministerio.ministro"> VACANTE </p>
+        <!-- Ministry data -->
+        <p> {{ ministryStatus.ministry.name }} </p>
+        <p> Número de purga >= {{ ministryStatus.ministry.purgeNr }} </p>
+        <p *ngIf="ministryStatus.minister"> {{ ministryStatus.minister.name }} </p>
+        <p *ngIf="!ministryStatus.minister"> VACANTE </p>
+        
+        <!-- Minister Controller Badge -->
+        <span *ngIf="ministryStatus.controller">
+            Controlado por: {{ ministryStatus.controller.name }}
+        </span>
+        <span *ngIf="!ministryStatus.controller">
+            NO CONTROLADO
+        </span>
+
+        <!-- Declared Influence values on Minister -->
+        <span>
+
+        </span>
     </div>
     <!-- <div>
         <p id="alias"> </p>

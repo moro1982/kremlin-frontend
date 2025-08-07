@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { Player } from '../models/player';
 import { InfluenceDeclared } from '../models/influence-declared';
 import { Politico } from '../models/politico';
+import { MinistryStatus } from '../models/ministry-status';
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +25,10 @@ export class ControlPoliticoService {
 
   getControlledPoliticos(playerID : number) :  Observable<Politico[]> {
     return this.http.get<Politico[]>(this.apiURL + "/player/" + playerID + "/politicos");
+  }
+
+  getAllMinistryStatus() : Observable<MinistryStatus[]> {
+    return this.http.get<MinistryStatus[]>(this.apiURL + "/ministry/status");
   }
 
 }
