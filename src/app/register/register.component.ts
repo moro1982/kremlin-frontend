@@ -1,17 +1,18 @@
 import { Component } from '@angular/core';
-import { AuthService } from '../services/auth.service';
+import { AuthService } from '../services/auth/auth.service';
 import { Router } from '@angular/router';
 import { FormsModule } from "@angular/forms";
-import { NgIf } from "../../../node_modules/@angular/common/common_module.d-NEF7UaHr";
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-register',
+  standalone: true,
   imports: [FormsModule, NgIf],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })
 export class RegisterComponent {
-  
+
   username = "";
   password = "";
   errorMsg = "";
@@ -22,11 +23,10 @@ export class RegisterComponent {
     this.auth.register( {username : this.username, password : this.password} )
               .subscribe({
                 next : (res) => {
-                  console.log(res);
+                  this.router.navigate(["/login"]);
                 },
                 error : (res) => {
                   this.errorMsg = res;
-                  console.log(this.errorMsg);
                 }
               });
   }

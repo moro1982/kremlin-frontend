@@ -6,11 +6,11 @@ import { Ministry } from '../models/ministry';
 import { Politico } from '../models/politico';
 import { Player } from '../models/player';
 import { MinistryService } from '../services/ministry.service';
-import { PoliticoService } from '../services/politico.service';
+import { PoliticoService } from '../services/politico/politico.service';
 import { PlayerService } from '../services/player.service';
 import { ControlPoliticoService } from '../services/control-politico.service';
 import { MinistryStatus } from '../models/ministry-status';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-tablero',
@@ -47,28 +47,30 @@ export class TableroComponent implements OnInit {
   ){}
 
   ngOnInit(): void {
-    this.getMinistries();
-    this.getPoliticos();
-    this.getPlayers();
-    this.getAllMinistryStatus();
-  }
-  
-  getMinistries() {
-    this.ministryService.getMinistries().subscribe( mins => {
-      this.ministerios = mins;
-    });
+    this.loadAllData();
   }
 
-  getPoliticos() {
-    this.politicoService.getPoliticos().subscribe( pols => {
-      this.politicos = pols;
-    });
-  }
-
-  getPlayers() {
-    this.playerService.getAllPlayers().subscribe( players => {
-      this.jugadores = players;
+  loadAllData() : void {
+    forkJoin({
+      mins : this.ministryService.getMinistries(),
+      pols : this.politicoService.getPoliticos(),
+      players : this.playerService.getAllPlayers(),
+      allStatus : this.controlService.getAllMinistryStatus()
     })
+    .subscribe( ({mins, pols, players, allStatus}) => {
+      this.ministerios = mins;
+      this.politicos = pols;
+      this.jugadores = players;
+      this.statusList = allStatus;
+
+      this.allMinistryStatus = this.statusList.map( status => {
+        const ministry = this.ministerios.find(m => m.id === status.ministryID)!;
+        const minister = this.politicos.find(p => p.id === status.ministerID) || null;
+        const controller = this.jugadores.find(j => j.id === status.controllerID) || null;
+        
+        return { ministry, minister, controller };
+      });
+    });
   }
 
   initialMinisterAssign() : void {
@@ -77,25 +79,40 @@ export class TableroComponent implements OnInit {
       console.log("Ministerios actualizados:\n", ministries);
     });
   }
+  
+  // getMinistries() {
+  //   this.ministryService.getMinistries().subscribe( mins => {
+  //     this.ministerios = mins;
+  //   });
+  // }
 
-  getAllMinistryStatus() {
-    this.controlService.getAllMinistryStatus()
-                       .subscribe( allStatus => {
-                          this.statusList = allStatus;
-                       });
+  // getPoliticos() {
+  //   this.politicoService.getPoliticos().subscribe( pols => {
+  //     this.politicos = pols;
+  //   });
+  // }
 
-    this.allMinistryStatus = this.statusList.map( status => {
-      const ministry = this.ministerios.find( m => m.id === status.ministryID )!;
-      const minister = this.politicos.find( p => p.id === status.ministerID ) || null;
-      const controller = this.jugadores.find( j => j.id === status.controllerID) || null;
+  // getPlayers() {
+  //   this.playerService.getAllPlayers().subscribe( players => {
+  //     this.jugadores = players;
+  //   })
+  // }
 
-      return {
-        ministry,
-        minister,
-        controller
-      };
-    });
-    
-  }
+  // getAllMinistryStatus() {
+  //   this.controlService.getAllMinistryStatus().subscribe( allStatus => {
+  //     this.statusList = allStatus;
+  //     this.allMinistryStatus = this.statusList.map( status => {
+  //       const ministry = this.ministerios.find( m => m.id === status.ministryID )!;
+  //       const minister = this.politicos.find( p => p.id === status.ministerID ) || null;
+  //       const controller = this.jugadores.find( j => j.id === status.controllerID) || null;
+  
+  //       return {
+  //         ministry,
+  //         minister,
+  //         controller
+  //       };
+  //     });
+  //   });
+  // }
 
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Politico } from '../models/politico';
+import { Politico } from '../../models/politico';
 
 @Injectable({
   providedIn: 'root'

@@ -7,12 +7,13 @@ import { InfluenceAssigned } from '../models/influence-assigned';
 import { Player } from '../models/player';
 import { Politico } from '../models/politico';
 import { InfluenceRequest } from '../models/influence-request';
-import { PoliticoService } from '../services/politico.service';
+import { PoliticoService } from '../services/politico/politico.service';
 import { PlayerService } from '../services/player.service';
-import { PoliticoUtilsService } from '../services/politico-utils.service';
+import { PoliticoUtilsService } from '../services/politico/politico-utils.service';
 
 @Component({
   selector: 'app-declare-control',
+  standalone: true,
   imports: [
     CommonModule,
     FormsModule,

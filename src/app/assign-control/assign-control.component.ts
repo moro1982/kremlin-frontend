@@ -6,9 +6,9 @@ import { InfluenceAssigned } from '../models/influence-assigned';
 import { InfluenceRequest } from '../models/influence-request';
 import { InfluenceService } from '../services/influence.service';
 import { PlayerService } from '../services/player.service';
-import { PoliticoService } from '../services/politico.service';
+import { PoliticoService } from '../services/politico/politico.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { PoliticoUtilsService } from '../services/politico-utils.service';
+import { PoliticoUtilsService } from '../services/politico/politico-utils.service';
 
 @Component({
   selector: 'app-assign-control',

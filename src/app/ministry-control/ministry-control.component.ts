@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Ministry } from '../models/ministry';
 import { MinistryService } from '../services/ministry.service';
-import { PoliticoService } from '../services/politico.service';
+import { PoliticoService } from '../services/politico/politico.service';
 import { FormsModule } from '@angular/forms';
 import { Politico } from '../models/politico';
 

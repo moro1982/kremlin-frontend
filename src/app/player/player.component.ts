@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-player',
+  standalone: true,
   imports: [
     CommonModule,
     FormsModule,

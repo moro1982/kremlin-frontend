@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 
 interface AuthRequest {
   username : string;
@@ -25,15 +25,15 @@ export class AuthService {
   }
 
   saveToken(token : string) {
-    localStorage.setItem('jwt', token);
+    localStorage.setItem('token', token);
   }
 
   getToken() : string | null {
-    return localStorage.getItem('jwt');
+    return localStorage.getItem('token');
   }
 
   logout() {
-    localStorage.removeItem('jwt');
+    localStorage.removeItem('token');
   }
 
   isAuthenticated() : boolean {

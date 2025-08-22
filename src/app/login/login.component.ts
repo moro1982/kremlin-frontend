@@ -1,10 +1,13 @@
 import { Component } from '@angular/core';
-import { AuthService } from '../services/auth.service';
+import { AuthService } from '../services/auth/auth.service';
 import { Router } from '@angular/router';
+import { FormsModule } from "@angular/forms";
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-login',
-  imports: [],
+  standalone: true,
+  imports: [FormsModule, NgIf],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
@@ -21,7 +24,7 @@ export class LoginComponent {
               .subscribe({
                 next : (res) => {
                   this.auth.saveToken(res.token);
-                  this.router.navigate(["/games"]);
+                  this.router.navigate(["/board"]);
                 },
                 error : () => {
                   this.errorMsg = "Credenciales inválidas.";
