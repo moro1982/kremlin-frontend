@@ -1,0 +1,25 @@
+.header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: darkred;
+}
+
+.logo {
+    text-decoration: none;
+    color: darkgoldenrod;
+    margin-left: 1rem;
+}
+
+.home-menu {
+    display: flex;
+    gap: 1rem;
+    margin-right: 1rem;
+}
+
+.nav-link {
+    font-size: larger;
+    text-decoration: none;
+    color: darkgoldenrod;
+}
