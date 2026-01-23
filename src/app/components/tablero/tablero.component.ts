@@ -2,14 +2,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { Ministry } from '../models/ministry';
-import { Politico } from '../models/politico';
-import { Player } from '../models/player';
-import { MinistryService } from '../services/ministry/ministry.service';
-import { PoliticoService } from '../services/politico/politico.service';
-import { PlayerService } from '../services/player/player.service';
-import { ControlPoliticoService } from '../services/control_politico/control-politico.service';
-import { MinistryStatus } from '../models/ministry-status';
+import { Ministry } from '../../models/ministry/ministry';
+import { Politico } from '../../models/politico/politico';
+import { Player } from '../../models/player/player';
+import { MinistryService } from '../../services/ministry/ministry.service';
+import { PoliticoService } from '../../services/politico/politico.service';
+import { PlayerService } from '../../services/player/player.service';
+import { ControlPoliticoService } from '../../services/control_politico/control-politico.service';
+import { MinistryStatus } from '../../models/ministry-status/ministry-status';
 import { firstValueFrom, forkJoin } from 'rxjs';
 
 @Component({

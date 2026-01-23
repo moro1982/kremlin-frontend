@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 
 interface AuthRequest {
+  email? : string;
   username : string;
   password : string;
 }

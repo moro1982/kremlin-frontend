@@ -1,0 +1,8 @@
+
+export enum ActionStatus {
+    ANNOUNCED = 'ANNOUNCED',
+    AWAITING_RESPONSE = 'AWAITING_RESPONSE',
+    RESOLVED = 'RESOLVED',
+    CANCELLED = 'CANCELLED',
+    FAILED = 'FAILED'
+}

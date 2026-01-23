@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AuthService } from '../services/auth/auth.service';
+import { AuthService } from '../../services/auth/auth.service';
 import { Router } from '@angular/router';
 import { FormsModule } from "@angular/forms";
 import { NgIf } from '@angular/common';
@@ -13,6 +13,7 @@ import { NgIf } from '@angular/common';
 })
 export class RegisterComponent {
 
+  email = "";
   username = "";
   password = "";
   errorMsg = "";
@@ -20,15 +21,21 @@ export class RegisterComponent {
   constructor(private auth : AuthService, private router : Router) { }
 
   register() {
-    this.auth.register( {username : this.username, password : this.password} )
-              .subscribe({
-                next : (res) => {
-                  this.router.navigate(["/login"]);
-                },
-                error : (res) => {
-                  this.errorMsg = res;
-                }
-              });
+    this.auth
+    .register( 
+      { email : this.email,
+        username : this.username, 
+        password : this.password
+      } 
+    )
+    .subscribe({
+      next : (res) => {
+        this.router.navigate(["/login"]);
+      },
+      error : (res) => {
+        this.errorMsg = res;
+      }
+    });
   }
 
 }

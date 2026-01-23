@@ -1,6 +1,5 @@
 
-import { Action } from "./action";
-import { Politico } from "./politico";
+import { Politico } from "../politico/politico";
 
 export class Ministry {
     
@@ -9,7 +8,6 @@ export class Ministry {
     isVacant! : boolean;
     purgeNr! : number;
     ministerId! : number;
-    actions! : Set<number>;
 
     constructor(){}
 

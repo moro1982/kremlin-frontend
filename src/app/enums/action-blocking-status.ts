@@ -1,0 +1,6 @@
+
+export enum ActionBlockingStatus {
+    NONE = 'NONE',
+    AWAITING_RESPONSE = 'AWAITING_RESPONSE',
+    FAILED_PURGE_BLOCK = 'FAILED_PURGE_BLOCK'
+}

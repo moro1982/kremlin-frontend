@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { Player } from '../models/player';
+import { Player } from '../../models/player/player';
 import { CommonModule } from '@angular/common';
-import { Politico } from '../models/politico';
-import { InfluenceAssigned } from '../models/influence-assigned';
-import { InfluenceRequest } from '../models/influence-request';
-import { InfluenceService } from '../services/influence/influence.service';
-import { PlayerService } from '../services/player/player.service';
-import { PoliticoService } from '../services/politico/politico.service';
+import { Politico } from '../../models/politico/politico';
+import { InfluenceAssigned } from '../../models/influence-assigned/influence-assigned';
+import { InfluenceRequest } from '../../models/influence-request/influence-request';
+import { InfluenceService } from '../../services/influence/influence.service';
+import { PlayerService } from '../../services/player/player.service';
+import { PoliticoService } from '../../services/politico/politico.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { PoliticoUtilsService } from '../services/politico/politico-utils.service';
+import { PoliticoUtilsService } from '../../services/politico/politico-utils.service';
 
 @Component({
   selector: 'app-assign-control',

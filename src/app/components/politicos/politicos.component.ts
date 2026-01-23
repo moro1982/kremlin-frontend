@@ -1,8 +1,8 @@
 
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { Politico } from '../models/politico';
-import { PoliticoService } from '../services/politico/politico.service';
+import { Politico } from '../../models/politico/politico';
+import { PoliticoService } from '../../services/politico/politico.service';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 
 @Component({

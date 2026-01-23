@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Player } from '../models/player';
-import { PlayerRequest } from '../models/player-request';
-import { PlayerService } from '../services/player/player.service';
+import { Player } from '../../models/player/player';
+import { PlayerRequest } from '../../models/player-request/player-request';
+import { PlayerService } from '../../services/player/player.service';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
@@ -17,10 +17,12 @@ import { CommonModule } from '@angular/common';
   styleUrl: './player.component.scss'
 })
 export class PlayerComponent implements OnInit {
+
   datosPlayer : FormGroup = new FormGroup({
     name : new FormControl<string>('', [Validators.required]),
     faction : new FormControl<string>('', [Validators.required])
   });
+  
   factions : string[] = [];
 
   constructor( private playerService : PlayerService ) {}

@@ -1,15 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { InfluenceService } from '../services/influence/influence.service';
-import { InfluenceDeclared } from '../models/influence-declared';
-import { InfluenceAssigned } from '../models/influence-assigned';
-import { Player } from '../models/player';
-import { Politico } from '../models/politico';
-import { InfluenceRequest } from '../models/influence-request';
-import { PoliticoService } from '../services/politico/politico.service';
-import { PlayerService } from '../services/player/player.service';
-import { PoliticoUtilsService } from '../services/politico/politico-utils.service';
+import { InfluenceService } from '../../services/influence/influence.service';
+import { InfluenceDeclared } from '../../models/influence-declared/influence-declared';
+import { InfluenceAssigned } from '../../models/influence-assigned/influence-assigned';
+import { Player } from '../../models/player/player';
+import { Politico } from '../../models/politico/politico';
+import { InfluenceRequest } from '../../models/influence-request/influence-request';
+import { PoliticoService } from '../../services/politico/politico.service';
+import { PlayerService } from '../../services/player/player.service';
+import { PoliticoUtilsService } from '../../services/politico/politico-utils.service';
 
 @Component({
   selector: 'app-declare-control',
