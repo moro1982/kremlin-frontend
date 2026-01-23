@@ -1,10 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Player } from '../models/player';
-import { InfluenceDeclared } from '../models/influence-declared';
-import { Politico } from '../models/politico';
-import { MinistryStatus } from '../models/ministry-status';
+import { Player } from '../../models/player';
+import { InfluenceDeclared } from '../../models/influence-declared';
+import { Politico } from '../../models/politico';
+import { MinistryStatus } from '../../models/ministry-status';
 
 @Injectable({
   providedIn: 'root'

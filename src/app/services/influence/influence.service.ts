@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { InfluenceAssigned } from '../models/influence-assigned';
-import { InfluenceRequest } from '../models/influence-request';
-import { InfluenceDeclared } from '../models/influence-declared';
+import { InfluenceAssigned } from '../../models/influence-assigned';
+import { InfluenceRequest } from '../../models/influence-request';
+import { InfluenceDeclared } from '../../models/influence-declared';
 
 @Injectable({
   providedIn: 'root'
