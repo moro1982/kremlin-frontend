@@ -1,0 +1,8 @@
+
+export enum UiModalType {
+    ACTION_CONFIRM = 'ACTION_CONFIRM',
+    AWAITING_RESPONSE = 'AWAITING_RESPONSE',
+    TRIAL_VOTE = 'TRIAL_VOTE',
+    ERROR = 'ERROR',
+    INFO = 'INFO'
+}

@@ -1,0 +1,19 @@
+<div 
+    class="card"
+    [class.selected]="selected"
+    (click)="onClick()"
+>
+    <div class="header">
+        <strong> {{ politico.name }} </strong>
+    </div>
+
+    <div class="body">
+        <div> Age : {{ politico.age }} </div>
+        <div> Damage : {{ politico.damage }} </div>
+        <div> Status : {{ politico.status }} </div>
+    </div>
+
+    <div class="footer" *ngIf="politico.controllerPlayerID">
+        Controlled by Player : {{ politico.controllerPlayerID }}
+    </div>
+</div>

@@ -1,0 +1,13 @@
+
+export enum MinistryType {
+    PARTY_CHIEF = 'PARTY_CHIEF',
+    KGB_HERO = 'KGB_HERO',
+    FOREIGN = 'FOREIGN',
+    DEFENSE = 'DEFENSE',
+    IDEOLOGY = 'IDEOLOGY',
+    INDUSTRY = 'INDUSTRY',
+    ECONOMY = 'ECONOMY',
+    SPORTS = 'SPORTS',
+    CANDIDATE = 'CANDIDATE',
+    PEOPLE = 'PEOPLE'
+}

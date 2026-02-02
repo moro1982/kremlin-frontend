@@ -12,6 +12,6 @@ export const routes: Routes = [
      { path: 'register', component: RegisterComponent},
      { path: 'assign', component: AssignControlComponent},
      { path: 'board', component: TableroComponent},
-     { path: 'game', component: GameComponent},
+     { path: 'games', component: GameComponent},
      { path: '**', redirectTo: '' } // fallback
 ];

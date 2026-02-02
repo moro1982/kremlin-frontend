@@ -1,6 +1,4 @@
 
-import { Politico } from "../politico/politico";
-
 export class Ministry {
     
     id! : number;

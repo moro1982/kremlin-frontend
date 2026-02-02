@@ -1,10 +1,16 @@
 <h2 class="control-titulo"> User's Games </h2>
 <!-- Get all Games -->
 <div>
-    <p> Select an ongoing Game </p>
+    <p> Select a Game </p>
+    <p> Game ID: / Created at: </p>
     <ul>
         <li *ngFor="let game of games">
-            <p> {{ game }} </p>
+            <p> Game ID: {{ game.id }} / Created at: {{ game.createdAt }} </p>
         </li>
     </ul>
+
+    <div>
+        <h1> Create new Game </h1>
+        <button class="boton" (click)="createNewGame()"> New Game </button>
+    </div>
 </div>

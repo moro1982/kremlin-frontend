@@ -24,7 +24,7 @@ export class LoginComponent {
               .subscribe({
                 next : (res) => {
                   this.auth.saveToken(res.token);
-                  this.router.navigate(["/assign"]);
+                  this.router.navigate(["/games"]);
                 },
                 error : () => {
                   this.errorMsg = "Credenciales inválidas.";

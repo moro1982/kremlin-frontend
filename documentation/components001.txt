@@ -1,0 +1,3075 @@
+/* Models */
+
+// ../app/game-state
+
+// Action
+
+export interface Action {
+    id : number;
+    type : ActionType;
+    status : ActionStatus;
+    actorPlayerID : number;
+    targetPoliticoID? : number;
+    actingPoliticoID? : number;
+}
+
+// GameMinistryState
+
+import { MinistryType } from "../../enum/ministry-type";
+
+export interface GameMinistryState {
+
+    id : number;
+    name : MinistryType;
+    purgeNr : number;
+    ministerID? : number;
+    isVacant : boolean;
+    /* May be useful later... */
+    // delegatedToPoliticoID? : number;
+
+    /* Useless legacy prop (purge modifier is calculated during Purge resolution) */
+    // purgeModifier : number;
+}
+
+// GamePoliticoState
+
+import { GamePoliticoStatus } from "../../enum/game-politico-status";
+import { MinistryType } from "../../enum/ministry-type";
+import { InvestigationState } from "./investigation-state";
+
+export interface GamePoliticoState {
+    id : number;
+    name : string;
+    alias : string;
+    advantage : MinistryType;
+    disadvantage : MinistryType;
+    age : number;
+    damage : number;
+    status : GamePoliticoStatus;
+    ministryID : number | null;
+    controllerPlayerID? : number;
+    investigations : InvestigationState;
+}
+
+// GamePublic
+
+import { PhaseType } from "../../enum/phase-type";
+
+export interface GamePublic {
+    id : number;
+    createdAt: Date;
+    version : number;
+    updateCounter : number;
+    finished : boolean;
+    currentTurn : number;
+    currentPhase : PhaseType | null;
+}
+
+// initialGameState
+
+import { ActionBlockingStatus } from "../../enum/action-blocking-status";
+import { GameState } from "./game-state";
+
+export const initialGameState : GameState = {
+    game : {
+        id : 0,
+        createdAt : new Date(0),
+        version : 0,
+        updateCounter : 0,
+        finished : false,
+        currentTurn : 0,
+        currentPhase : null
+    },
+    
+    phase : {
+        blockingStatus : ActionBlockingStatus.NONE,
+        awaitingAction : null,
+        announcedActions : []
+    },
+
+    players : {},
+    politicos : {},
+    ministries : {},
+    
+    me : {
+        playerID : 0,
+        faction : '',
+        assignedInfluences : {},
+        canAnnounceAction : false,
+        canRespondAction : false
+    },
+
+    ui : {
+        loading : false,
+        modal : {
+            type : null,
+            payload : undefined
+        },
+        notifications : [],
+        selectedPoliticoID : null,
+        selectedMinistryID : null,
+        selectedActionType : null
+    },
+
+    trial : undefined,
+    lastUpdateReason : undefined
+};
+
+// GameState
+
+import { GameMinistryState } from "./game-ministry-state";
+import { GamePoliticoState } from "./game-politico-state";
+import { GamePublic } from "./game-public";
+import { GameUiState } from "./game-ui-state";
+import { MyPlayerState } from "./my-player-state";
+import { PhaseState } from "./phase-state";
+import { PlayerState } from "./player-state";
+import { TrialState } from "./trial-state";
+
+export interface GameState {
+    
+    game : GamePublic;
+    phase : PhaseState;
+
+    players : Record<number, PlayerState>;
+    politicos: Record<number, GamePoliticoState>;
+    ministries: Record<number, GameMinistryState>;
+
+    me : MyPlayerState;
+
+    ui: GameUiState;    // <-- frontend only
+
+    /* TrialState */
+    trial? : TrialState;
+
+    // Metadata
+    lastUpdateReason?: string;
+}
+
+// GameUiState
+
+import { ActionType } from "../../enum/action-type";
+import { UiModalType } from "../../enum/ui-modal-type";
+import { UiNotification } from "./ui-notification";
+
+export interface GameUiState {
+    
+    loading : boolean;
+
+    modal : {
+        type : UiModalType | null;
+        payload? : any;
+    }
+
+    notifications : UiNotification[];   // append only
+
+    selectedPoliticoID : number | null;
+    selectedMinistryID : number | null;
+    selectedActionType : ActionType | null;
+}
+
+// InvestigationState
+
+export interface InvestigationState {
+    count : number;
+    countAtPhaseStart : number;
+    immuneUntilTurn : number | null;
+}
+
+// MyPlayerState
+
+export interface MyPlayerState {
+    
+    playerID : number;
+    faction : string;
+
+    // Private information
+    assignedInfluences : Record<number, number>; // politicoID -> value
+
+    // Flags for UI
+    canAnnounceAction : boolean;
+    canRespondAction : boolean;
+}
+
+// PhaseState
+
+import { ActionBlockingStatus } from "../../enum/action-blocking-status";
+import { Action } from "./action";
+
+export interface PhaseState {
+    blockingStatus : ActionBlockingStatus;
+    awaitingAction : Action | null;
+    announcedActions : Action[];
+}
+
+// PlayerState
+
+export interface PlayerState {
+  
+  id : number;        // -> playerID
+  userID : number;    // -> userID
+  name : string;
+
+  ready : boolean;
+
+  factionColor? : string;
+
+  // PUBLIC
+  declaredInfluences : Record<number, number>;
+
+  // SECRET (only shows values if isMe === true)
+  assignedInfluences? : Record<number, number>;
+
+  controlledPoliticos : number[]; // GamePolitico IDs
+
+  // if id === game.me.playerID
+  isMe : boolean;
+}
+
+// TrialState
+
+import { TrialResult } from "../../enum/trial-result";
+import { TrialStatus } from "../../enum/trial-status";
+import { TrialVoteState } from "./trial-vote-state";
+
+export interface TrialState {
+    id : number;
+    status : TrialStatus;
+    result : TrialResult | null;
+
+    accusedGamePoliticoID : number;
+    prosecutorGamePoliticoID : number;
+
+    votes : Record<number, TrialVoteState>; // gamePoliticoID -> vote
+    allVotesCast : boolean;
+}
+
+// TrialVoteState
+
+import { TrialVoteValue } from "../../enum/trial-vote-value";
+
+export interface TrialVoteState {
+    vote : TrialVoteValue;
+    cancelled : boolean;
+}
+
+// UiNotification
+
+import { UiNotificationType } from "../../enum/ui-notification-type";
+
+export interface UiNotification {
+    id : string;                // timestamp?
+    type : UiNotificationType;  // severity
+    message : string;           // shown text
+    ttl? : number;              // time-to-live (ms)
+}
+
+
+
+/* Enums */
+
+export enum ActionBlockingStatus {
+    NONE = 'NONE',
+    AWAITING_RESPONSE = 'AWAITING_RESPONSE',
+    FAILED_PURGE_BLOCK = 'FAILED_PURGE_BLOCK'
+}
+
+export enum ActionStatus {
+    ANNOUNCED = 'ANNOUNCED',
+    AWAITING_RESPONSE = 'AWAITING_RESPONSE',
+    RESOLVED = 'RESOLVED',
+    CANCELLED = 'CANCELLED',
+    FAILED = 'FAILED'
+}
+
+export enum ActionType {
+    DECLARE_INFLUENCE = 'DECLARE_INFLUENCE',
+    SEND_HOSPITAL = 'SEND_HOSPITAL',
+    EXIT_HOSPITAL = 'EXIT_HOSPITAL',
+    PURGE_ATTEMPT = 'PURGE_ATTEMPT',
+    EXILE_ESCAPE = 'EXILE_ESCAPE',
+    EXILE_RETURN = 'EXILE_RETURN',
+    BEGIN_INVESTIGATION = 'BEGIN_INVESTIGATION',
+    REMOVE_INVESTIGATION = 'REMOVE_INVESTIGATION',
+    OPEN_TRIAL = 'OPEN_TRIAL',
+    CAST_TRIAL_VOTE = 'CAST_TRIAL_VOTE',
+    CONDEMNATION = 'CONDEMNATION',
+    NEGATE_CONDEMNATION = 'NEGATE_CONDEMNATION'
+}
+
+export enum Faction {
+    TROTSKISTAS = 'red',
+    STALINISTAS = 'darkgrey',
+    ESERISTAS = 'yellow',
+    LYSENKISTAS = 'blue',
+    PUTINISTAS = 'white',
+    ORTODOXOS = 'green'
+}
+
+export enum GamePoliticoStatus {
+    INACTIVE = 'INACTIVE',
+    ACTIVE = 'ACTIVE',
+    AT_HOSPITAL = 'AT_HOSPITAL',
+    IN_EXILE = 'IN_EXILE',
+    IN_SIBERIA = 'IN_SIBERIA'
+}
+
+export enum GameStatus {
+    NOT_STARTED = 'NOT_STARTED',
+    IN_PROGRESS = 'IN_PROGRESS',
+    FINISHED = 'FINISHED'
+}
+
+export enum MinistryType {
+    PARTY_CHIEF = 'PARTY_CHIEF',
+    KGB_HERO = 'KGB_HERO',
+    FOREIGN = 'FOREIGN',
+    DEFENSE = 'DEFENSE',
+    IDEOLOGY = 'IDEOLOGY',
+    INDUSTRY = 'INDUSTRY',
+    ECONOMY = 'ECONOMY',
+    SPORTS = 'SPORTS',
+    CANDIDATE = 'CANDIDATE',
+    PEOPLE = 'PEOPLE'
+}
+
+export enum PhaseType {
+    CURES = 'CURES',
+    PURGE = 'PURGE',
+    SPY_INVESTIGATION = 'SPY_INVESTIGATION',
+    HEALTH = 'HEALTH',
+    FUNERAL_COMMISSION = 'FUNERAL_COMMISSION',
+    REPLACEMENT = 'REPLACEMENT',
+    REHABILITATION = 'REHABILITATION',
+    PARADE = 'PARADE'
+}
+
+export enum TrialResult {
+    ABSOLVED = 'ABSOLVED',
+    CONVICTED = 'CONVICTED'
+}
+
+export enum TrialStatus {
+    AWAITING_RESPONSE = 'AWAITING_RESPONSE',
+    VOTING = 'VOTING',
+    COUNTING = 'COUNTING',
+    RESOLVED_ABSOLVED = 'RESOLVED_ABSOLVED',
+    RESOLVED_CONVICTED = 'RESOLVED_CONVICTED',
+    CANCELLED = 'CANCELLED'
+}
+
+export enum TrialVoteValue {
+    INNOCENT = 'INNOCENT',
+    GUILTY = 'GUILTY'
+}
+
+export enum UiModalType {
+    ACTION_CONFIRM = 'ACTION_CONFIRM',
+    AWAITING_RESPONSE = 'AWAITING_RESPONSE',
+    TRIAL_VOTE = 'TRIAL_VOTE',
+    ERROR = 'ERROR',
+    INFO = 'INFO'
+}
+
+export enum UiNotificationType {
+  INFO = 'INFO',
+  SUCCESS = 'SUCCESS',
+  WARNING = 'WARNING',
+  ERROR = 'ERROR'
+}
+
+
+
+/* DTOs */
+
+export interface ActionInstanceDto {
+    id : number;
+    gameID : number;
+    actorID : number;
+    type : ActionType;
+    status : ActionStatus;
+    createdAt : string;
+    turn : number;
+    phase : PhaseType;
+    priority : number;
+    resolved : boolean;
+    targetGamePoliticoID : number;
+    influencePoints : number;
+    trialID : number;
+    trialVoteValue : TrialVoteValue;
+    targetGameMinistryID : number;
+    actingGamePoliticoID : number;
+}
+
+export interface GameMinistryResponseDto {
+    id : number;
+    ministry : MinistryResponseDto;
+    gameID : number;
+    ministerID : number;
+    isVacant : boolean;
+    
+    /* Useless legacy prop (purge modifier is calculated during Purge resolution) */
+    purgeModifier : number;
+}
+
+export interface GamePoliticoResponseDto {
+    id : number;
+    politico : PoliticoResponseDto;
+    gameID : number;
+    gameMinistryID : number;
+    currentAge : number;
+    damage : number;
+    investigationCount : number;
+    investigationCountAtPhaseStart : number;
+    immuneToInvestigationsUntilTurn : number;
+    status : GamePoliticoStatus;
+    controllerPlayerID : number;
+}
+
+export interface GameResponseDto {
+    id: number;
+    createdAt : string;
+    currentTurn: number;
+    currentPhase: PhaseType;
+    finished: boolean;
+    
+    version: number;
+    updateCounter : number;
+    
+    players: PlayerResponseDto[];
+    gamePoliticos: GamePoliticoResponseDto[];
+    gameMinistries: GameMinistryResponseDto[];
+    readyPlayers : number[];
+    
+    blockingStatus: ActionBlockingStatus;
+    currentAwaitingAction?: ActionInstanceDto;
+    announcedActions : ActionInstanceDto[];
+
+    trial : TrialResponseDto;
+
+    myPlayerID : number;
+}
+
+export interface MinistryResponseDto {
+    id : number;
+    name : MinistryType;
+    purgeNr : number;
+}
+
+export interface PlayerResponseDto {
+    id : number;
+    name : string;
+    faction : Faction;
+    userID : number;
+    gameID : number;
+    ready : boolean;
+    assignedInfluences : Record<number, number>;
+    declaredInfluences : Record<number, number>;
+    controlledPoliticosIDs : number[];
+}
+
+export interface PoliticoResponseDto {
+    id : number;
+    name : string;
+    alias : string;
+    initialAge : number;
+    advantage : MinistryType;
+    disadvantage : MinistryType;
+}
+
+export interface TrialResponseDto {
+    id : number;
+    status : TrialStatus;
+    result : TrialResult;
+    accusedGamePoliticoID : number;
+    prosecutorGamePoliticoID : number;
+    turn : number;
+    votes : TrialVoteDto[];
+    allVotesCast : boolean;
+}
+
+export interface TrialVoteDto {
+    voterGamePoliticoID : number;
+    vote : TrialVoteValue;
+    cancelled : boolean;
+}
+
+
+
+/* Services */
+
+// AuthService
+
+import { isPlatformBrowser } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { Observable, tap } from 'rxjs';
+
+interface AuthRequest {
+  email? : string;
+  username : string;
+  password : string;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthService {
+
+  private platformID = inject(PLATFORM_ID);
+
+  private apiURL = "http://localhost:8080/auth";
+
+  constructor(private http : HttpClient) { }
+
+  register(request : AuthRequest) : Observable<string> {
+    return this.http.post(this.apiURL + "/register", request, {responseType : 'text'});
+  }
+
+  login(request : AuthRequest) : Observable<{token : string}> {
+    return this.http.post<{token : string}>(this.apiURL + "/login", request);
+  }
+
+  saveToken(token : string) {
+    if (isPlatformBrowser(this.platformID)) {
+      localStorage.setItem('token', token);
+    }
+  }
+
+  getToken() : string | null {
+    if (isPlatformBrowser(this.platformID)) {
+      return localStorage.getItem('token');
+    }
+    return null;
+  }
+
+  logout() {
+    if (isPlatformBrowser(this.platformID)) {
+      localStorage.removeItem('token');
+    }
+  }
+
+  isAuthenticated() : boolean {
+    return !!this.getToken();
+  }
+}
+
+// GameStoreService
+
+import { HttpClient } from '@angular/common/http';
+import { computed, Injectable, signal } from '@angular/core';
+import { GameState } from '../../../models/game-state/game-state';
+import { UiNotification } from '../../../models/game-state/ui-notification';
+import { UiNotificationType } from '../../../enum/ui-notification-type';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class GameStoreService {
+
+  constructor( private http : HttpClient ) { }
+
+  // URLs
+  private gameURL = 'http://localhost:8080/game/base';
+  private sseURL = 'http://localhost:8080/notifications';
+  private actionURL = 'http://localhost:8080/action';
+  private eventSource? : EventSource;
+
+  // GameState (main signal)
+  private readonly _gameState = signal<GameState | null>(null);
+  
+  // GameState derivations (selectors -> computed signals)
+  readonly gameState = this._gameState.asReadonly();
+  readonly game = computed(() => this.gameState()?.game);
+  readonly phase = computed(() => this.gameState()?.phase);
+  readonly players = computed(() => this.gameState()?.players ?? {});
+  readonly politicos = computed(() => this.gameState()?.politicos ?? {});
+  readonly ministries = computed(() => this.gameState()?.ministries ?? {});
+  readonly me = computed(() => this.gameState()?.me);
+  readonly ui = computed(() => this.gameState()?.ui);
+
+  // Utils
+  readonly canAnnounceAction = computed(() => 
+    this.me()?.canAnnounceAction ?? false
+  );
+  readonly blockingStatus = computed(() => 
+    this.phase()?.blockingStatus ?? 'NONE'
+  );
+
+
+  /* Main methods */
+
+  // Initial game load (REST)
+  loadGame(gameID : number) : void {
+    this.http.get<GameState>(this.gameURL + '/state/' + gameID)
+             .subscribe({
+                next : state => {
+                  this._gameState.set(state);
+                  this.connectToSse(gameID);
+                },
+                error : err => {
+                  console.error('Failed to load Game', err);
+                  this._gameState.set(null);
+                }
+             });
+  }
+
+  // SSE connection
+  private connectToSse(gameID : number) : void {
+    
+    if (this.eventSource) {
+      this.eventSource.close();
+    }
+
+    this.eventSource = new EventSource(
+      this.sseURL + `/game/${gameID}/events`,
+      { withCredentials : true }
+    );
+
+    this.eventSource.addEventListener('GAME_UPDATE', e => 
+      this.handleGameUpdate(e)
+    );
+
+    this.eventSource.addEventListener('GAME_MESSAGE', e => 
+      this.handleGameMessage(e)
+    );
+
+    this.eventSource.onerror = err => {
+      console.error('SSE error', err);
+    };
+  }
+
+
+  /* SSE Event Handlers */
+
+  private handleGameUpdate(event : MessageEvent) : void {
+    
+    const payload = JSON.parse(event.data);
+
+    this._gameState.update(state => {
+      if (!state) 
+        return state;
+
+      return {
+        ...state,
+        game : {
+          ...state.game,
+          updateCounter : payload.updateCounter
+        }
+      };
+    });
+  }
+
+  private handleGameMessage(event : MessageEvent) : void {
+
+    const message = event.data;
+
+    const notification : UiNotification = {
+      id : Date.now().toString(),
+      type : UiNotificationType.INFO,
+      message : message,
+      ttl : 4000
+    };
+
+    this._gameState.update(state => {
+      
+      if (!state)
+          return state;
+
+      return {
+        ...state,
+        ui : {
+          ...state.ui,
+          notifications : [
+            ...state.ui.notifications,
+            notification
+          ]
+        }
+      };
+    });
+  }
+
+
+  /* Facade methods */
+
+  // Action methods
+  announceAction(action : any) {
+    return this.http.post(this.actionURL + '/announce', action);
+  }
+
+  cancelAction(action : any) {
+    return this.http.post(this.actionURL + '/cancel', action);
+  }
+
+
+  // Phase methods
+
+  confirmPhaseExecution(gameID : number) {
+    return this.http.post(this.gameURL + '/confirm_phase_exec/' + gameID, {});
+  }
+
+  nextPhase(gameID : number) {
+    return this.http.post(this.gameURL + '/next_phase/' + gameID, {});
+  }
+
+
+  // Clean on Game quit.
+  clearGame() : void {
+    this.eventSource?.close();
+    this.eventSource = undefined;
+    this._gameState.set(null);
+  }
+
+  // Select Politico
+  selectPolitico(politicoID : number) : void {
+    this._gameState.update(state => {
+      
+      if (!state) return state;
+
+      const current = state.ui.selectedPoliticoID;
+      const next = current === politicoID ? null : politicoID;
+
+      return {
+        ...state,
+        ui : {
+          ...state.ui,
+          selectedPoliticoID : next
+        }
+      };
+    });
+  }
+}
+
+// GameStateMapperService
+
+import { Injectable, numberAttribute } from '@angular/core';
+import { GameState } from '../../../models/game-state/game-state';
+import { GameResponseDto } from '../../../dto/game-response-dto';
+import { ActionInstanceDto } from '../../../dto/action-instance-dto';
+import { Action } from '../../../models/game-state/action';
+import { PlayerResponseDto } from '../../../dto/player-response-dto';
+import { PlayerState } from '../../../models/game-state/player-state';
+import { PhaseState } from '../../../models/game-state/phase-state';
+import { MyPlayerState } from '../../../models/game-state/my-player-state';
+import { GamePoliticoResponseDto } from '../../../dto/game-politico-response-dto';
+import { GamePoliticoState } from '../../../models/game-state/game-politico-state';
+import { InvestigationState } from '../../../models/game-state/investigation-state';
+import { GameMinistryResponseDto } from '../../../dto/game-ministry-response-dto';
+import { GameMinistryState } from '../../../models/game-state/game-ministry-state';
+import { ActionBlockingStatus } from '../../../enum/action-blocking-status';
+import { GameUiState } from '../../../models/game-state/game-ui-state';
+import { TrialResponseDto } from '../../../dto/trial-response-dto';
+import { TrialState } from '../../../models/game-state/trial-state';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class GameStateMapperService {
+  
+  constructor() { }
+
+  static fromDTO( dto : GameResponseDto ) : GameState {
+
+    const players = GameStateMapperService.mapPlayers(dto.players, dto.myPlayerID);
+    
+    const phase : PhaseState = {
+      blockingStatus : dto.blockingStatus,
+      awaitingAction : dto.currentAwaitingAction
+        ? GameStateMapperService.mapAction(dto.currentAwaitingAction)
+        : null,
+      announcedActions : dto.announcedActions.map(GameStateMapperService.mapAction)
+    };
+
+    return {
+      game : {
+        id : dto.id,
+        createdAt : new Date(dto.createdAt),
+        version : dto.version,
+        updateCounter : dto.updateCounter,
+        finished : dto.finished,
+        currentTurn : dto.currentTurn,
+        currentPhase : dto.currentPhase
+      },
+      phase,
+      players,
+      politicos : GameStateMapperService.mapGamePoliticos(dto.gamePoliticos),
+      ministries : GameStateMapperService.mapGameMinistries(dto.gameMinistries),
+      me : GameStateMapperService.mapMyPlayer(
+        { players, myPlayerID : dto.myPlayerID, phase}
+      ),
+      ui : GameStateMapperService.initialUiState(),
+      lastUpdateReason : undefined,
+      trial: dto.trial ? GameStateMapperService.mapTrial(dto.trial) : undefined
+    };
+  }
+
+  private static mapAction( actionDTO : ActionInstanceDto ): Action {
+    return {
+      id : actionDTO.id,
+      type : actionDTO.type,
+      status : actionDTO.status,
+      actorPlayerID : actionDTO.actorID,
+      targetPoliticoID : actionDTO.targetGamePoliticoID ?? undefined,
+      actingPoliticoID : actionDTO.actingGamePoliticoID ?? undefined
+    };
+  }
+
+  private static mapPlayers( 
+    players : PlayerResponseDto[], myPlayerID : number
+  ) : Record<number, PlayerState>
+  {
+    return Object.fromEntries(
+      players.map( p => [
+        p.id,
+        {
+          id : p.id,
+          userID : p.userID,
+          name : p.name,
+          ready : p.ready,
+          factionColor : p.faction,
+          isMe : p.id === myPlayerID,
+          declaredInfluences : p.declaredInfluences,
+          assignedInfluences : p.id === myPlayerID ? p.assignedInfluences : undefined,
+          controlledPoliticos : p.controlledPoliticosIDs
+        }
+      ])
+    );
+  }
+
+  private static mapMyPlayer(
+    state : {
+      players : Record<number, PlayerState>;
+      myPlayerID : number;
+      phase : PhaseState;
+    }
+  ) : MyPlayerState {
+
+    const me = state.players[state.myPlayerID];
+    if (!me) {
+      throw new Error("MyPlayer not found in players map.");
+    }
+
+    return {
+      playerID : me.id,
+      faction : me.factionColor ?? 'UNKNOWN',
+      assignedInfluences : me.assignedInfluences ?? {},
+      canAnnounceAction : GameStateMapperService.canAnnounceAction(state),
+      canRespondAction : GameStateMapperService.canRespondAction(state)
+    };
+  }
+
+  private static canAnnounceAction(
+    state: {
+      phase: PhaseState;
+      players: Record<number, PlayerState>;
+      myPlayerID: number;
+    }
+  ): boolean
+  {
+    const me = state.players[state.myPlayerID];
+
+    if (!me) return false;
+
+    if (state.phase.blockingStatus !== ActionBlockingStatus.NONE) return false;
+
+    if (me.ready) return false; // WARNING!!! See if it affects trials, investigations, etc.
+
+    return true;
+  }
+
+  private static canRespondAction(
+    state: {
+      phase: PhaseState;
+      players: Record<number, PlayerState>;
+      myPlayerID: number;
+    }
+  ) : boolean
+  {
+    const me = state.players[state.myPlayerID];
+
+    if (!me) return false;
+
+    const awaitingAction : Action | null = state.phase.awaitingAction;
+    if (awaitingAction === null) return false;
+
+    const targetPoliticoID : number | undefined = awaitingAction.targetPoliticoID;
+    if (targetPoliticoID === undefined) return false;
+
+    const targetIsMine : boolean = me.controlledPoliticos.includes(targetPoliticoID);
+    if ( !targetIsMine ) return false;
+    
+    return true;
+  }
+
+  private static mapGamePoliticos(
+    gamePoliticos : GamePoliticoResponseDto[]
+  ) : Record<number, GamePoliticoState>
+  {
+    return Object.fromEntries(
+      gamePoliticos.map( gp => [
+        gp.id,
+        {
+          id : gp.id,
+          name : gp.politico.name,
+          alias : gp.politico.alias,
+          advantage : gp.politico.advantage,
+          disadvantage : gp.politico.disadvantage,
+          age : gp.currentAge,
+          damage : gp.damage,
+          status : gp.status,
+          ministryID : gp.gameMinistryID ?? null,
+          controllerPlayerID : gp.controllerPlayerID,
+          investigations : GameStateMapperService.mapInvestigationState(gp)
+        }
+      ])
+    );
+  }
+
+  private static mapInvestigationState(
+    gamePolitico : GamePoliticoResponseDto
+  ) : InvestigationState {
+    return {
+      count : gamePolitico.investigationCount,
+      countAtPhaseStart : gamePolitico.investigationCountAtPhaseStart,
+      immuneUntilTurn : gamePolitico.immuneToInvestigationsUntilTurn
+    };
+  }
+
+  private static mapGameMinistries(
+    gameMins : GameMinistryResponseDto[]
+  ) : Record<number, GameMinistryState>
+  {
+    return Object.fromEntries(
+      gameMins.map( gm => [
+        gm.id,
+        {
+          id : gm.id,
+          name : gm.ministry.name,
+          purgeNr : gm.ministry.purgeNr,
+          ministerID : gm.ministerID ?? undefined,
+          isVacant : gm.isVacant
+        }
+      ])
+    );
+  }
+
+  private static initialUiState() : GameUiState {
+    return {
+      loading : false,
+
+      modal : {
+        type : null,
+        payload : undefined
+      },
+
+      notifications : [],
+
+      selectedPoliticoID : null,
+      selectedMinistryID : null,
+      selectedActionType : null
+    };
+  }
+
+  private static mapTrial( dto : TrialResponseDto ) : TrialState {
+    return {
+      id : dto.id,
+      status : dto.status,
+      result : dto.result ?? null,
+
+      accusedGamePoliticoID : dto.accusedGamePoliticoID,
+      prosecutorGamePoliticoID : dto.prosecutorGamePoliticoID,
+
+      votes : Object.fromEntries(
+        dto.votes.map( v => [
+          v.voterGamePoliticoID,
+          {
+            vote : v.vote,
+            cancelled : v.cancelled
+          }
+        ])
+      ),
+
+      allVotesCast : dto.allVotesCast
+    };
+  }
+}
+
+// GameService
+
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { EMPTY, Observable } from 'rxjs';
+import { Game } from '../../models/game/game';
+import { isPlatformBrowser } from '@angular/common';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class GameService {
+
+  private platformID = inject(PLATFORM_ID);
+  private apiURL = 'http://localhost:8080/game/base';
+
+  constructor(private http : HttpClient) { }
+  
+  getAllGames() : Observable<Game[]> {
+    if (!isPlatformBrowser(this.platformID)) {
+      return EMPTY;
+    }
+
+    return this.http.get<Game[]>(this.apiURL + "/find/all");
+  }
+
+  createNewGame() : Observable<Game> {
+    return this.http.post<Game>(this.apiURL + "/new", null);
+  }
+}
+
+
+
+/* Components */
+
+** /core
+
+    // auth.interceptor.ts
+
+import { isPlatformBrowser } from '@angular/common';
+import { HttpInterceptorFn } from '@angular/common/http';
+import { inject, PLATFORM_ID } from '@angular/core';
+
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  
+  const platformID = inject(PLATFORM_ID);
+
+  if (isPlatformBrowser(platformID)) {
+    
+    const token = localStorage.getItem('token'); //-> en contexto de navegador
+
+    if (token) {
+      const cloned = req.clone({
+        setHeaders: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      return next(cloned);
+    }
+  }
+
+  return next(req);
+};
+
+
+** /game
+
+    // game.component.html
+
+<h2 class="control-titulo"> User's Games </h2>
+<!-- Get all Games -->
+<div>
+    <p> Select a Game </p>
+    <p> Game ID: / Created at: </p>
+    <ul>
+        <li *ngFor="let game of games">
+            <p> Game ID: {{ game.id }} / Created at: {{ game.createdAt }} </p>
+        </li>
+    </ul>
+
+    <div>
+        <h1> Create new Game </h1>
+        <button class="boton" (click)="createNewGame()"> New Game </button>
+    </div>
+</div>
+
+    // game.component.ts
+
+import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { Game } from '../../models/game/game';
+import { GameService } from '../../services/game/game.service';
+
+@Component({
+  selector: 'app-game',
+  standalone: true,
+  imports: [
+    CommonModule
+  ],
+  templateUrl: './game.component.html',
+  styleUrl: './game.component.scss'
+})
+export class GameComponent implements OnInit {
+
+  games : Game[] = [];
+
+  constructor( private gameService : GameService ) { }
+
+  ngOnInit(): void {
+    this.getAllGames();
+  }
+
+  getAllGames() : void {
+    this.gameService.getAllGames().subscribe( res => { 
+      this.games = res;
+    });
+  }
+
+  createNewGame() : void {
+    this.gameService.createNewGame().subscribe( res => {
+        this.getAllGames();
+    });
+  }
+}
+
+** /home
+
+    // home.component.html
+
+<div class="header">
+    <a href="/" class="logo">
+      <h1> K&#1071;EMLIN </h1>
+    </a>
+    <nav class="home-menu">
+      <a routerLink="/login" class="nav-link"> Login </a>
+      <a routerLink="/register" class="nav-link"> Register </a>
+    </nav>
+</div>
+
+    // home.component.scss
+
+.header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: darkred;
+}
+
+.logo {
+    text-decoration: none;
+    color: darkgoldenrod;
+    margin-left: 1rem;
+}
+
+.home-menu {
+    display: flex;
+    gap: 1rem;
+    margin-right: 1rem;
+}
+
+.nav-link {
+    font-size: larger;
+    text-decoration: none;
+    color: darkgoldenrod;
+}
+
+    // home.component.ts
+
+import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+import { RouterModule } from '@angular/router';
+
+@Component({
+  selector: 'app-home',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  templateUrl: './home.component.html',
+  styleUrl: './home.component.scss'
+})
+export class HomeComponent { }
+
+** /register
+
+    // register.component.html
+
+<h2> Registro de Nuevo Usuario </h2>
+<div>
+    <input type="text" [(ngModel)]="email" placeholder="Email">
+    <input type="text" [(ngModel)]="username" placeholder="Nombre de Usuario">
+    <input type="text" [(ngModel)]="password" placeholder="Contraseña">
+    <button (click)="register()"> Registrar Usuario </button>
+    <p *ngIf="errorMsg"> {{ errorMsg }} </p>
+</div>
+
+    // register.component.ts
+
+import { Component } from '@angular/core';
+import { AuthService } from '../../services/auth/auth.service';
+import { Router } from '@angular/router';
+import { FormsModule } from "@angular/forms";
+import { NgIf } from '@angular/common';
+
+@Component({
+  selector: 'app-register',
+  standalone: true,
+  imports: [FormsModule, NgIf],
+  templateUrl: './register.component.html',
+  styleUrl: './register.component.scss'
+})
+export class RegisterComponent {
+
+  email = "";
+  username = "";
+  password = "";
+  errorMsg = "";
+
+  constructor(private auth : AuthService, private router : Router) { }
+
+  register() {
+    this.auth
+    .register( 
+      { email : this.email,
+        username : this.username, 
+        password : this.password
+      } 
+    )
+    .subscribe({
+      next : (res) => {
+        this.router.navigate(["/login"]);
+      },
+      error : (res) => {
+        this.errorMsg = res;
+      }
+    });
+  }
+}
+
+** /login
+
+    // login.component.html
+
+<div class="login-container">
+    <h2 class="login-title">Login</h2>
+    <p *ngIf="errorMsg" class="message"> {{ errorMsg }} </p>
+    <div class="login-inputs">
+        <input type="text" [(ngModel)]="username" placeholder="Usuario" class="login-input">
+        <input type="password" [(ngModel)]="password" placeholder="Contraseña">
+    </div>
+    <button (click)="login()" class="login-btn"> Iniciar sesión </button>
+</div>
+
+    // login.component.scss
+
+.login-container {
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 auto;
+    background-color: darkred;
+}
+
+.login-inputs {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    gap: 1rem;
+    padding: 1rem 0;
+}
+
+.login-title {
+    color: darkgoldenrod;
+    margin: 0;
+    padding-top: 1rem;
+}
+
+.login-input {
+    padding: .5rem;
+}
+
+.login-btn {
+    padding: .5rem;
+    background-color: darkolivegreen;
+    margin-bottom: 1rem;
+    font-weight: bold;
+}
+
+    // login.component.ts
+
+import { Component } from '@angular/core';
+import { AuthService } from '../../services/auth/auth.service';
+import { Router } from '@angular/router';
+import { FormsModule } from "@angular/forms";
+import { NgIf } from '@angular/common';
+
+@Component({
+  selector: 'app-login',
+  standalone: true,
+  imports: [FormsModule, NgIf],
+  templateUrl: './login.component.html',
+  styleUrl: './login.component.scss'
+})
+export class LoginComponent {
+
+  username = "";
+  password = "";
+  errorMsg = "";
+
+  constructor(private auth : AuthService, private router : Router) { }
+
+  login() {
+    this.auth.login( {username : this.username, password : this.password} )
+              .subscribe({
+                next : (res) => {
+                  this.auth.saveToken(res.token);
+                  this.router.navigate(["/games"]);
+                },
+                error : () => {
+                  this.errorMsg = "Credenciales inválidas.";
+                }
+              });
+  }
+}
+
+** /board
+
+    // board.component.html
+  
+<div>
+    <ng-container *ngIf="gameStore.gameState()">
+        <app-politburo-pyramid
+            [ministries]="gameStore.ministries()"
+            [politicos]="gameStore.politicos()"
+            [selectedPoliticoID]="gameStore.ui()?.selectedPoliticoID ?? null"
+            (politicoSelected)="onPoliticoSelected($event)"
+        >
+        </app-politburo-pyramid>
+    </ng-container>
+    
+    <p *ngIf="!gameStore.gameState()">
+        No game loaded.
+    </p>
+</div>
+
+    // board.component.ts
+
+import { Component } from '@angular/core';
+import { GameStoreService } from '../../services/game/store/game-store.service';
+import { PolitburoPyramidComponent } from "../politburo-pyramid/politburo-pyramid.component";
+import { NgIf } from '@angular/common';
+
+@Component({
+  selector: 'app-board',
+  standalone : true,
+  imports: [PolitburoPyramidComponent, NgIf],
+  templateUrl: './board.component.html',
+  styleUrl: './board.component.scss'
+})
+export class BoardComponent {
+
+  constructor(public readonly gameStore : GameStoreService) { }
+
+  onPoliticoSelected(politicoID : number) : void {
+    this.gameStore.selectPolitico(politicoID);
+  }
+}
+
+** /politburo-pyramid
+
+    // politburo-pyramid.component.html
+
+<div class="pyramid">
+    <div class="row top">
+        <app-ministry-slot
+            *ngFor="let type of topLvl"
+            [ministry]="getMinistry(type)"
+            [politico]="getPoliticoForMinistry(type)"
+            [selectedPoliticoID]="selectedPoliticoID"
+            (politicoSelected)="onPoliticoSelected($event)"
+        >
+        </app-ministry-slot>
+    </div>
+
+    <div class="row fstLvl">
+        <app-ministry-slot
+            *ngFor="let type of firstLvl"
+            [ministry]="getMinistry(type)"
+            [politico]="getPoliticoForMinistry(type)"
+            [selectedPoliticoID]="selectedPoliticoID"
+            (politicoSelected)="onPoliticoSelected($event)"
+        >
+        </app-ministry-slot>
+    </div>
+
+    <div class="row sndLvl">
+        <app-ministry-slot
+            *ngFor="let type of secondLvl"
+            [ministry]="getMinistry(type)"
+            [politico]="getPoliticoForMinistry(type)"
+            [selectedPoliticoID]="selectedPoliticoID"
+            (politicoSelected)="onPoliticoSelected($event)"
+        >
+        </app-ministry-slot>
+    </div>
+
+    <div class="row candidates">
+        <app-ministry-slot
+            *ngFor="let type of candidates"
+            [ministry]="getMinistry(type)"
+            [politico]="getPoliticoForMinistry(type)"
+            [selectedPoliticoID]="selectedPoliticoID"
+            (politicoSelected)="onPoliticoSelected($event)"
+        >
+        </app-ministry-slot>
+    </div>
+
+    <div class="row people">
+        <app-ministry-slot
+            *ngFor="let type of people"
+            [ministry]="getMinistry(type)"
+            [politico]="getPoliticoForMinistry(type)"
+            [selectedPoliticoID]="selectedPoliticoID"
+            (politicoSelected)="onPoliticoSelected($event)"
+        >
+        </app-ministry-slot>
+    </div>
+</div>
+
+    // politburo-pyramid.component.ts
+
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { GameMinistryState } from '../../models/game-state/game-ministry-state';
+import { GamePoliticoState } from '../../models/game-state/game-politico-state';
+import { MinistrySlotComponent } from "../ministry-slot/ministry-slot.component";
+import { MinistryType } from '../../enum/ministry-type';
+import { NgForOf } from '@angular/common';
+
+@Component({
+  selector: 'app-politburo-pyramid',
+  standalone : true,
+  imports: [MinistrySlotComponent, NgForOf],
+  templateUrl: './politburo-pyramid.component.html',
+  styleUrl: './politburo-pyramid.component.scss'
+})
+export class PolitburoPyramidComponent {
+
+  @Input() ministries! : Record<number, GameMinistryState>;
+  @Input() politicos! : Record<number, GamePoliticoState>;
+  @Input() selectedPoliticoID! : number | null;
+
+  @Output() politicoSelected = new EventEmitter<number>();
+
+  topLvl : MinistryType[] = [
+    MinistryType.PARTY_CHIEF
+  ];
+  firstLvl : MinistryType[] = [
+    MinistryType.KGB_HERO,
+    MinistryType.FOREIGN,
+    MinistryType.DEFENSE
+  ];
+  secondLvl : MinistryType[] = [
+    MinistryType.IDEOLOGY,
+    MinistryType.INDUSTRY,
+    MinistryType.ECONOMY,
+    MinistryType.SPORTS
+  ];
+  candidates : MinistryType[] = [
+    MinistryType.CANDIDATE,
+    MinistryType.CANDIDATE,
+    MinistryType.CANDIDATE,
+    MinistryType.CANDIDATE,
+    MinistryType.CANDIDATE
+  ];
+  people : MinistryType[] = [
+    MinistryType.PEOPLE,
+    MinistryType.PEOPLE,
+    MinistryType.PEOPLE,
+    MinistryType.PEOPLE
+  ];
+
+  onPoliticoSelected(politicoID : number) : void {
+    this.politicoSelected.emit(politicoID);
+  }
+
+  getMinistry(type : MinistryType) : GameMinistryState | undefined {
+    return Object.values(this.ministries).find(m => m.name === type);
+  }
+
+  getPoliticoForMinistry(type : MinistryType) : GamePoliticoState | null {
+    const ministry = this.getMinistry(type);
+
+    if (!ministry?.ministerID) return null;
+
+    return this.politicos[ministry.ministerID] ?? null;
+  }
+}
+
+** /ministry-slot
+
+    // ministry-slot.component.html
+
+<div class="ministry-slot">
+    
+    <div class="ministry-name">
+        {{ ministry?.name }}
+    </div>
+
+    <app-politico-card
+        *ngIf="politico"
+        [politico]="politico"
+        [selected]="politico.id === selectedPoliticoID"
+        (selectedChange)="onPoliticoSelected($event)"
+    >
+    </app-politico-card>
+
+    <div *ngIf="!politico" class="vacant">
+        Vacant
+    </div>
+</div>
+
+    // ministry-slot.component.ts
+
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { GameMinistryState } from '../../models/game-state/game-ministry-state';
+import { GamePoliticoState } from '../../models/game-state/game-politico-state';
+import { PoliticoCardComponent } from "../politico-card/politico-card.component";
+import { NgIf } from '@angular/common';
+
+@Component({
+  selector: 'app-ministry-slot',
+  standalone : true,
+  imports: [PoliticoCardComponent, NgIf],
+  templateUrl: './ministry-slot.component.html',
+  styleUrl: './ministry-slot.component.scss'
+})
+export class MinistrySlotComponent {
+    @Input() ministry!: GameMinistryState | undefined;
+    @Input() politico!: GamePoliticoState | null;
+    @Input() selectedPoliticoID!: number | null;
+
+    @Output() politicoSelected = new EventEmitter<number>();
+
+    onPoliticoSelected(politicoID : number) : void {
+      this.politicoSelected.emit(politicoID);
+    }
+}
+
+** /politico-card
+
+    // politico-card.component.html
+
+<div 
+    class="card"
+    [class.selected]="selected"
+    (click)="onClick()"
+>
+    <div class="header">
+        <strong> {{ politico.name }} </strong>
+    </div>
+
+    <div class="body">
+        <div> Age : {{ politico.age }} </div>
+        <div> Damage : {{ politico.damage }} </div>
+        <div> Status : {{ politico.status }} </div>
+    </div>
+
+    <div class="footer" *ngIf="politico.controllerPlayerID">
+        Controlled by Player : {{ politico.controllerPlayerID }}
+    </div>
+</div>
+
+    // politico-card.component.ts
+
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { GamePoliticoState } from '../../models/game-state/game-politico-state';
+import { NgIf } from '@angular/common';
+
+@Component({
+  selector: 'app-politico-card',
+  standalone : true,
+  imports: [NgIf],
+  templateUrl: './politico-card.component.html',
+  styleUrl: './politico-card.component.scss'
+})
+export class PoliticoCardComponent {
+
+    @Input() politico! : GamePoliticoState;
+    @Input() selected = false;
+
+    @Output() selectedChange = new EventEmitter<number>();
+
+    onClick() : void {
+      this.selectedChange.emit(this.politico.id);
+    }
+}
+
+
+*****************************************************************************************
+
+/* THIS IS LEGACY CODE (FROM PREVIOUS TESTS) */
+
+/* Models */
+
+// Game
+
+import { ActionBlockingStatus } from "../../enums/action-blocking-status";
+
+export class Game {
+    id! : number;
+    createdAt! : Date;
+    turn! : number;
+    phase! : number;
+    finished! : boolean;
+    version! : number;
+    updateCounter! : number;
+    blockingStatus! : ActionBlockingStatus;
+    players : number[] = [];
+    politicos : number[] = [];
+    readyPlayers : number[] = [];
+    awaitingAction? : number;
+}
+
+// InfluenceAssigned
+
+export class InfluenceAssigned {
+    id! : number;
+    points! : number;
+    playerId! : number;
+    politicoId! : number;
+
+    constructor(){}
+}
+
+// InfluenceDeclared
+
+export class InfluenceDeclared {
+    id! : number;
+    points! : number;
+    playerId! : number;
+    politicoId! : number;
+
+    constructor(){}
+}
+
+// InfluenceRequest
+
+export class InfluenceRequest {
+    points! : number;
+    playerId! : number;
+    politicoId! : number;
+
+    constructor(){}
+}
+
+// Ministry
+
+export class Ministry {
+    
+    id! : number;
+    name! : string;
+    isVacant! : boolean;
+    purgeNr! : number;
+    ministerId! : number;
+
+    constructor(){}
+}
+
+// MinistryStatus
+
+export class MinistryStatus {
+    ministryID! : number;
+    ministerID! : number;
+    controllerID! : number;
+}
+
+// Player
+
+export class Player {
+    id! : number;
+    name! : string;
+    faction! : string;
+    assigned! : Set<number>;
+    declared! : Set<number>;
+}
+
+// PlayerRequest
+
+export class PlayerRequest {
+    name! : string;
+    faction! : string;
+}
+
+// Politico
+
+export class Politico {
+
+    id! : number;
+    name! : string;
+    alias! : string;
+    age! : number;
+    damage! : number;
+    status! : number;
+    ministry! : number;
+
+    constructor(){}
+}
+
+
+/* Services */
+
+// ControlPolitico
+
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { Player } from '../../models/player/player';
+import { InfluenceDeclared } from '../../models/influence-declared/influence-declared';
+import { Politico } from '../../models/politico/politico';
+import { MinistryStatus } from '../../models/ministry-status/ministry-status';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ControlPoliticoService {
+
+  private apiURL = 'http://localhost:8080/control';
+
+  constructor(private http : HttpClient) { }
+
+  getControllingPlayer(politicoID : number) : Observable<Player> {
+    return this.http.get<Player>(this.apiURL + "/politico/" + politicoID + "/controller");
+  }
+
+  getInfluenceDeclarations(politicoID : number) : Observable<InfluenceDeclared[]> {
+    return this.http.get<InfluenceDeclared[]>(this.apiURL + "/politico/" + politicoID + "/declarations");
+  }
+
+  getControlledPoliticos(playerID : number) :  Observable<Politico[]> {
+    return this.http.get<Politico[]>(this.apiURL + "/player/" + playerID + "/politicos");
+  }
+
+  getAllMinistryStatus() : Observable<MinistryStatus[]> {
+    return this.http.get<MinistryStatus[]>(this.apiURL + "/ministry/status");
+  }
+}
+
+// InfluenceService
+
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { InfluenceAssigned } from '../../models/influence-assigned/influence-assigned';
+import { InfluenceRequest } from '../../models/influence-request/influence-request';
+import { InfluenceDeclared } from '../../models/influence-declared/influence-declared';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class InfluenceService {
+
+  private apiURL = 'http://localhost:8080/influence';
+
+  constructor(private http : HttpClient) { }
+
+  getAllAssigned() : Observable<InfluenceAssigned[]> {
+    return this.http.get<InfluenceAssigned[]>(this.apiURL + "/assigned/all");
+  }
+
+  getAssignedInfluenceByID(id : number) : Observable<InfluenceAssigned> {
+    return this.http.get<InfluenceAssigned>(this.apiURL + "/assigned/" + id);
+  }
+
+  getAssignedByPlayer(playerId : number) : Observable<InfluenceAssigned[]> {
+    return this.http.get<InfluenceAssigned[]>(this.apiURL + "/assigned/player/" + playerId);
+  }
+
+  /* ASSIGN INFLUENCE */
+
+  getPossibleAssignValues(playerID : number) : Observable<number[]> {
+    return this.http.get<number[]>(this.apiURL + "/assigned/possibleValues/player/" + playerID);
+  }
+
+  assignInfluence(assigned : InfluenceRequest) : Observable<InfluenceAssigned> {
+    return this.http.post<InfluenceAssigned>(this.apiURL + "/assigned", assigned);
+  }
+
+  /* DECLARE INFLUENCE */
+
+  getPossibleDeclareValues(polPlayerReq : InfluenceRequest) : Observable<number[]> {
+    return this.http.post<number[]>(this.apiURL + "/declared/possibleValues", polPlayerReq);
+  }
+
+  declareInfluence( declared : InfluenceRequest ) : Observable<InfluenceDeclared> {
+    return this.http.post<InfluenceDeclared>(this.apiURL + "/declared", declared);
+  }
+
+  getDeclaredByPlayer( playerID : number ) : Observable<InfluenceDeclared[]> {
+    return this.http.get<InfluenceDeclared[]>(this.apiURL + "/declared/player/" + playerID);
+  }
+}
+
+// MinistryService
+
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { Ministry } from '../../models/ministry/ministry';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class MinistryService {
+
+  private apiURL = 'http://localhost:8080/ministry';
+
+  constructor(private http : HttpClient) {}
+
+  getMinistryByID(id : number) : Observable<Ministry> {
+    return this.http.get<Ministry>(this.apiURL + "/" + id);
+  }
+
+  getMinistries() : Observable<Ministry[]> {
+    return this.http.get<Ministry[]>(this.apiURL + "/all");
+  }
+
+  loadMinistries() : Observable<Ministry[]> {
+    return this.http.post<Ministry[]>(this.apiURL + "/loadAll", null);
+  }
+
+  assignMinister(idMin : number, idPol : number) : Observable<Ministry> {
+    return this.http.put<Ministry>(this.apiURL + "/" + idMin + "/minister/" +  idPol, null);
+  }
+
+  removeMinister(idMin : number) : Observable<Ministry> {
+    return this.http.delete<Ministry>(this.apiURL + "/" + idMin + "/minister");
+  }
+
+  assignRandomMinisters() : Observable<Ministry[]> {
+    return this.http.post<Ministry[]>(this.apiURL + "/setup/assign_all_ministers", null);
+  }
+}
+
+// PlayerService
+
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { NEVER, Observable } from 'rxjs';
+import { Player } from '../../models/player/player';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class PlayerService {
+
+  private apiURL = 'http://localhost:8080/player';
+
+  constructor(private http : HttpClient){}
+
+  getAllPlayers() : Observable<Player[]> {
+    return this.http.get<Player[]>(this.apiURL + "/all");
+  }
+
+  getPlayerByID(id : number) : Observable<Player> {
+    return this.http.get<Player>(this.apiURL + "/" + id);
+  }
+
+  getAllFactions() : Observable<string[]> {
+    return this.http.get<string[]>(this.apiURL + "/factions");
+  }
+
+  createSinglePlayer(player : Player) : Observable<Player> {
+    return this.http.post<Player>(this.apiURL + "/single", player);
+  }
+}
+
+// PoliticoUtilsService
+
+import { Injectable } from '@angular/core';
+import { Politico } from '../../models/politico/politico';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class PoliticoUtilsService {
+
+  constructor() { }
+
+  getPoliticoNameByID( id : number, politicos : Politico[] ) : string {
+      const politico = politicos.find(p => p.id === id);
+      return politico ? politico.name : "(Desconocido)";
+  }
+}
+
+// PoliticoService
+
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { Politico } from '../../models/politico/politico';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class PoliticoService {
+
+  private apiUrl = 'http://localhost:8080/politico';
+
+  constructor(private http: HttpClient) {}
+
+  getPoliticoByID(id : number) : Observable<Politico> {
+      return this.http.get<Politico>(this.apiUrl + "/" + id);
+  }
+
+  getPoliticos(): Observable<Politico[]> {
+    return this.http.get<Politico[]>(this.apiUrl + "/all");
+  }
+
+  createSinglePolitico(politico : Politico) : Observable<Politico> {
+    return this.http.post<Politico>(this.apiUrl + "/single", politico);
+  }
+
+  loadPoliticos() : Observable<Politico[]> {
+    return this.http.post<Politico[]>(this.apiUrl + "/loadAll", null);
+  }
+}
+
+
+/* Components */
+
+** /assign-control
+
+    // assign-control.component.html
+
+<h2 class="control-titulo"> Asignar Influencia </h2>
+<div class="controles-influencia">
+    <!-- Traer todos los Jugadores -->
+    <div>
+        <p> Jugador que asigna Influencia: {{ playerAssign.name }} </p>
+        <select name="selPlayer" [(ngModel)]="playerAssign" (ngModelChange)="getPlayerStatus($event)">
+            <option [ngValue]="player" *ngFor="let player of players">
+                {{ player.name }}
+            </option>
+        </select>
+    </div>
+    <!-- Traer todos los politicos -->
+    <div>
+        <p> Político a Asignar Influencia: {{ assignedPolitico.name }} </p>
+        <select name="selPolitico" [(ngModel)]="assignedPolitico">
+            <option [ngValue]="politico" *ngFor="let politico of freePoliticos">
+                {{ politico.name }}
+            </option>
+        </select>
+    </div>
+    <!-- Traer valores posibles (descartando los valores ya tomados) -->
+    <div>
+        <p> Valor a Asignar: {{ assignedValue }} </p>
+        <select name="assignedValue" [(ngModel)]="assignedValue">
+            <option [ngValue]="possibleValue" *ngFor="let possibleValue of possibleValues">
+                {{ possibleValue }}
+            </option>
+        </select>
+    </div>
+    <button class="boton" (click)="assignInfluence()"> Asignar </button>
+</div>
+
+<!-- Tabla de resumen con los Politicos con Influencia Asignada del Jugador elegido -->
+<div class="tabla-influencia">
+    <h3 class="control-titulo"> Tabla de Influencia Asignada del Jugador {{ playerAssign.name }} </h3>
+    <table>
+        <thead>
+            <tr>
+                <th class="table-cell" scope="col"> Politico </th>
+                <th class="table-cell" scope="col"> Puntos Asignados </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let assigned of assignedMany">
+                <td class="table-cell"> {{ getPoliticoNameByID(assigned.politicoId) }} </td>
+                <td class="table-cell"> {{ assigned.points }} </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+    // assign-control.component.ts
+
+import { Component, OnInit } from '@angular/core';
+import { Player } from '../../models/player/player';
+import { CommonModule } from '@angular/common';
+import { Politico } from '../../models/politico/politico';
+import { InfluenceAssigned } from '../../models/influence-assigned/influence-assigned';
+import { InfluenceRequest } from '../../models/influence-request/influence-request';
+import { InfluenceService } from '../../services/influence/influence.service';
+import { PlayerService } from '../../services/player/player.service';
+import { PoliticoService } from '../../services/politico/politico.service';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { PoliticoUtilsService } from '../../services/politico/politico-utils.service';
+
+@Component({
+  selector: 'app-assign-control',
+  standalone: true,
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  templateUrl: './assign-control.component.html',
+  styleUrl: './assign-control.component.scss'
+})
+export class AssignControlComponent implements OnInit {
+  players : Player[] = [];
+  politicos : Politico[] = [];
+  possibleValues : number[] = [];
+  playerAssign : Player = new Player;
+  assignedPolIDs : number[] = [];
+  assignedPolitico : Politico = new Politico;
+  freePoliticos : Politico[] = [];
+  assignedValue! : number;
+  assignedRequest : InfluenceRequest = new InfluenceRequest;
+  assignedSingle : InfluenceAssigned = new InfluenceAssigned;
+  assignedMany : InfluenceAssigned[] = [];
+
+  constructor(
+    private playerService : PlayerService,
+    private politicoService : PoliticoService,
+    private influenceService : InfluenceService,
+    private politicoUtils : PoliticoUtilsService
+  ){}
+
+  ngOnInit(): void {
+      this.politicoService.getPoliticos().subscribe( pols => {
+        this.politicos = pols;
+      });
+      this.playerService.getAllPlayers().subscribe( players => {
+        this.players = players;
+      });
+  }
+
+  // Se activa al seleccionar Jugador (en el prototipo).
+  // Trae los valores que restan por asignar al Jugador y una tabla de Asignaciones del mismo.
+  // Más adelante, buscaremos que se active cada vez que un Usuario con sesión activa
+    // y Jugador elegido acceda al panel de asignación (para garantizar que esta información
+    // sólo sea visible para dicho Jugador)
+  getPlayerStatus(player : Player) {
+    this.getPoliticosFreeForAssign(player);
+    this.getPossibleAssignValues(player);
+  }
+
+  getPossibleAssignValues(player : Player) {
+    this.influenceService.getPossibleAssignValues(player.id).subscribe( values => {
+      this.possibleValues = values;
+    });
+  }
+
+  getPoliticosFreeForAssign(player : Player) : void {
+    this.influenceService
+          .getAssignedByPlayer(player.id)
+          .subscribe(res => {
+              this.assignedMany = res;
+              if (this.assignedMany.length == 0) {
+                this.freePoliticos = this.politicos;
+              } else {
+                this.assignedPolIDs = this.assignedMany.map(assigned => assigned.politicoId);
+                this.freePoliticos = this.politicos.filter(politico => !(this.assignedPolIDs.includes(politico.id)));
+              }
+            }
+          );
+  }
+
+  assignInfluence() : void {
+    this.assignedRequest.playerId = this.playerAssign.id;
+    this.assignedRequest.politicoId = this.assignedPolitico.id;
+    this.assignedRequest.points = this.assignedValue;
+    this.influenceService
+          .assignInfluence(this.assignedRequest)
+          .subscribe( res => {
+            this.assignedSingle = res;
+          });
+  }
+
+  getPoliticoNameByID(id : number) : string {
+    return this.politicoUtils.getPoliticoNameByID(id, this.politicos);
+  }
+}
+
+** /controles
+
+    // controles.component.html
+
+<div class="controles">
+    <div>
+        <app-ministry-control></app-ministry-control>
+    </div>
+    <div class="influence-control">
+        <app-assign-control></app-assign-control>
+        <app-declare-control></app-declare-control>
+    </div>
+</div>
+
+    // controles.component.scss
+
+.controles {
+    display: flex;
+    flex-direction: column;
+}
+
+.influence-control {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+    // controles.component.ts
+
+import { Component, OnInit } from '@angular/core';
+import { AssignControlComponent } from '../assign-control/assign-control.component';
+import { MinistryControlComponent } from '../ministry-control/ministry-control.component';
+import { DeclareControlComponent } from "../declare-control/declare-control.component";
+
+@Component({
+  selector: 'app-controles',
+  standalone: true,
+  imports: [
+    AssignControlComponent,
+    MinistryControlComponent,
+    DeclareControlComponent
+  ],
+  templateUrl: './controles.component.html',
+  styleUrl: './controles.component.scss'
+})
+export class ControlesComponent {
+
+  constructor(){}
+}
+
+** /declare-control
+
+    // declare-control.component.html
+
+<h2 class="control-titulo"> Declarar Influencia </h2>
+<div class="controles-influencia">
+    <!-- Traer todos los Jugadores -->
+    <div>
+        <p> Jugador que Declara influencia: {{ playerDeclare.name }} </p>
+        <select name="selPlayer" [(ngModel)]="playerDeclare" (ngModelChange)="getPlayerStatus($event)">
+            <option [ngValue]="player" *ngFor="let player of players">
+                {{ player.name }}
+            </option>
+        </select>
+    </div>
+    <!-- Traer todos los politicos -->
+    <div>
+        <p> Político a Declarar Influencia: {{ declaredPolitico.name }} </p>
+        <select name="selPolitico" [(ngModel)]="declaredPolitico" (ngModelChange)="getPoliticoStatus($event)"> 
+            <option [ngValue]="politico" *ngFor="let politico of politicosAssigned">
+                {{ politico.name }}
+            </option>
+        </select>
+    </div>
+    <!-- Traer valores posibles (descartando los valores inválidos) -->
+    <div>
+        <p> Valor a Declarar: {{ declaredValue }} </p>
+        <select name="declaredValue" [(ngModel)]="declaredValue">
+            <option [ngValue]="possibleValue" *ngFor="let possibleValue of possibleValues">
+                {{ possibleValue }}
+            </option>
+        </select>
+    </div>
+    <!-- Botón de Declaración -->
+    <button class="boton" (click)="declareInfluence()"> Declarar </button>
+</div>
+    
+<!-- Tabla de resumen con los Politicos con Influencia Declarada del Jugador elegido -->
+<div class="tabla-influencia">
+    <h3 class="control-titulo"> Tabla de Influencia Declarada del Jugador {{ playerDeclare.name }} </h3>
+    <table>
+        <thead>
+            <tr>
+                <th class="table-cell" scope="col"> Politico </th>
+                <th class="table-cell" scope="col"> Puntos Declarados </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let declared of declaredMany">
+                <td class="table-cell"> {{ getPoliticoNameByID(declared.politicoId) }} </td>
+                <td class="table-cell"> {{ declared.points }} </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+    // declare-control.component.ts
+
+import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { InfluenceService } from '../../services/influence/influence.service';
+import { InfluenceDeclared } from '../../models/influence-declared/influence-declared';
+import { InfluenceAssigned } from '../../models/influence-assigned/influence-assigned';
+import { Player } from '../../models/player/player';
+import { Politico } from '../../models/politico/politico';
+import { InfluenceRequest } from '../../models/influence-request/influence-request';
+import { PoliticoService } from '../../services/politico/politico.service';
+import { PlayerService } from '../../services/player/player.service';
+import { PoliticoUtilsService } from '../../services/politico/politico-utils.service';
+
+@Component({
+  selector: 'app-declare-control',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule
+  ],
+  templateUrl: './declare-control.component.html',
+  styleUrl: './declare-control.component.scss'
+})
+export class DeclareControlComponent {
+  
+  players: Player[] = [];
+  playerDeclare: Player = new Player;
+  politicos : Politico[] = [];
+  assignedPolIDs : number[] = [];
+  politicosAssigned : Politico[] = [];
+  assignedByPlayer : InfluenceAssigned[] = [];
+  possibleValues: number[] = [];
+  declaredPolitico: Politico = new Politico;
+  declaredValue!: number;
+  declaredMany: InfluenceDeclared[] = [];
+  declaredSingle: InfluenceDeclared = new InfluenceDeclared;
+  declareRequest : InfluenceRequest = new InfluenceRequest;
+
+  constructor(
+    private playerService : PlayerService,
+    private politicoService : PoliticoService,
+    private influenceService : InfluenceService,
+    private politicoUtils : PoliticoUtilsService
+  ){}
+
+  ngOnInit(): void {
+      this.politicoService.getPoliticos().subscribe( pols => {
+        this.politicos = pols;
+      });
+      this.playerService.getAllPlayers().subscribe( players => {
+        this.players = players;
+      });
+  }
+
+  getAssignedByPlayer(player : Player) : void {
+      this.influenceService
+        .getAssignedByPlayer(player.id)
+        .subscribe(res => {
+          this.assignedByPlayer = res;
+          this.assignedPolIDs = this.assignedByPlayer.map(assigned => assigned.politicoId);
+          this.politicosAssigned = this.politicos.filter(politico => this.assignedPolIDs.includes(politico.id));
+        });
+  }
+
+  getPossibleDeclareValues() : void {
+    this.declareRequest.playerId = this.playerDeclare.id;
+    this.declareRequest.politicoId = this.declaredPolitico.id;
+    console.log(this.declareRequest);
+    this.influenceService.getPossibleDeclareValues(this.declareRequest)
+                         .subscribe(values => {
+                            this.possibleValues = values;
+                            console.log(this.possibleValues);
+                         });
+  }
+
+  getDeclaredByPlayer(player : Player) : void {
+    this.influenceService
+          .getDeclaredByPlayer(player.id)
+          .subscribe( res => {
+            this.declaredMany = res;
+          });
+  }
+
+  getPoliticoNameByID(id : number) : string {
+      return this.politicoUtils.getPoliticoNameByID(id, this.politicos);
+  }
+  
+  // Get Player data (Politicos assigned by Player)
+  getPlayerStatus(player : Player) {
+    // Get Player's Assigned
+    this.getAssignedByPlayer(player);
+    // Get Player's Declared
+    this.getDeclaredByPlayer(player);
+  }
+
+  getPoliticoStatus(declaredPolitico : Politico) {
+    this.getPossibleDeclareValues();
+  }
+  
+  declareInfluence() : void {
+    this.declareRequest.playerId = this.playerDeclare.id;
+    this.declareRequest.politicoId = this.declaredPolitico.id;
+    this.declareRequest.points = this.declaredValue;
+    this.influenceService
+          .declareInfluence(this.declareRequest)
+          .subscribe( res => {
+            this.declaredSingle = res;
+          });
+  }
+}
+
+** /ministry-control
+
+// ministry-control.component.html
+
+<h2 class="control-titulo"> Ocupar / Desocupar Ministerio </h2>
+<div class="controles-ministerio">
+    <div>
+        <h3> Cargar Ministerios </h3>
+        <button class="boton" (click)="loadMinistries()" [disabled]="ministerios.length != 0"> Cargar Ministerios </button>
+    </div>
+    <div>
+        <h3> Seleccionar Ministerio </h3>
+        <select name="selMinistry" [(ngModel)]="ministerioObjetivo">
+            <option [ngValue]="ministerio" *ngFor="let ministerio of ministerios">
+                {{ ministerio.name }}
+            </option>
+        </select>
+        <p> Ministerio vacante: {{ ministerioObjetivo.name }} </p>
+    </div>
+    <div>
+        <h3> Asignar Ministro </h3>
+        <select name="selMinister" [(ngModel)]="ministroAsignado">
+            <option [ngValue]="politico" *ngFor="let politico of politicos">
+                {{ politico.name }}
+            </option>
+        </select>
+        <p> Ministro asignado: {{ ministroAsignado.name }} </p>
+        <button class="boton" (click)="assignMinister()"> Asignar </button>
+    </div>
+    <div>
+        <h3> Quitar Ministro </h3>
+        <select name="delMinister" [(ngModel)]="ministerioObjetivo">
+            <option [ngValue]="ministerio" *ngFor="let ministerio of ministerios">
+                {{ ministerio.name }}
+            </option>
+        </select>
+        <p> Ministerio vaciado: {{ ministerioVaciado.name }} </p>
+        <p> Ministro eliminado: {{ ministroEliminado.name }} </p>
+        <button class="boton" (click)="removeMinister()"> Eliminar </button>
+    </div>
+</div>
+
+// ministry-control.component.scss
+
+.controles-ministerio {
+    display: flex;
+    justify-content: space-around;
+}
+
+// ministry-control.component.ts
+
+import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { Ministry } from '../../models/ministry/ministry';
+import { MinistryService } from '../../services/ministry/ministry.service';
+import { PoliticoService } from '../../services/politico/politico.service';
+import { FormsModule } from '@angular/forms';
+import { Politico } from '../../models/politico/politico';
+
+@Component({
+  selector : 'app-ministry-control',
+  standalone : true,
+  imports : [
+    CommonModule,
+    FormsModule
+  ],
+  templateUrl : './ministry-control.component.html',
+  styleUrl : './ministry-control.component.scss'
+})
+export class MinistryControlComponent implements OnInit {
+  politicos : Politico[] = [];
+  ministerios : Ministry[] = [];
+  ministerioObjetivo : Ministry = new Ministry;
+  ministerioOcupado : Ministry = new Ministry;
+  ministerioVaciado : Ministry = new Ministry;
+  ministroAsignado : Politico = new Politico;
+  ministroEliminado : Politico = new Politico;
+
+  constructor(
+    private ministryService : MinistryService,
+    private politicoService : PoliticoService
+  ){};
+
+  ngOnInit(): void {
+    this.ministryService.getMinistries().subscribe( mins => {
+      this.ministerios = mins;
+    });
+    this.politicoService.getPoliticos().subscribe( pols => {
+      this.politicos = pols;
+    });
+  }
+
+  loadMinistries() : void {
+    this.ministryService.loadMinistries().subscribe(mins => {
+      console.log(mins);
+    })
+  }
+
+  assignMinister() {
+    this.ministryService
+      .assignMinister(this.ministerioObjetivo.id, this.ministroAsignado.id)
+      .subscribe( min => {
+        this.ministerioOcupado = min;
+      });
+  }
+
+  removeMinister() {
+    this.politicoService
+      .getPoliticoByID(this.ministerioObjetivo.ministerId)
+      .subscribe( pol => {
+        this.ministroEliminado = pol;
+      });
+    this.ministryService
+      .removeMinister(this.ministerioObjetivo.id)
+      .subscribe( min => {
+        this.ministerioVaciado = min;
+      });
+  }
+}
+
+** /player
+
+// player.component.html
+
+<div class="player-bloque">
+    <h1> Crear Nuevo Jugador </h1>
+    <form 
+        class="formulario" 
+        [formGroup]="datosPlayer" 
+        (ngSubmit)="createSinglePlayer()"
+    >
+        <label class="campo01"> Name:
+            <input type="text" formControlName="name" required>
+        </label>
+        <label class="campo02"> Faction:
+            <select formControlName="faction">
+                <option [ngValue]="faction" *ngFor="let faction of factions">
+                    {{ faction }}
+                </option>
+            </select>
+        </label>
+        <button class="boton boton-enviar" type="submit" [disabled]="!datosPlayer.valid">
+            Enviar
+        </button>
+    </form>
+</div>
+
+// player.component.scss
+
+.player-bloque {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.formulario {
+    padding: 1rem;
+    margin: 1rem 0 1rem 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    align-items: center;
+    justify-items: center;
+    gap: 1rem;
+
+    .campo01 { grid-area: 1 / 1 / 2 / 2; }
+    .campo02 { grid-area: 1 / 2 / 2 / 3; }
+    .boton-enviar { grid-area: 2 / 1 / 4 / 3; }
+}
+
+// player.component.ts
+
+import { Component, OnInit } from '@angular/core';
+import { Player } from '../../models/player/player';
+import { PlayerRequest } from '../../models/player-request/player-request';
+import { PlayerService } from '../../services/player/player.service';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'app-player',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule
+  ],
+  templateUrl: './player.component.html',
+  styleUrl: './player.component.scss'
+})
+export class PlayerComponent implements OnInit {
+
+  datosPlayer : FormGroup = new FormGroup({
+    name : new FormControl<string>('', [Validators.required]),
+    faction : new FormControl<string>('', [Validators.required])
+  });
+  
+  factions : string[] = [];
+
+  constructor( private playerService : PlayerService ) {}
+
+  ngOnInit(): void {
+      this.getAllFactions();
+  }
+
+  createSinglePlayer() : void {
+    const newPlayer : Player = this.datosPlayer.getRawValue();
+    this.playerService.createSinglePlayer(newPlayer).subscribe(res => {
+      console.log(res);
+    });
+  }
+
+  getAllFactions() : void {
+    this.playerService.getAllFactions().subscribe( res => {
+      this.factions = res;
+    })
+  }
+}
+
+** /politicos
+
+// politicos.component.html
+
+<div class="politico-bloque">
+    <h1> Listar Politicos </h1>
+    <button class="boton" (click)="getPoliticos()"> Listar Politicos </button>
+    <ul>
+        <li *ngFor="let politico of politicos">
+            {{ politico.id }} - {{ politico.name }}
+        </li>
+    </ul>
+</div>
+
+<div class="politico-bloque">
+    <h1> Cargar Politicos </h1>
+    <button class="boton" (click)="loadPoliticos()" [disabled]="politicos.length != 0"> Cargar Politicos </button>
+</div>
+
+<div class="politico-bloque">
+    <h1> Crear Nuevo Politico </h1>
+    <form 
+        class="formulario" 
+        [formGroup]="datosPolitico" 
+        (ngSubmit)="createSinglePolitico()"
+    >
+        <label class="campo01"> Name:
+            <input type="text" formControlName="name" required>
+        </label>
+        <label class="campo02"> Alias:
+            <input type="text" formControlName="alias" required>
+        </label>
+        <label class="campo03"> Age:
+            <input type="number" formControlName="age" required>
+        </label>
+        <button class="boton boton-enviar" type="submit" [disabled]="!datosPolitico.valid">
+            Enviar
+        </button>
+    </form>
+</div>
+
+// politicos.component.scss
+
+.politico-bloque {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.formulario {
+    padding: 1rem;
+    margin: 1rem 0 1rem 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    align-items: center;
+    justify-items: center;
+    gap: 1rem;
+
+    .campo01 { grid-area: 1 / 1 / 2 / 2; }
+    .campo02 { grid-area: 1 / 2 / 2 / 3; }
+    .campo03 { grid-area: 2 / 1 / 3 / 2; }
+    .boton-enviar { grid-area: 3 / 1 / 4 / 3; }
+}
+
+// politico.component.ts
+
+import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { Politico } from '../../models/politico/politico';
+import { PoliticoService } from '../../services/politico/politico.service';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+
+@Component({
+  selector: 'app-politicos',
+  standalone: true,
+  imports: [ 
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule
+  ],
+  templateUrl: './politicos.component.html',
+  styleUrl: './politicos.component.scss'
+})
+export class PoliticosComponent {
+  politico : Politico = new Politico;
+  politicos : Politico[] = [];
+  idPolitico : FormControl<number> = new FormControl;
+  datosPolitico : FormGroup = new FormGroup({
+    // id: new FormControl<number | null>(null),)
+    name: new FormControl<string>('', [Validators.required]),
+    alias: new FormControl<string>('', [Validators.required]),
+    age: new FormControl<number>(0, [Validators.required])
+  });
+
+  constructor(private politicoService : PoliticoService) {}
+
+  getPoliticos() {
+    this.politicoService.getPoliticos().subscribe( data => {
+      this.politicos = data;
+    });
+  }
+
+  getPoliticoByID() {
+    this.politicoService.getPoliticoByID(this.idPolitico.value).subscribe( data => {
+      this.politico = data;
+    })
+  }
+
+  createSinglePolitico() : void {
+    const nuevoPolitico : Politico = this.datosPolitico.getRawValue();
+    this.politicoService.createSinglePolitico(nuevoPolitico).subscribe({
+      next : res => console.log("Guardado con éxito: ", res),
+      error : err => console.log("Error al guardar: ", err)
+    });
+  }
+
+  loadPoliticos() : void {
+    this.politicoService.loadPoliticos().subscribe(loaded => {
+      console.log(loaded);
+    });
+  }
+}
+
+** /tablero
+
+// tablero.component.html
+
+<div class="tablero">
+    <div
+        *ngFor="let ministryStatus of allMinistryStatus; let i = index"
+        [ngClass]="posiciones[i % posiciones.length]"
+    >
+        <!-- Ministry data -->
+        <p> {{ ministryStatus.ministry.name }} </p>
+        <p> Número de purga >= {{ ministryStatus.ministry.purgeNr }} </p>
+        <p *ngIf="ministryStatus.minister"> {{ ministryStatus.minister.name }} </p>
+        <p *ngIf="!ministryStatus.minister"> VACANTE </p>
+        
+        <!-- Minister Controller Badge -->
+        <span *ngIf="ministryStatus.controller">
+            Controlado por: {{ ministryStatus.controller.name }}
+        </span>
+        <span *ngIf="!ministryStatus.controller">
+            NO CONTROLADO
+        </span>
+
+        <!-- Declared Influence values on Minister -->
+        <span>
+
+        </span>
+    </div>
+    <!-- <div>
+        <p id="alias"> </p>
+        <p id="age"> </p>
+        <p id="name"> </p>
+    </div> -->
+</div>
+
+<!-- Botón para asignación inicial de Ministros en Ministerios -->
+<button class="boton" (click)="initialMinisterAssign()"> Inicializar Ministros </button>
+
+// tablero.component.scss
+
+.tablero {
+    margin: 1rem 0 2rem 0;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    grid-column-gap: 1rem;
+    grid-row-gap: 1rem;
+    justify-content: center;
+
+    > * {
+        padding: 1rem;
+        background-color: lightgray;
+        border: 2px solid #000;
+        border-radius: 4px;
+    }
+}
+
+.min1 { grid-area: 1 / 3 / 2 / 4; }
+.min2 { grid-area: 2 / 2 / 3 / 3; }
+.min3 { grid-area: 2 / 3 / 3 / 4; }
+.min4 { grid-area: 2 / 4 / 3 / 5; }
+.min5 { grid-area: 3 / 1 / 4 / 2; }
+.min6 { grid-area: 3 / 2 / 4 / 3; }
+.min7 { grid-area: 3 / 3 / 4 / 4; }
+.min8 { grid-area: 3 / 4 / 4 / 5; }
+.min9 { grid-area: 4 / 1 / 5 / 2; }
+.min10 { grid-area: 4 / 2 / 5 / 3; }
+.min11 { grid-area: 4 / 3 / 5 / 4; }
+.min12 { grid-area: 4 / 4 / 5 / 5; }
+.min13 { grid-area: 4 / 5 / 5 / 6; }
+.min14 { grid-area: 5 / 2 / 6 / 3; }
+.min15 { grid-area: 5 / 3 / 6 / 4; }
+.min16 { grid-area: 5 / 4 / 6 / 5; }
+.min17 { grid-area: 5 / 5 / 6 / 6; }
+
+// tablero.component.ts
+
+import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Ministry } from '../../models/ministry/ministry';
+import { Politico } from '../../models/politico/politico';
+import { Player } from '../../models/player/player';
+import { MinistryService } from '../../services/ministry/ministry.service';
+import { PoliticoService } from '../../services/politico/politico.service';
+import { PlayerService } from '../../services/player/player.service';
+import { ControlPoliticoService } from '../../services/control_politico/control-politico.service';
+import { MinistryStatus } from '../../models/ministry-status/ministry-status';
+import { firstValueFrom, forkJoin } from 'rxjs';
+
+@Component({
+  selector: 'app-tablero',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule
+  ],
+  templateUrl: './tablero.component.html',
+  styleUrl: './tablero.component.scss'
+})
+export class TableroComponent implements OnInit {
+  ministerios : Ministry[] = [];
+  politicos : Politico[] = [];
+  jugadores : Player[] = [];
+  initialMinisterIDs : number[] = [];
+  statusList : MinistryStatus[] = [];
+  allMinistryStatus : ( { ministry : Ministry } 
+                      & { minister : Politico | null }
+                      & { controller : Player | null }
+                      )[] = [];
+  posiciones = [
+                'min1', 'min2', 'min3', 'min4', 'min5', 'min6',
+                'min7', 'min8', 'min9', 'min10', 'min11', 'min12',
+                'min13', 'min14', 'min15', 'min16', 'min17'
+               ];
+
+  constructor(
+    private ministryService : MinistryService, 
+    private politicoService : PoliticoService,
+    private playerService : PlayerService,
+    private controlService : ControlPoliticoService
+  ){}
+
+  ngOnInit(): void {
+    this.loadAllData();
+  }
+
+  loadAllData() : void {
+    forkJoin({
+      mins : this.ministryService.getMinistries(),
+      pols : this.politicoService.getPoliticos(),
+      players : this.playerService.getAllPlayers(),
+      allStatus : this.controlService.getAllMinistryStatus()
+    })
+    .subscribe( ({mins, pols, players, allStatus}) => {
+      this.ministerios = mins;
+      this.politicos = pols;
+      this.jugadores = players;
+      this.statusList = allStatus;
+
+      this.allMinistryStatus = this.statusList.map( status => {
+        const ministry = this.ministerios.find(m => m.id === status.ministryID)!;
+        const minister = this.politicos.find(p => p.id === status.ministerID) || null;
+        const controller = this.jugadores.find(j => j.id === status.controllerID) || null;
+        
+        return { ministry, minister, controller };
+      });
+    });
+  }
+
+  initialMinisterAssign() : void {
+    this.ministryService.assignRandomMinisters().subscribe( ministries => {
+      this.ministerios = ministries;
+      console.log("Ministerios actualizados:\n", ministries);
+    });
+  }
+  
+  // getMinistries() {
+  //   this.ministryService.getMinistries().subscribe( mins => {
+  //     this.ministerios = mins;
+  //   });
+  // }
+
+  // getPoliticos() {
+  //   this.politicoService.getPoliticos().subscribe( pols => {
+  //     this.politicos = pols;
+  //   });
+  // }
+
+  // getPlayers() {
+  //   this.playerService.getAllPlayers().subscribe( players => {
+  //     this.jugadores = players;
+  //   })
+  // }
+
+  // getAllMinistryStatus() {
+  //   this.controlService.getAllMinistryStatus().subscribe( allStatus => {
+  //     this.statusList = allStatus;
+  //     this.allMinistryStatus = this.statusList.map( status => {
+  //       const ministry = this.ministerios.find( m => m.id === status.ministryID )!;
+  //       const minister = this.politicos.find( p => p.id === status.ministerID ) || null;
+  //       const controller = this.jugadores.find( j => j.id === status.controllerID) || null;
+  
+  //       return {
+  //         ministry,
+  //         minister,
+  //         controller
+  //       };
+  //     });
+  //   });
+  // }
+}
+
+** /app.component (Principal)
+
+// app.component.html
+
+<main class="container">
+  <router-outlet></router-outlet>
+</main>
+
+// app.component.ts
+
+import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { HomeComponent } from "./components/home/home.component";
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterOutlet
+  ],
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.scss'
+})
+export class AppComponent {
+  title = 'Kremlin';
+}
+
+// app.config.ts
+
+import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { provideRouter } from '@angular/router';
+import { routes } from './app.routes';
+import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+import { authInterceptor } from './components/core/auth.interceptor';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideZoneChangeDetection({ eventCoalescing: true }), 
+    provideRouter(routes), 
+    provideClientHydration(withEventReplay()),
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([authInterceptor])
+    )
+  ]
+};
+
+// app.config.server.ts
+
+import { mergeApplicationConfig, ApplicationConfig } from '@angular/core';
+import { provideServerRendering } from '@angular/platform-server';
+import { appConfig } from './app.config';
+
+const serverConfig: ApplicationConfig = {
+  providers: [
+    provideServerRendering(),
+  ]
+};
+
+export const config = mergeApplicationConfig(appConfig, serverConfig);
+
+// app.routes.ts
+
+import { Routes } from '@angular/router';
+import { LoginComponent } from './components/login/login.component';
+import { RegisterComponent } from './components/register/register.component';
+import { TableroComponent } from './components/tablero/tablero.component';
+import { HomeComponent } from './components/home/home.component';
+import { AssignControlComponent } from './components/assign-control/assign-control.component';
+import { GameComponent } from './components/game/game.component';
+
+export const routes: Routes = [
+     { path: '', component: HomeComponent },
+     { path: 'login', component: LoginComponent },
+     { path: 'register', component: RegisterComponent},
+     { path: 'assign', component: AssignControlComponent},
+     { path: 'board', component: TableroComponent},
+     { path: 'games', component: GameComponent},
+     { path: '**', redirectTo: '' } // fallback
+];
+
+// index.html
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Kremlin</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+</head>
+<body>
+  <app-root></app-root>
+</body>
+</html>
+
+// main.server.ts
+
+import { bootstrapApplication } from '@angular/platform-browser';
+import { AppComponent } from './app/app.component';
+import { config } from './app/app.config.server';
+
+const bootstrap = () => bootstrapApplication(AppComponent, config);
+
+export default bootstrap;
+
+// main.ts
+
+import { bootstrapApplication } from '@angular/platform-browser';
+import { appConfig } from './app/app.config';
+import { AppComponent } from './app/app.component';
+
+bootstrapApplication(AppComponent, appConfig)
+  .catch((err) => console.error(err));
+
+// server.ts
+
+import { APP_BASE_HREF } from '@angular/common';
+import { CommonEngine, isMainModule } from '@angular/ssr/node';
+import express from 'express';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import bootstrap from './main.server';
+
+const serverDistFolder = dirname(fileURLToPath(import.meta.url));
+const browserDistFolder = resolve(serverDistFolder, '../browser');
+const indexHtml = join(serverDistFolder, 'index.server.html');
+
+const app = express();
+const commonEngine = new CommonEngine();
+
+/**
+ * Example Express Rest API endpoints can be defined here.
+ * Uncomment and define endpoints as necessary.
+ *
+ * Example:
+ * ```ts
+ * app.get('/api/**', (req, res) => {
+ *   // Handle API request
+ * });
+ * ```
+ */
+
+/**
+ * Serve static files from /browser
+ */
+app.get(
+  '**',
+  express.static(browserDistFolder, {
+    maxAge: '1y',
+    index: 'index.html'
+  }),
+);
+
+/**
+ * Handle all other requests by rendering the Angular application.
+ */
+app.get('**', (req, res, next) => {
+  const { protocol, originalUrl, baseUrl, headers } = req;
+
+  commonEngine
+    .render({
+      bootstrap,
+      documentFilePath: indexHtml,
+      url: `${protocol}://${headers.host}${originalUrl}`,
+      publicPath: browserDistFolder,
+      providers: [{ provide: APP_BASE_HREF, useValue: baseUrl }],
+    })
+    .then((html) => res.send(html))
+    .catch((err) => next(err));
+});
+
+/**
+ * Start the server if this module is the main entry point.
+ * The server listens on the port defined by the `PORT` environment variable, or defaults to 4000.
+ */
+if (isMainModule(import.meta.url)) {
+  const port = process.env['PORT'] || 4000;
+  app.listen(port, () => {
+    console.log(`Node Express server listening on http://localhost:${port}`);
+  });
+}
+
+export default app;
+
+
+/* styles.scss */
+
+@import 'normalize.css/normalize.css';
+
+.container {
+    margin: 0 auto;
+}
+
+.bloque {
+    background-color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+}
+.boton {
+    background-color: grey;
+    padding: .5rem 1rem;
+    color: white;
+    font-weight: 400;
+    height: max-content;
+    width: max-content;
+}
+.titulo-boton {
+    color: white;
+}
+
+// Influencia
+.control-titulo {
+    text-align: center;
+}
+.controles-influencia {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+}
+.table-cell {
+    text-align: center;
+    border: 1px solid #000;
+}
+.tabla-influencia {
+    display: flex;
+    flex-direction: column;
+}
+

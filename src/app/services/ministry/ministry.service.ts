@@ -1,4 +1,3 @@
-
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -36,5 +35,4 @@ export class MinistryService {
   assignRandomMinisters() : Observable<Ministry[]> {
     return this.http.post<Ministry[]>(this.apiURL + "/setup/assign_all_ministers", null);
   }
-
 }

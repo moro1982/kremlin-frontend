@@ -1,0 +1,20 @@
+
+<div class="ministry-slot">
+    
+    <div class="ministry-name">
+        {{ ministry?.name }}
+    </div>
+
+    <app-politico-card
+        *ngIf="politico"
+        [politico]="politico"
+        [selected]="politico.id === selectedPoliticoID"
+        (selectedChange)="onPoliticoSelected($event)"
+    >
+    </app-politico-card>
+
+    <div *ngIf="!politico" class="vacant">
+        Vacant
+    </div>
+    
+</div>

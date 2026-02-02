@@ -1,0 +1,15 @@
+<div>
+    <ng-container *ngIf="gameStore.gameState()">
+        <app-politburo-pyramid
+            [ministries]="gameStore.ministries()"
+            [politicos]="gameStore.politicos()"
+            [selectedPoliticoID]="gameStore.ui()?.selectedPoliticoID ?? null"
+            (politicoSelected)="onPoliticoSelected($event)"
+        >
+        </app-politburo-pyramid>
+    </ng-container>
+    
+    <p *ngIf="!gameStore.gameState()">
+        No game loaded.
+    </p>
+</div>

@@ -1,5 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Game } from '../../models/game/game';
+import { GameService } from '../../services/game/game.service';
 
 @Component({
   selector: 'app-game',
@@ -10,11 +12,26 @@ import { Component } from '@angular/core';
   templateUrl: './game.component.html',
   styleUrl: './game.component.scss'
 })
-export class GameComponent {
+export class GameComponent implements OnInit {
 
-  games : string[] = [];
+  games : Game[] = [];
 
-  
+  constructor( private gameService : GameService ) { }
 
+  ngOnInit(): void {
+    this.getAllGames();
+  }
+
+  getAllGames() : void {
+    this.gameService.getAllGames().subscribe( res => { 
+      this.games = res;
+    });
+  }
+
+  createNewGame() : void {
+    this.gameService.createNewGame().subscribe( res => {
+        this.getAllGames();
+    });
+  }
 
 }

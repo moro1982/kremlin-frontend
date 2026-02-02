@@ -1,6 +1,8 @@
-import { ActionBlockingStatus } from "../../enums/action-blocking-status";
+import { ActionBlockingStatus } from "../../enum/action-blocking-status";
+import { Action } from "./action";
 
 export interface PhaseState {
     blockingStatus : ActionBlockingStatus;
-    awaitingAction : number | null;
+    awaitingAction : Action | null;
+    announcedActions : Action[];
 }

@@ -1,5 +1,5 @@
-import { ActionStatus } from "../../enums/action-status";
-import { ActionType } from "../../enums/action-type";
+import { ActionStatus } from "../../enum/action-status";
+import { ActionType } from "../../enum/action-type";
 
 export interface Action {
     id : number;
@@ -7,4 +7,5 @@ export interface Action {
     status : ActionStatus;
     actorPlayerID : number;
     targetPoliticoID? : number;
+    actingPoliticoID? : number;
 }

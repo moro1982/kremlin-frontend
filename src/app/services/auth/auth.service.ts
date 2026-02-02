@@ -1,5 +1,6 @@
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 
 interface AuthRequest {
@@ -12,6 +13,8 @@ interface AuthRequest {
   providedIn: 'root'
 })
 export class AuthService {
+
+  private platformID = inject(PLATFORM_ID);
 
   private apiURL = "http://localhost:8080/auth";
 
@@ -26,15 +29,22 @@ export class AuthService {
   }
 
   saveToken(token : string) {
-    localStorage.setItem('token', token);
+    if (isPlatformBrowser(this.platformID)) {
+      localStorage.setItem('token', token);
+    }
   }
 
   getToken() : string | null {
-    return localStorage.getItem('token');
+    if (isPlatformBrowser(this.platformID)) {
+      return localStorage.getItem('token');
+    }
+    return null;
   }
 
   logout() {
-    localStorage.removeItem('token');
+    if (isPlatformBrowser(this.platformID)) {
+      localStorage.removeItem('token');
+    }
   }
 
   isAuthenticated() : boolean {

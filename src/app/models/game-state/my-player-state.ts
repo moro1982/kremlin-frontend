@@ -5,7 +5,7 @@ export interface MyPlayerState {
     faction : string;
 
     // Private information
-    assignedInfluence : Record<number, number>; // politicoID -> value
+    assignedInfluences : Record<number, number>; // politicoID -> value
 
     // Flags for UI
     canAnnounceAction : boolean;

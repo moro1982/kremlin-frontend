@@ -1,8 +1,11 @@
+import { PhaseType } from "../../enum/phase-type";
 
 export interface GamePublic {
     id : number;
-    currentTurn : number;
-    currentPhase : number;
-    finished : boolean;
+    createdAt: Date;
+    version : number;
     updateCounter : number;
+    finished : boolean;
+    currentTurn : number;
+    currentPhase : PhaseType | null;
 }
