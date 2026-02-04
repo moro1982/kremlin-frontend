@@ -5,7 +5,15 @@
     <p> Game ID: / Created at: </p>
     <ul>
         <li *ngFor="let game of games">
-            <p> Game ID: {{ game.id }} / Created at: {{ game.createdAt }} </p>
+            <p> 
+                Game ID: {{ game.id }} / Created at: {{ game.createdAt }}
+                <button class="boton" (click)="loadGame(game.id)">
+                    Load
+                </button>
+                <button class="boton" (click)="openGame(game.id)">
+                    Open
+                </button>
+            </p>
         </li>
     </ul>
 

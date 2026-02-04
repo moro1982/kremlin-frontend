@@ -3,7 +3,7 @@ import { PoliticoResponseDto } from "./politico-response-dto";
 
 export interface GamePoliticoResponseDto {
     id : number;
-    politico : PoliticoResponseDto;
+    politicoDTO : PoliticoResponseDto;
     gameID : number;
     gameMinistryID : number;
     currentAge : number;

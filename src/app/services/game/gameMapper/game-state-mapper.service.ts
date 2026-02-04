@@ -167,10 +167,10 @@ export class GameStateMapperService {
         gp.id,
         {
           id : gp.id,
-          name : gp.politico.name,
-          alias : gp.politico.alias,
-          advantage : gp.politico.advantage,
-          disadvantage : gp.politico.disadvantage,
+          name : gp.politicoDTO.name,
+          alias : gp.politicoDTO.alias,
+          advantage : gp.politicoDTO.advantage,
+          disadvantage : gp.politicoDTO.disadvantage,
           age : gp.currentAge,
           damage : gp.damage,
           status : gp.status,
@@ -201,8 +201,8 @@ export class GameStateMapperService {
         gm.id,
         {
           id : gm.id,
-          name : gm.ministry.name,
-          purgeNr : gm.ministry.purgeNr,
+          name : gm.ministryDTO.name,
+          purgeNr : gm.ministryDTO.purgeNr,
           ministerID : gm.ministerID ?? undefined,
           isVacant : gm.isVacant
         }

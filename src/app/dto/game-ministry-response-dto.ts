@@ -2,7 +2,7 @@ import { MinistryResponseDto } from "./ministry-response-dto";
 
 export interface GameMinistryResponseDto {
     id : number;
-    ministry : MinistryResponseDto;
+    ministryDTO : MinistryResponseDto;
     gameID : number;
     ministerID : number;
     isVacant : boolean;

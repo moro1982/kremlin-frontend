@@ -1,9 +1,9 @@
 <div class="pyramid">
     <div class="row top">
         <app-ministry-slot
-            *ngFor="let type of topLvl"
-            [ministry]="getMinistry(type)"
-            [politico]="getPoliticoForMinistry(type)"
+            *ngFor="let ministry of topLvl"
+            [ministry]="ministry"
+            [politico]="getPoliticoForMinistry(ministry)"
             [selectedPoliticoID]="selectedPoliticoID"
             (politicoSelected)="onPoliticoSelected($event)"
         >
@@ -12,9 +12,9 @@
 
     <div class="row fstLvl">
         <app-ministry-slot
-            *ngFor="let type of firstLvl"
-            [ministry]="getMinistry(type)"
-            [politico]="getPoliticoForMinistry(type)"
+            *ngFor="let ministry of firstLvl"
+            [ministry]="ministry"
+            [politico]="getPoliticoForMinistry(ministry)"
             [selectedPoliticoID]="selectedPoliticoID"
             (politicoSelected)="onPoliticoSelected($event)"
         >
@@ -23,9 +23,9 @@
 
     <div class="row sndLvl">
         <app-ministry-slot
-            *ngFor="let type of secondLvl"
-            [ministry]="getMinistry(type)"
-            [politico]="getPoliticoForMinistry(type)"
+            *ngFor="let ministry of secondLvl"
+            [ministry]="ministry"
+            [politico]="getPoliticoForMinistry(ministry)"
             [selectedPoliticoID]="selectedPoliticoID"
             (politicoSelected)="onPoliticoSelected($event)"
         >
@@ -34,9 +34,9 @@
 
     <div class="row candidates">
         <app-ministry-slot
-            *ngFor="let type of candidates"
-            [ministry]="getMinistry(type)"
-            [politico]="getPoliticoForMinistry(type)"
+            *ngFor="let ministry of candidateLvl"
+            [ministry]="ministry"
+            [politico]="getPoliticoForMinistry(ministry)"
             [selectedPoliticoID]="selectedPoliticoID"
             (politicoSelected)="onPoliticoSelected($event)"
         >
@@ -45,9 +45,9 @@
 
     <div class="row people">
         <app-ministry-slot
-            *ngFor="let type of people"
-            [ministry]="getMinistry(type)"
-            [politico]="getPoliticoForMinistry(type)"
+            *ngFor="let ministry of peopleLvl"
+            [ministry]="ministry"
+            [politico]="getPoliticoForMinistry(ministry)"
             [selectedPoliticoID]="selectedPoliticoID"
             (politicoSelected)="onPoliticoSelected($event)"
         >

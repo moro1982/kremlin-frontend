@@ -3,13 +3,17 @@ import { computed, Injectable, signal } from '@angular/core';
 import { GameState } from '../../../models/game-state/game-state';
 import { UiNotification } from '../../../models/game-state/ui-notification';
 import { UiNotificationType } from '../../../enum/ui-notification-type';
+import { GameResponseDto } from '../../../dto/game-response-dto';
+import { GameStateMapperService } from '../gameMapper/game-state-mapper.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GameStoreService {
 
-  constructor( private http : HttpClient ) { }
+  constructor( private http : HttpClient ) { 
+    console.log('GameStoreService instance created', this);
+  }
 
   // URLs
   private gameURL = 'http://localhost:8080/game/base';
@@ -43,10 +47,16 @@ export class GameStoreService {
 
   // Initial game load (REST)
   loadGame(gameID : number) : void {
-    this.http.get<GameState>(this.gameURL + '/state/' + gameID)
+
+    console.log('loadGame called with gameID = ', gameID);
+
+    this.http.get<GameResponseDto>(this.gameURL + '/state/' + gameID)
              .subscribe({
-                next : state => {
-                  this._gameState.set(state);
+                next : dto => {
+                  console.log('Raw DTO received from backend:', dto);
+                  const gameState = GameStateMapperService.fromDTO(dto);
+                  console.log('Mapped GameState: ', gameState);
+                  this._gameState.set(gameState);
                   this.connectToSse(gameID);
                 },
                 error : err => {
