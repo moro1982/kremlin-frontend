@@ -17,7 +17,6 @@ import { GameUiState } from '../../../models/game-state/game-ui-state';
 import { TrialResponseDto } from '../../../dto/trial-response-dto';
 import { TrialState } from '../../../models/game-state/trial-state';
 
-
 @Injectable({
   providedIn: 'root'
 })

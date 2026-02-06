@@ -1,0 +1,29 @@
+<h2 class="title"> Available Games </h2>
+
+<div *ngIf="games().length === 0">
+    No Games available.
+</div>
+
+<div class="list">
+    <app-game-list-item
+      *ngFor="let game of games()"
+      [game]="game"
+      (join)="join($event)"
+      (resume)="open($event)">
+    </app-game-list-item>
+</div>
+
+<div class="create-game">
+    <label>
+        Max Players:
+        <input 
+            type="number"
+            min="3"
+            max="6"
+            [(ngModel)]="maxPlayers"
+        >
+    </label>
+    
+    <button (click)="onCreate()"> Create Game </button>
+
+</div>

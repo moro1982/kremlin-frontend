@@ -6,6 +6,10 @@ import { AssignControlComponent } from './components/assign-control/assign-contr
 import { GameComponent } from './components/game/game.component';
 import { BoardComponent } from './components/board/board.component';
 import { GamePageComponent } from './components/game-page/game-page.component';
+import { GameLobbyComponent } from './components/game-lobby/game-lobby.component';
+import { GameListComponent } from './components/game-list/game-list.component';
+import { InfluenceAssignmentComponent } from './components/influence-assignment/influence-assignment.component';
+import { GameJoinComponent } from './components/game-join/game-join.component';
 
 export const routes: Routes = [
      { path: '', component: HomeComponent },
@@ -14,6 +18,10 @@ export const routes: Routes = [
      { path: 'assign', component: AssignControlComponent },
      { path: 'board', component: BoardComponent },
      { path: 'games', component: GameComponent },
+     { path: 'game-list', component: GameListComponent },
+     { path: 'game/:gameID/join', component: GameJoinComponent},
+     { path: 'game/:gameID/lobby', component: GameLobbyComponent },
+     { path: 'game/:gameID/influence-assignment', component: InfluenceAssignmentComponent },
      { path: 'game/:gameID', component: GamePageComponent },
      { path: '**', redirectTo: '' } // fallback
 ];

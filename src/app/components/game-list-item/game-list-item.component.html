@@ -1,0 +1,33 @@
+<div class="game-item">
+
+  <div class="game-info">
+    <div class="game-id">
+      Game #{{ game.id }}
+    </div>
+
+    <div class="game-status">
+      Status: {{ game.lifeCycleStatus }}
+    </div>
+
+    <div class="game-players">
+      Players: {{ game.playerCount }} / {{ game.maxPlayers }}
+    </div>
+
+    <div class="game-created">
+      Created: {{ game.createdAt | date:'short' }}
+    </div>
+  </div>
+
+  <div class="game-actions">
+
+    <button *ngIf="game.joinable" (click)="onJoin()">
+      Join Game
+    </button>
+
+    <button *ngIf="game.resumable" (click)="onResume()">
+      Resume Game
+    </button>
+
+  </div>
+
+</div>

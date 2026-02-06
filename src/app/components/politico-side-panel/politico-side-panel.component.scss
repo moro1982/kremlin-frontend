@@ -1,0 +1,33 @@
+.side-panel {
+    width: 18rem;
+    padding: 1rem;
+    background: #111;
+    color: #eee;
+    border-left: 2px solid #333;
+    height: 100%;
+}
+
+.empty {
+    opacity: 0.6;
+    font-style: italic;
+}
+
+.content{
+    h2 {
+        margin: 0;
+    }
+    
+    h4 {
+        margin: 0 0 1rem 0;
+        opacity: 0.8;
+    }
+}
+
+section {
+    margin-top: 0.8rem;
+}
+
+.mine {
+    color: gold;
+    font-weight: bold;
+}

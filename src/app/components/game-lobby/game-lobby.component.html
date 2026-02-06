@@ -1,0 +1,34 @@
+<div *ngIf="gameContext() as context" class="lobby">
+    
+    <h2> Game #{{ context.gameID }}</h2>
+    
+    <p> Players: {{ context.players.length }} / {{ context.maxPlayers }} </p>
+
+    <ul class="players">
+        <li *ngFor="let p of context.players">
+            <span> {{ p.name }} </span> / 
+            <span *ngIf="p.faction"> {{ p.faction }} </span> / 
+            <span 
+              class="ready"
+              [class.ok]="p.ready"
+            >
+              {{ p.ready ? 'Ready' : 'Not ready' }}
+            </span>
+        </li>
+    </ul>
+
+    <div class="actions">
+        <button (click)="toggleReady()">
+            Change status
+        </button>
+
+        <button *ngIf="canStart(context)" (click)="beginInfluenceAssignment()">
+            Start Game
+        </button>
+
+        <button (click)="leaveLobby()"> 
+            Quit 
+        </button>
+    </div>
+
+</div>

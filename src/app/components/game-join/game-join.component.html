@@ -1,0 +1,29 @@
+<h2>Join Game</h2>
+
+<div class="form">
+
+  <label>
+    Player name
+    <input [(ngModel)]="name"/>
+  </label>
+
+  <label>
+    Faction
+    <select [(ngModel)]="faction">
+      <option *ngFor="let f of factions" [value]="f">
+        {{ f }}
+      </option>
+    </select>
+  </label>
+
+  <div class="actions">
+    <button [disabled]="!canSubmit()" (click)="submit()">
+      Join
+    </button>
+
+    <button (click)="cancel()">
+      Cancel
+    </button>
+  </div>
+
+</div>

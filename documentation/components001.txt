@@ -1,6 +1,6 @@
 /* Models */
 
-// ../app/game-state
+** /app/game-state
 
 // Action
 
@@ -264,6 +264,56 @@ export interface UiNotification {
     ttl? : number;              // time-to-live (ms)
 }
 
+** /current-game-context
+
+    // current-game-context.ts
+
+import { LobbyPlayerDto } from "../../dto/lobby-player-dto";
+import { GameLifecycleStatus } from "../../enum/game-life-cycle-status";
+import { GameStatus } from "../../enum/game-status";
+import { GameState } from "../game-state/game-state";
+
+export interface CurrentGameContext {
+    
+    gameID : number;
+
+    lifeCycleStatus : GameLifecycleStatus;
+    status : GameStatus;
+
+    maxPlayers : number;
+
+    players : LobbyPlayerDto[];
+
+    gameState?: GameState;
+}
+
+** /game-summary
+
+    // game-summary.ts
+
+import { GameLifecycleStatus } from "../../enum/game-life-cycle-status";
+
+export interface GameSummary {
+
+    id : number;
+
+    // Game's global status
+    lifeCycleStatus : GameLifecycleStatus;
+
+    // Players
+    playerCount : number;
+    maxPlayers : number;
+
+    // Relation to current user
+    iAmParticipant : boolean;
+    joinable : boolean;     // can I join this Game?
+    resumable : boolean;    // can I resume? (I already participate)
+
+    // Metadata (for UI)
+    createdAt : Date;
+    startedAt : Date;
+}
+
 
 
 /* Enums */
@@ -297,6 +347,11 @@ export enum ActionType {
     NEGATE_CONDEMNATION = 'NEGATE_CONDEMNATION'
 }
 
+export enum AppView {
+    GAME_LIST,
+    GAME
+}
+
 export enum Faction {
     TROTSKISTAS = 'red',
     STALINISTAS = 'darkgrey',
@@ -304,6 +359,14 @@ export enum Faction {
     LYSENKISTAS = 'blue',
     PUTINISTAS = 'white',
     ORTODOXOS = 'green'
+}
+
+export enum GameLifecycleStatus {
+  NONE,                     // No game loaded
+  LOBBY,                    // Game created, awaiting players
+  INFLUENCE_ASSIGNMENT,     // Turn 0
+  RUNNING,                  // Turn 1+
+  FINISHED                  // Game finished
 }
 
 export enum GamePoliticoStatus {
@@ -401,6 +464,14 @@ export interface ActionInstanceDto {
     actingGamePoliticoID : number;
 }
 
+export interface GameContextDto {
+    gameID : number;
+    lifeCycleStatus : GameLifecycleStatus;
+    status : GameStatus;
+    maxPlayers : number;
+    players : LobbyPlayerDto[];
+}
+
 export interface GameMinistryResponseDto {
     id : number;
     ministry : MinistryResponseDto;
@@ -429,6 +500,7 @@ export interface GamePoliticoResponseDto {
 export interface GameResponseDto {
     id: number;
     createdAt : string;
+    startedAt: string;
     currentTurn: number;
     currentPhase: PhaseType;
     finished: boolean;
@@ -448,6 +520,32 @@ export interface GameResponseDto {
     trial : TrialResponseDto;
 
     myPlayerID : number;
+}
+
+export interface GameSummaryDto {
+    id : number;
+
+    lifeCycleStatus : GameLifecycleStatus;
+
+    playerCount : number;
+    maxPlayers : number;
+
+    iAmParticipant : boolean;
+    joinable : boolean;
+    resumable : boolean;
+
+    createdAt : Date;
+    startedAt : Date;
+}
+
+export interface LobbyPlayerDto {
+    playerID : number;
+    userID : number;
+
+    name : string;
+    faction? : Faction;
+
+    ready : boolean;
 }
 
 export interface MinistryResponseDto {
@@ -561,18 +659,31 @@ import { computed, Injectable, signal } from '@angular/core';
 import { GameState } from '../../../models/game-state/game-state';
 import { UiNotification } from '../../../models/game-state/ui-notification';
 import { UiNotificationType } from '../../../enum/ui-notification-type';
+import { GameResponseDto } from '../../../dto/game-response-dto';
+import { GameStateMapperService } from '../gameStateMapper/game-state-mapper.service';
+import { GameSummary } from '../../../models/game-summary/game-summary';
+import { PlayerResponseDto } from '../../../dto/player-response-dto';
+import { CurrentGameContext } from '../../../models/current-game-context/current-game-context';
+import { GameContextDto } from '../../../dto/game-context-dto';
+import { GameContextMapperService } from '../gameContextMapper/game-context-mapper.service';
+import { GameLifecycleStatus } from '../../../enum/game-life-cycle-status';
+import { GameSummaryDto } from '../../../dto/game-summary-dto';
+import { GameSummaryMapperService } from '../gameSummaryMapper/game-summary-mapper.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GameStoreService {
 
-  constructor( private http : HttpClient ) { }
+  constructor( private http : HttpClient ) { 
+    console.log('GameStoreService instance created', this);
+  }
 
   // URLs
   private gameURL = 'http://localhost:8080/game/base';
-  private sseURL = 'http://localhost:8080/notifications';
+  private playerURL = 'http://localhost:8080/player';
   private actionURL = 'http://localhost:8080/action';
+  private sseURL = 'http://localhost:8080/notifications';
   private eventSource? : EventSource;
 
   // GameState (main signal)
@@ -588,6 +699,21 @@ export class GameStoreService {
   readonly me = computed(() => this.gameState()?.me);
   readonly ui = computed(() => this.gameState()?.ui);
 
+  // Selected Politico (complete entity)
+  readonly selectedPolitico = computed(() => {
+    const id = this.ui()?.selectedPoliticoID;
+    if (!id)
+      return null;
+    return this.politicos()?.[id] ?? null;
+  });
+  // Selected Politico's Ministry
+  readonly selectedPoliticoMinistry = computed(() => {
+      const politico = this.selectedPolitico();
+      if (!politico || !politico.ministryID)
+          return null;
+      return this.ministries()?.[politico.ministryID] ?? null;
+  });
+
   // Utils
   readonly canAnnounceAction = computed(() => 
     this.me()?.canAnnounceAction ?? false
@@ -595,16 +721,86 @@ export class GameStoreService {
   readonly blockingStatus = computed(() => 
     this.phase()?.blockingStatus ?? 'NONE'
   );
+  // Is selected Politico mine?
+  readonly selectedPoliticoIsMine = computed(() => {
+      const politico = this.selectedPolitico();
+      const me = this.me();
+      if (!politico || !me)
+          return false;
+      return me.assignedInfluences?.[politico.id] !== undefined
+          || me.playerID === politico.controllerPlayerID;
+  });
+
+  // List of existing (or available) Games
+  private readonly _availableGames = signal<GameSummary[]>([]);
+  readonly availableGames = this._availableGames.asReadonly();
+
+  // Current Game context
+  private _currentGameContext = signal<CurrentGameContext | null>(null);
+  readonly currentGameContext = computed(() => this._currentGameContext());
+  readonly lobbyPlayers = computed( () => this.currentGameContext()?.players ?? [] );
+  readonly lifeCycleStatus = computed( () => this.currentGameContext()?.lifeCycleStatus );
 
 
   /* Main methods */
 
+  // Create new Game
+  createGame( maxPlayers : number ) {
+      return this.http.post<GameResponseDto>(
+        this.gameURL + `/new/max_players/${maxPlayers}`,
+        {}
+      );
+  }
+
+  // Create Player in an existing Game
+  joinGame( gameID : number ) {
+    // Call create Player endpoint.
+    return this.http.post<PlayerResponseDto>(this.playerURL + `/game/${gameID}/single`, {});
+  }
+
+  // Load games list
+  loadAvailableGames() {
+      this.http.get<GameSummaryDto[]>(this.gameURL + "/summary_list")
+               .subscribe({
+                  next : dtos => this._availableGames.set(
+                    dtos.map(GameSummaryMapperService.fromDTO)
+                  ),
+                  error : err => {
+                    console.error("Failed to load games.", err);
+                    this._availableGames.set([]);
+                  }
+                });
+  }
+
+  // Load Game context
+  loadGameContext(gameID : number) {
+    this.http
+      .get<GameContextDto>(this.gameURL + `/context/${gameID}`)
+      .subscribe({
+         next : dto => {
+           const context = GameContextMapperService.fromDTO(dto);
+           this._currentGameContext.set(context);
+           this._gameState.set(null);  // No game loaded yet
+         },
+         error : err => {
+           console.error("Failed to load Game context.", err);
+           this._currentGameContext.set(null);
+         }
+      });
+  }
+
   // Initial game load (REST)
   loadGame(gameID : number) : void {
-    this.http.get<GameState>(this.gameURL + '/state/' + gameID)
+
+    console.log('loadGame called with gameID = ', gameID);
+
+    this.http.get<GameResponseDto>(this.gameURL + '/state/' + gameID)
              .subscribe({
-                next : state => {
-                  this._gameState.set(state);
+                next : dto => {
+                  console.log('Raw DTO received from backend:', dto);
+                  const gameState = GameStateMapperService.fromDTO(dto);
+                  console.log('Mapped GameState: ', gameState);
+                  this._gameState.set(gameState);
                   this.connectToSse(gameID);
                 },
                 error : err => {
@@ -692,6 +888,29 @@ export class GameStoreService {
 
   /* Facade methods */
 
+  // Game methods
+  startGame(gameID : number) : void {
+    this.http
+      .post<GameResponseDto>(this.gameURL + `/start/${gameID}`, {})
+      .subscribe({
+          next : dto => {
+            const gameState = GameStateMapperService.fromDTO(dto);
+            this._gameState.set(gameState);
+            this._currentGameContext.update(context => {
+                if (!context) 
+                    return context;
+                return {
+                  ...context,
+                  lifeCycleStatus : GameLifecycleStatus.RUNNING,
+                  gameState
+                };
+            });
+
+            this.connectToSse(gameID);
+          }
+      });
+  }
+
   // Action methods
   announceAction(action : any) {
     return this.http.post(this.actionURL + '/announce', action);
@@ -720,6 +939,10 @@ export class GameStoreService {
     this._gameState.set(null);
   }
 
+  clearCurrentGameContext() {
+    this._currentGameContext.set(null);
+  }
+
   // Select Politico
   selectPolitico(politicoID : number) : void {
     this._gameState.update(state => {
@@ -738,6 +961,7 @@ export class GameStoreService {
       };
     });
   }
+
 }
 
 // GameStateMapperService
@@ -910,10 +1134,10 @@ export class GameStateMapperService {
         gp.id,
         {
           id : gp.id,
-          name : gp.politico.name,
-          alias : gp.politico.alias,
-          advantage : gp.politico.advantage,
-          disadvantage : gp.politico.disadvantage,
+          name : gp.politicoDTO.name,
+          alias : gp.politicoDTO.alias,
+          advantage : gp.politicoDTO.advantage,
+          disadvantage : gp.politicoDTO.disadvantage,
           age : gp.currentAge,
           damage : gp.damage,
           status : gp.status,
@@ -944,8 +1168,8 @@ export class GameStateMapperService {
         gm.id,
         {
           id : gm.id,
-          name : gm.ministry.name,
-          purgeNr : gm.ministry.purgeNr,
+          name : gm.ministryDTO.name,
+          purgeNr : gm.ministryDTO.purgeNr,
           ministerID : gm.ministerID ?? undefined,
           isVacant : gm.isVacant
         }
@@ -990,6 +1214,61 @@ export class GameStateMapperService {
       ),
 
       allVotesCast : dto.allVotesCast
+    };
+  }
+}
+
+// GameContextMapperService
+
+import { Injectable } from '@angular/core';
+import { GameContextDto } from '../../../dto/game-context-dto';
+import { CurrentGameContext } from '../../../models/current-game-context/current-game-context';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class GameContextMapperService {
+
+  static fromDTO(dto : GameContextDto) : CurrentGameContext {
+    return {
+      gameID : dto.gameID,
+      lifeCycleStatus : dto.lifeCycleStatus,
+      status : dto.status,
+      maxPlayers : dto.maxPlayers,
+      players : dto.players.map( p => ({
+        playerID : p.playerID,
+        userID : p.userID,
+        name : p.name,
+        faction : p.faction,
+        ready : p.ready
+      })),
+      gameState : undefined
+    };
+  }
+}
+
+// GameSummaryMapperService
+
+import { Injectable } from '@angular/core';
+import { GameSummaryDto } from '../../../dto/game-summary-dto';
+import { GameSummary } from '../../../models/game-summary/game-summary';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class GameSummaryMapperService {
+
+  static fromDTO(dto : GameSummaryDto) : GameSummary {
+    return {
+      id : dto.id,
+      lifeCycleStatus : dto.lifeCycleStatus,
+      playerCount : dto.playerCount,
+      maxPlayers : dto.maxPlayers,
+      iAmParticipant : dto.iAmParticipant,
+      joinable : dto.joinable,
+      resumable : dto.resumable,
+      createdAt : dto.createdAt,
+      startedAt : dto.startedAt
     };
   }
 }
@@ -1310,7 +1589,7 @@ export class LoginComponent {
               .subscribe({
                 next : (res) => {
                   this.auth.saveToken(res.token);
-                  this.router.navigate(["/games"]);
+                  this.router.navigate(["/game-list"]);
                 },
                 error : () => {
                   this.errorMsg = "Credenciales inválidas.";
@@ -1319,37 +1598,352 @@ export class LoginComponent {
   }
 }
 
+** /game-list
+
+    // game-list.component.html
+
+<h2> Available Games </h2>
+
+<div *ngIf="games().length === 0">
+    No Games available.
+</div>
+
+<app-game-list-item
+  *ngFor="let game of games()"
+  [game]="game"
+  (join)="join($event)"
+  (resume)="open($event)">
+</app-game-list-item>
+
+<div class="create-game">
+    <label>
+        Max Players:
+        <input 
+            type="number"
+            min="3"
+            max="6"
+            [(ngModel)]="maxPlayers"
+        >
+    </label>
+    
+    <button (click)="onCreate()"> Create Game </button>
+</div>
+
+    // game-list.component.ts
+
+import { NgForOf, NgIf } from '@angular/common';
+import { Component, computed, OnInit } from '@angular/core';
+import { GameStoreService } from '../../services/game/store/game-store.service';
+import { GameListItemComponent } from '../game-list-item/game-list-item.component';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+
+@Component({
+  selector: 'app-game-list',
+  standalone : true,
+  imports: [NgForOf, GameListItemComponent, NgIf, FormsModule],
+  templateUrl: './game-list.component.html',
+  styleUrl: './game-list.component.scss'
+})
+export class GameListComponent implements OnInit {
+
+  constructor( 
+    public readonly gameStore : GameStoreService,
+    private router : Router
+  ) { }
+
+  maxPlayers : number = 6;
+
+  games = computed(() => this.gameStore.availableGames());
+
+  ngOnInit(): void {
+    this.gameStore.loadAvailableGames();
+  }
+
+  join(gameID : number) {
+    this.gameStore.joinGame(gameID)
+                  .subscribe(() => {
+                    this.gameStore.loadGame(gameID);
+                  });
+  }
+
+  onResume(gameID : number) {
+    this.gameStore.loadGame(gameID);
+  }
+
+  onCreate() {
+    if (this.maxPlayers < 3 || this.maxPlayers > 6) {
+      alert('The game must have 3 to 6 players.');
+      return;
+    }
+
+    this.gameStore.createGame(this.maxPlayers)
+                  .subscribe(() => {
+                    this.gameStore.loadAvailableGames();
+                  });
+  }
+
+  open(gameID : number) {
+    this.router.navigate(['/game', gameID]);
+  }
+}
+
+** /game-list-item
+
+    // game-list-item.component.html
+
+<div class="game-item">
+
+  <div class="game-info">
+    <div class="game-id">
+      Game #{{ game.id }}
+    </div>
+
+    <div class="game-status">
+      Status: {{ game.lifeCycleStatus }}
+    </div>
+
+    <div class="game-players">
+      Players: {{ game.playerCount }} / {{ game.maxPlayers }}
+    </div>
+
+    <div class="game-created">
+      Created: {{ game.createdAt | date:'short' }}
+    </div>
+  </div>
+
+  <div class="game-actions">
+
+    <button *ngIf="game.joinable" (click)="onJoin()">
+      Join Game
+    </button>
+
+    <button *ngIf="game.resumable" (click)="onResume()">
+      Resume Game
+    </button>
+
+  </div>
+</div>
+
+    // game-list-item.component.ts
+
+import { DatePipe, NgIf } from '@angular/common';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { GameSummary } from '../../models/game-summary/game-summary';
+
+@Component({
+  selector: 'app-game-list-item',
+  standalone : true,
+  imports: [NgIf, DatePipe],
+  templateUrl: './game-list-item.component.html',
+  styleUrl: './game-list-item.component.scss'
+})
+export class GameListItemComponent {
+
+  @Input({ required : true })
+  game! : GameSummary;
+  
+  @Output()
+  join = new EventEmitter<number>();
+
+  @Output()
+  resume = new EventEmitter<number>();
+
+  onJoin() {
+    this.join.emit(this.game.id);
+  }
+
+  onResume() {
+    this.resume.emit(this.game.id);
+  }
+}
+
+** /game-lobby
+
+    // game-lobby.component.html
+
+<div *ngIf="gameContext() as context" class="lobby">
+    
+    <h2> Game #{{ context.gameID }}</h2>
+    
+    <p> Players: {{ context.players.length }} / {{ context.maxPlayers }} </p>
+
+    <ul class="players">
+        <li *ngFor="let p of context.players">
+            <span>{{ p.name }}</span>
+            <span *ngIf="p.faction">{{ p.faction }}</span>
+            <span 
+              class="ready"
+              [class.ok]="p.ready"
+            >
+              {{ p.ready ? 'Ready' : 'Not ready' }}
+            </span>
+        </li>
+    </ul>
+
+    <div class="actions">
+        <button (click)="toggleReady()">
+            Change status
+        </button>
+
+        <button *ngIf="canStart(context)" (click)="startGame()">
+            Start Game
+        </button>
+
+        <button (click)="leaveLobby()"> 
+            Quit 
+        </button>
+    </div>
+</div>
+
+    // game-lobby.component.ts
+
+import { Component, computed, inject, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { GameStoreService } from '../../services/game/store/game-store.service';
+import { NgFor, NgIf } from '@angular/common';
+import { CurrentGameContext } from '../../models/current-game-context/current-game-context';
+import { GameLifecycleStatus } from '../../enum/game-life-cycle-status';
+
+@Component({
+  selector: 'app-game-lobby',
+  standalone: true,
+  imports: [NgIf, NgFor],
+  templateUrl: './game-lobby.component.html',
+  styleUrl: './game-lobby.component.scss'
+})
+export class GameLobbyComponent implements OnInit {
+
+    // constructor( 
+    //   private route : ActivatedRoute,
+    //   private router : Router,
+    //   private gameStore : GameStoreService
+    // ) { }
+
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private gameStore = inject(GameStoreService);
+
+    gameID! : number;
+    gameContext = this.gameStore.currentGameContext;
+    players = this.gameStore.players;
+
+    ngOnInit(): void {
+      this.gameID = Number(this.route.snapshot.paramMap.get('gameID'));
+      this.gameStore.loadGameContext(this.gameID);
+    }
+
+    toggleReady() {
+
+    }
+
+    startGame() {
+
+    }
+
+    leaveLobby() {
+      this.router.navigate(['/game-list']);
+      this.gameStore.clearCurrentGameContext();
+    }
+
+    canStart(context : CurrentGameContext) : boolean {
+      return (
+        context.lifeCycleStatus === GameLifecycleStatus.LOBBY &&
+        context.players.length === context.maxPlayers &&
+        context.players.every(p => p.ready)
+      );
+    }
+
+    // isFull = computed(() => {
+    //   this.players.length === this.game()?.maxPlayers
+    // })
+}
+
+** /game-page
+
+    // game-page.component.html
+
+<div>
+    <app-board></app-board>
+</div>
+
+    // game-page.component.ts
+
+import { Component, OnInit } from '@angular/core';
+import { BoardComponent } from '../board/board.component';
+import { ActivatedRoute } from '@angular/router';
+import { GameStoreService } from '../../services/game/store/game-store.service';
+
+@Component({
+  selector: 'app-game-page',
+  standalone : true,
+  imports: [BoardComponent],
+  templateUrl: './game-page.component.html',
+  styleUrl: './game-page.component.scss'
+})
+export class GamePageComponent implements OnInit {
+  
+  constructor(
+    private route : ActivatedRoute,
+    private gameStore : GameStoreService
+  ) { }
+
+  ngOnInit(): void {
+    const gameID = Number(this.route.snapshot.paramMap.get('gameID'));
+    if (gameID) {
+      this.gameStore.loadGame(gameID);
+    }
+  }
+}
+
 ** /board
 
     // board.component.html
   
-<div>
-    <ng-container *ngIf="gameStore.gameState()">
-        <app-politburo-pyramid
-            [ministries]="gameStore.ministries()"
-            [politicos]="gameStore.politicos()"
-            [selectedPoliticoID]="gameStore.ui()?.selectedPoliticoID ?? null"
-            (politicoSelected)="onPoliticoSelected($event)"
-        >
-        </app-politburo-pyramid>
-    </ng-container>
-    
-    <p *ngIf="!gameStore.gameState()">
-        No game loaded.
-    </p>
+<div class="board-layout">
+
+    <div class="board">
+        <ng-container *ngIf="gameStore.gameState()">
+            <app-politburo-pyramid
+                [ministries]="gameStore.ministries()"
+                [politicos]="gameStore.politicos()"
+                [selectedPoliticoID]="gameStore.ui()?.selectedPoliticoID ?? null"
+                (politicoSelected)="onPoliticoSelected($event)"
+            >
+            </app-politburo-pyramid>
+        </ng-container>
+        
+        <p *ngIf="!gameStore.gameState()">
+            No game loaded.
+        </p>
+    </div>
+
+    <app-politico-side-panel></app-politico-side-panel>
 </div>
+
+    // board.component.scss
+
+.board-layout {
+    display: flex;
+    height: 100%;
+}
+
+.board {
+    flex: 1;
+}
 
     // board.component.ts
 
 import { Component } from '@angular/core';
 import { GameStoreService } from '../../services/game/store/game-store.service';
 import { PolitburoPyramidComponent } from "../politburo-pyramid/politburo-pyramid.component";
+import { PoliticoSidePanelComponent } from "../politico-side-panel/politico-side-panel.component";
 import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-board',
   standalone : true,
-  imports: [PolitburoPyramidComponent, NgIf],
+  imports: [PolitburoPyramidComponent, NgIf, PoliticoSidePanelComponent],
   templateUrl: './board.component.html',
   styleUrl: './board.component.scss'
 })
@@ -1360,6 +1954,7 @@ export class BoardComponent {
   onPoliticoSelected(politicoID : number) : void {
     this.gameStore.selectPolitico(politicoID);
   }
+
 }
 
 ** /politburo-pyramid
@@ -1369,9 +1964,9 @@ export class BoardComponent {
 <div class="pyramid">
     <div class="row top">
         <app-ministry-slot
-            *ngFor="let type of topLvl"
-            [ministry]="getMinistry(type)"
-            [politico]="getPoliticoForMinistry(type)"
+            *ngFor="let ministry of topLvl"
+            [ministry]="ministry"
+            [politico]="getPoliticoForMinistry(ministry)"
             [selectedPoliticoID]="selectedPoliticoID"
             (politicoSelected)="onPoliticoSelected($event)"
         >
@@ -1380,9 +1975,9 @@ export class BoardComponent {
 
     <div class="row fstLvl">
         <app-ministry-slot
-            *ngFor="let type of firstLvl"
-            [ministry]="getMinistry(type)"
-            [politico]="getPoliticoForMinistry(type)"
+            *ngFor="let ministry of firstLvl"
+            [ministry]="ministry"
+            [politico]="getPoliticoForMinistry(ministry)"
             [selectedPoliticoID]="selectedPoliticoID"
             (politicoSelected)="onPoliticoSelected($event)"
         >
@@ -1391,9 +1986,9 @@ export class BoardComponent {
 
     <div class="row sndLvl">
         <app-ministry-slot
-            *ngFor="let type of secondLvl"
-            [ministry]="getMinistry(type)"
-            [politico]="getPoliticoForMinistry(type)"
+            *ngFor="let ministry of secondLvl"
+            [ministry]="ministry"
+            [politico]="getPoliticoForMinistry(ministry)"
             [selectedPoliticoID]="selectedPoliticoID"
             (politicoSelected)="onPoliticoSelected($event)"
         >
@@ -1402,9 +1997,9 @@ export class BoardComponent {
 
     <div class="row candidates">
         <app-ministry-slot
-            *ngFor="let type of candidates"
-            [ministry]="getMinistry(type)"
-            [politico]="getPoliticoForMinistry(type)"
+            *ngFor="let ministry of candidateLvl"
+            [ministry]="ministry"
+            [politico]="getPoliticoForMinistry(ministry)"
             [selectedPoliticoID]="selectedPoliticoID"
             (politicoSelected)="onPoliticoSelected($event)"
         >
@@ -1413,9 +2008,9 @@ export class BoardComponent {
 
     <div class="row people">
         <app-ministry-slot
-            *ngFor="let type of people"
-            [ministry]="getMinistry(type)"
-            [politico]="getPoliticoForMinistry(type)"
+            *ngFor="let ministry of peopleLvl"
+            [ministry]="ministry"
+            [politico]="getPoliticoForMinistry(ministry)"
             [selectedPoliticoID]="selectedPoliticoID"
             (politicoSelected)="onPoliticoSelected($event)"
         >
@@ -1425,7 +2020,7 @@ export class BoardComponent {
 
     // politburo-pyramid.component.ts
 
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
 import { GameMinistryState } from '../../models/game-state/game-ministry-state';
 import { GamePoliticoState } from '../../models/game-state/game-politico-state';
 import { MinistrySlotComponent } from "../ministry-slot/ministry-slot.component";
@@ -1447,49 +2042,65 @@ export class PolitburoPyramidComponent {
 
   @Output() politicoSelected = new EventEmitter<number>();
 
-  topLvl : MinistryType[] = [
-    MinistryType.PARTY_CHIEF
-  ];
-  firstLvl : MinistryType[] = [
-    MinistryType.KGB_HERO,
-    MinistryType.FOREIGN,
-    MinistryType.DEFENSE
-  ];
-  secondLvl : MinistryType[] = [
-    MinistryType.IDEOLOGY,
-    MinistryType.INDUSTRY,
-    MinistryType.ECONOMY,
-    MinistryType.SPORTS
-  ];
-  candidates : MinistryType[] = [
-    MinistryType.CANDIDATE,
-    MinistryType.CANDIDATE,
-    MinistryType.CANDIDATE,
-    MinistryType.CANDIDATE,
-    MinistryType.CANDIDATE
-  ];
-  people : MinistryType[] = [
-    MinistryType.PEOPLE,
-    MinistryType.PEOPLE,
-    MinistryType.PEOPLE,
-    MinistryType.PEOPLE
-  ];
+  topLvl : GameMinistryState[] = [];
+  firstLvl : GameMinistryState[] = [];
+  secondLvl : GameMinistryState[] = [];
+  candidateLvl : GameMinistryState[] = [];
+  peopleLvl : GameMinistryState[] = [];
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['ministries'] && this.ministries) {
+      this.buildLevels();
+    }
+  }
+
+  private buildLevels(): void {
+
+    const all = Object.values(this.ministries);
+
+    this.topLvl = all.filter(m => m.name === MinistryType.PARTY_CHIEF);
+
+    this.firstLvl = all.filter(m =>
+      [MinistryType.KGB_HERO, MinistryType.FOREIGN, MinistryType.DEFENSE]
+        .includes(m.name)
+    );
+
+    this.secondLvl = all.filter(m =>
+      [MinistryType.IDEOLOGY, MinistryType.INDUSTRY, MinistryType.ECONOMY, MinistryType.SPORTS]
+        .includes(m.name)
+    );
+
+    this.candidateLvl = all.filter(m => m.name === MinistryType.CANDIDATE);
+
+    this.peopleLvl = all.filter(m => m.name === MinistryType.PEOPLE);
+  }
+
+  getPoliticoForMinistry(ministry : GameMinistryState) : GamePoliticoState | null {
+
+    if (!ministry.ministerID) return null;
+
+    return this.politicos[ministry.ministerID] ?? null;
+  }
 
   onPoliticoSelected(politicoID : number) : void {
     this.politicoSelected.emit(politicoID);
   }
+}
 
-  getMinistry(type : MinistryType) : GameMinistryState | undefined {
-    return Object.values(this.ministries).find(m => m.name === type);
-  }
+    // politburo-pyramid.component.scss
 
-  getPoliticoForMinistry(type : MinistryType) : GamePoliticoState | null {
-    const ministry = this.getMinistry(type);
+.pyramid {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
 
-    if (!ministry?.ministerID) return null;
-
-    return this.politicos[ministry.ministerID] ?? null;
-  }
+.row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
 }
 
 ** /ministry-slot
@@ -1542,6 +2153,13 @@ export class MinistrySlotComponent {
     }
 }
 
+    // ministry-slot.component.scss
+
+.ministry-slot {
+    max-width: 10rem;
+    max-height: 15rem;
+}
+
 ** /politico-card
 
     // politico-card.component.html
@@ -1590,6 +2208,154 @@ export class PoliticoCardComponent {
       this.selectedChange.emit(this.politico.id);
     }
 }
+
+    // politico-card.component.scss
+
+.card {
+  border: 2px solid #444;
+  border-radius: 8px;
+  padding: 8px;
+  background: #1e1e1e;
+  color: #eee;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.card:hover {
+  transform: scale(1.02);
+}
+
+.card.selected {
+  border-color: gold;
+  box-shadow: 0 0 8px gold;
+}
+
+.header {
+  font-size: 1.1rem;
+  margin-bottom: 6px;
+}
+
+.footer {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+** /politico-side-panel
+
+    // politico-side-panel.component.ts
+
+import { Component } from '@angular/core';
+import { GameStoreService } from '../../services/game/store/game-store.service';
+import { NgIf } from '@angular/common';
+
+@Component({
+  selector: 'app-politico-side-panel',
+  standalone: true,
+  imports: [NgIf],
+  templateUrl: './politico-side-panel.component.html',
+  styleUrl: './politico-side-panel.component.scss'
+})
+export class PoliticoSidePanelComponent {
+
+    constructor(public readonly gameStore : GameStoreService) { }
+}
+
+    // politico-side-panel.component.html
+
+<div class="side-panel">
+    <!-- Nothing selected -->
+    <div *ngIf="!gameStore.selectedPolitico()" class="empty">
+       <p> Select a Politico </p>
+    </div>
+
+    <!-- Politico selected -->
+    <div *ngIf="gameStore.selectedPolitico() as politico" class="content">
+        <h2> {{ politico.name }} </h2>
+        <h4 *ngIf="politico.alias">"{{ politico.alias }}"</h4>
+
+        <section>
+            <div><strong>Age:</strong> {{ politico.age }}</div>
+            <div><strong>Damage:</strong> {{ politico.damage }}</div>
+            <div><strong>Status:</strong> {{ politico.status }}</div>
+        </section>
+
+        <section *ngIf="gameStore.selectedPoliticoMinistry() as ministry">
+            <strong>Ministry:</strong> {{ ministry.name }}
+        </section>
+
+        <section *ngIf="politico.controllerPlayerID">
+            <strong>Controlled by:</strong>
+            Player {{ politico.controllerPlayerID }}
+        </section>
+
+        <section *ngIf="gameStore.selectedPoliticoIsMine()">
+            <span class="mine"> Under your control </span>
+        </section>
+    </div>     
+</div>
+
+    // politico-side-panel.component.scss
+
+.side-panel {
+    width: 18rem;
+    padding: 1rem;
+    background: #111;
+    color: #eee;
+    border-left: 2px solid #333;
+    height: 100%;
+}
+
+.empty {
+    opacity: 0.6;
+    font-style: italic;
+}
+
+.content{
+    h2 {
+        margin: 0;
+    }
+    
+    h4 {
+        margin: 0 0 1rem 0;
+        opacity: 0.8;
+    }
+}
+
+section {
+    margin-top: 0.8rem;
+}
+
+.mine {
+    color: gold;
+    font-weight: bold;
+}
+
+/* app.routes.ts */
+
+import { Routes } from '@angular/router';
+import { LoginComponent } from './components/login/login.component';
+import { RegisterComponent } from './components/register/register.component';
+import { HomeComponent } from './components/home/home.component';
+import { AssignControlComponent } from './components/assign-control/assign-control.component';
+import { GameComponent } from './components/game/game.component';
+import { BoardComponent } from './components/board/board.component';
+import { GamePageComponent } from './components/game-page/game-page.component';
+import { GameLobbyComponent } from './components/game-lobby/game-lobby.component';
+import { GameListComponent } from './components/game-list/game-list.component';
+
+export const routes: Routes = [
+     { path: '', component: HomeComponent },
+     { path: 'login', component: LoginComponent },
+     { path: 'register', component: RegisterComponent },
+     { path: 'assign', component: AssignControlComponent },
+     { path: 'board', component: BoardComponent },
+     { path: 'games', component: GameComponent },
+     { path: 'game-list', component: GameListComponent},
+     { path: 'game/:gameID', component: GamePageComponent },
+     { path: 'game/:gameID/lobby', component: GameLobbyComponent},
+     { path: '**', redirectTo: '' } // fallback
+];
 
 
 *****************************************************************************************

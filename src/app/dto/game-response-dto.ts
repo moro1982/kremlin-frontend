@@ -9,6 +9,7 @@ import { TrialResponseDto } from "./trial-response-dto";
 export interface GameResponseDto {
     id: number;
     createdAt : string;
+    startedAt: string;
     currentTurn: number;
     currentPhase: PhaseType;
     finished: boolean;

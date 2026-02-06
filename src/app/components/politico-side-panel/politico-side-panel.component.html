@@ -1,0 +1,31 @@
+<div class="side-panel">
+    <!-- Nothing selected -->
+    <div *ngIf="!gameStore.selectedPolitico()" class="empty">
+       <p> Select a Politico </p>
+    </div>
+
+    <!-- Politico selected -->
+    <div *ngIf="gameStore.selectedPolitico() as politico" class="content">
+        <h2> {{ politico.name }} </h2>
+        <h4 *ngIf="politico.alias">"{{ politico.alias }}"</h4>
+
+        <section>
+            <div><strong>Age:</strong> {{ politico.age }}</div>
+            <div><strong>Damage:</strong> {{ politico.damage }}</div>
+            <div><strong>Status:</strong> {{ politico.status }}</div>
+        </section>
+
+        <section *ngIf="gameStore.selectedPoliticoMinistry() as ministry">
+            <strong>Ministry:</strong> {{ ministry.name }}
+        </section>
+
+        <section *ngIf="politico.controllerPlayerID">
+            <strong>Controlled by:</strong>
+            Player {{ politico.controllerPlayerID }}
+        </section>
+
+        <section *ngIf="gameStore.selectedPoliticoIsMine()">
+            <span class="mine"> Under your control </span>
+        </section>
+    </div>     
+</div>
