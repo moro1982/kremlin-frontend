@@ -9,7 +9,7 @@
       *ngFor="let game of games()"
       [game]="game"
       (join)="join($event)"
-      (resume)="open($event)">
+      (resume)="onResume($event)">
     </app-game-list-item>
 </div>
 
@@ -24,6 +24,5 @@
         >
     </label>
     
-    <button (click)="onCreate()"> Create Game </button>
-
+    <button class="boton" (click)="onCreate()"> Create Game </button>
 </div>

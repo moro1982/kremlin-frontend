@@ -1,0 +1,29 @@
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 10px 20px;
+  margin-bottom: 15px;
+
+  background: #1e1e1e;
+  color: #e0e0e0;
+
+  border-bottom: 1px solid #444;
+  font-size: large;
+}
+
+.center {
+  display: flex;
+  gap: 20px;
+  font-weight: bold;
+}
+
+.game-id {
+  opacity: 0.8;
+}
+
+.status {
+  font-style: italic;
+  opacity: 0.7;
+}

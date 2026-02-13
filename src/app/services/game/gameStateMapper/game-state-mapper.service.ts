@@ -40,6 +40,7 @@ export class GameStateMapperService {
       game : {
         id : dto.id,
         createdAt : new Date(dto.createdAt),
+        startedAt : dto.startedAt ? new Date(dto.startedAt) : null,
         version : dto.version,
         updateCounter : dto.updateCounter,
         finished : dto.finished,
@@ -51,7 +52,7 @@ export class GameStateMapperService {
       politicos : GameStateMapperService.mapGamePoliticos(dto.gamePoliticos),
       ministries : GameStateMapperService.mapGameMinistries(dto.gameMinistries),
       me : GameStateMapperService.mapMyPlayer(
-        { players, myPlayerID : dto.myPlayerID, phase}
+        { players, myPlayerID : dto.myPlayerID, phase }
       ),
       ui : GameStateMapperService.initialUiState(),
       lastUpdateReason : undefined,
@@ -215,7 +216,7 @@ export class GameStateMapperService {
 
       modal : {
         type : null,
-        payload : undefined
+        payload : null
       },
 
       notifications : [],

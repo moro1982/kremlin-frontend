@@ -14,22 +14,19 @@ import { GameLifecycleStatus } from '../../enum/game-life-cycle-status';
 })
 export class GameLobbyComponent implements OnInit {
 
-    // constructor( 
-    //   private route : ActivatedRoute,
-    //   private router : Router,
-    //   private gameStore : GameStoreService
-    // ) { }
-
     private route = inject(ActivatedRoute);
     private router = inject(Router);
     private gameStore = inject(GameStoreService);
 
     gameID! : number;
     gameContext = this.gameStore.currentGameContext;
+    gameLifecycleStatus = GameLifecycleStatus;
 
     ngOnInit(): void {
       this.gameID = Number(this.route.snapshot.paramMap.get('gameID'));
-      this.gameStore.loadGameContext(this.gameID);
+      if (!this.gameContext()) {
+        this.gameStore.loadGameContext(this.gameID);
+      }
     }
 
     toggleReady() {
@@ -47,7 +44,7 @@ export class GameLobbyComponent implements OnInit {
               next : () => {
                 // Backend -> startedAt != null
                 // lifeCycleStatus -> INFLUENCE_ASSIGNMENT
-                this.gameStore.loadGameContext(this.gameID);
+                this.gameStore.loadGame(this.gameID);
                 this.router.navigate([`/game/${this.gameID}/influence-assignment`]);
               },
               error : err => console.error("Begin influence assignment has failed.", err)
@@ -55,20 +52,18 @@ export class GameLobbyComponent implements OnInit {
     }
 
     leaveLobby() {
-      this.router.navigate(['/game-list']);
+      this.gameStore.clearGame();
       this.gameStore.clearCurrentGameContext();
+      this.gameStore.loadAvailableGames();
+      this.router.navigate(['/game-list']);
     }
 
     canStart(context : CurrentGameContext) : boolean {
       return (
-        context.lifeCycleStatus === GameLifecycleStatus.LOBBY &&
+        context.lifeCycleStatus === this.gameLifecycleStatus.LOBBY &&
         context.players.length === context.maxPlayers &&
         context.players.every(p => p.ready)
       );
     }
-
-    // isFull = computed(() => {
-    //   this.players.length === this.game()?.maxPlayers
-    // })
 
 }

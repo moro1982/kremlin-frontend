@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { computed, Injectable, signal } from '@angular/core';
+import { computed, effect, Injectable, signal } from '@angular/core';
 import { GameState } from '../../../models/game-state/game-state';
 import { UiNotification } from '../../../models/game-state/ui-notification';
 import { UiNotificationType } from '../../../enum/ui-notification-type';
@@ -14,20 +14,30 @@ import { GameLifecycleStatus } from '../../../enum/game-life-cycle-status';
 import { GameSummaryDto } from '../../../dto/game-summary-dto';
 import { GameSummaryMapperService } from '../gameSummaryMapper/game-summary-mapper.service';
 import { CreatePlayerRequest } from '../../../models/player-request/create-player-request';
+import { AuthService } from '../../auth/auth.service';
+import { Router } from '@angular/router';
+import { UiModalType } from '../../../enum/ui-modal-type';
+import { ActionType } from '../../../enum/action-type';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GameStoreService {
 
-  constructor( private http : HttpClient ) { }
+  constructor( 
+    private http : HttpClient,
+    private authService : AuthService,
+    private router : Router
+  ) { }
 
   // URLs
+  private influenceURL = 'http://localhost:8080/influence';
   private gameURL = 'http://localhost:8080/game/base';
   private playerURL = 'http://localhost:8080/player';
   private actionURL = 'http://localhost:8080/action';
   private sseURL = 'http://localhost:8080/notifications';
   private eventSource? : EventSource;
+  private isRefreshing = false;
 
   // GameState (main signal)
   private readonly _gameState = signal<GameState | null>(null);
@@ -64,8 +74,8 @@ export class GameStoreService {
   readonly blockingStatus = computed(() => 
     this.phase()?.blockingStatus ?? 'NONE'
   );
-  // Is selected Politico mine?
-  readonly selectedPoliticoIsMine = computed(() => {
+  // Did I assign influence on selected Politico?
+  readonly hasAssignedInfluenceOnSelectedPolitico = computed(() => {
       const politico = this.selectedPolitico();
       const me = this.me();
       if (!politico || !me)
@@ -84,10 +94,88 @@ export class GameStoreService {
   readonly lobbyPlayers = computed( () => this.currentGameContext()?.players ?? [] );
   readonly lifeCycleStatus = computed( () => this.currentGameContext()?.lifeCycleStatus );
 
+  // InfluenceAssignment context
+  readonly influenceAssignmentContext = computed(() => {
+    const state = this.gameState();
+    
+    if (!state)
+        return null;
+    
+    if (state.game.currentTurn !== 0)
+        return null;
+
+    return {
+        politicos : Object.values(state.politicos),
+        assigned : state.me?.assignedInfluences ?? {},
+        players : Object.values(state.players),
+        myPlayerID : state.me?.playerID
+    };
+  });
+
+  readonly readyPlayers = computed(() => {
+    
+    const players = this.gameState()?.players;
+    
+    if(players !== undefined) {
+      return Object.entries(players).filter(([k, p]) => p.ready);
+    } else {
+      return [];
+    }
+  });
+
+  // Has confirmed influence assignment?
+  readonly hasConfirmedInfluenceAssignment = computed(() => {
+    const state = this.gameState();
+    const me = state?.me;
+    const readyplayers = this.readyPlayers();
+
+    if (!state || !me )
+        return false;
+
+    const assignedCount = Object.keys(me.assignedInfluences ?? {}).length;
+    const isReady = Object.keys(readyplayers).some( k => k === me.playerID.toString() );
+    
+    return assignedCount === 10 && isReady;
+  });
+
+  readonly influenceAssignmentFinished = computed(() => {
+    const state = this.gameState();
+    
+    if (!state) 
+        return false;
+
+    if (state.game.currentTurn !== 0)
+        return false;
+
+    return Object.values(state.players).every(p => p.ready);
+  });
+
+
   /** SSE **/
+  // Init SSE (handshake)
+  private initSSE(gameID : number) {
+
+    console.log('initSSE called with gameID =', gameID);
+
+    this.http
+        .post(
+          this.sseURL + "/handshake",
+          {},
+          { 
+            withCredentials : true,
+            headers : { Authorization : `Bearer ${this.authService.getToken()}` }
+          }
+        )
+        .subscribe({
+          next : () => { this.connectToSse(gameID); },
+          error : err => { console.error('SSE handshake failed.', err); }
+        });
+  }
   // SSE connection
   private connectToSse(gameID : number) : void {
     
+    console.log('connectToSse called');
+
     if (this.eventSource) {
       this.eventSource.close();
     }
@@ -104,6 +192,14 @@ export class GameStoreService {
     this.eventSource.addEventListener('GAME_MESSAGE', e => 
       this.handleGameMessage(e)
     );
+    
+    this.eventSource.addEventListener('PRIVATE_MESSAGE', e => 
+      this.handleGameMessage(e)
+    );
+
+    this.eventSource.onopen = () => {
+      console.log('SSE connected');
+    };
 
     this.eventSource.onerror = err => {
       console.error('SSE error', err);
@@ -111,23 +207,48 @@ export class GameStoreService {
   }
   /* SSE Event Handlers */
   private handleGameUpdate(event : MessageEvent) : void {
+
+    console.log('GAME_UPDATE received', event.data);
     
     const payload = JSON.parse(event.data);
+    const serverCounter = payload.updateCounter;
 
-    this._gameState.update(state => {
-      if (!state) 
-        return state;
+    const currentState = this.gameState();
 
-      return {
-        ...state,
-        game : {
-          ...state.game,
-          updateCounter : payload.updateCounter
-        }
-      };
-    });
+    if (!currentState)
+        return;
+
+    const localCounter = currentState.game.updateCounter;
+
+    if (serverCounter <= localCounter)
+        return;
+
+    if (this.isRefreshing)
+        return;
+
+    this.isRefreshing = true;
+
+    const gameID = currentState.game.id;
+
+    if (!gameID)
+        return;
+
+    this.http.get<GameResponseDto>(this.gameURL + '/state/' + gameID)
+             .subscribe({
+                next : dto => {
+                  const newState = GameStateMapperService.fromDTO(dto);
+                  this._gameState.set(newState);
+                  this.isRefreshing = false;
+                },
+                error : err => {
+                  console.error("Failed to refresh game after GAME_UPDATE", err);
+                  this.isRefreshing = false;
+                }
+             });
   }
   private handleGameMessage(event : MessageEvent) : void {
+
+    console.log('GAME_MESSAGE received', event.data);
 
     const message = event.data;
 
@@ -153,6 +274,25 @@ export class GameStoreService {
           ]
         }
       };
+    });
+
+    if (notification.ttl) {
+      setTimeout(() => {
+        this.removeNotification(notification.id);
+      }, notification.ttl);
+    }
+  }
+  private removeNotification(id : string) : void {
+    this._gameState.update(state => {
+        if (!state)
+           return state;
+        return {
+            ...state,
+            ui : {
+              ...state.ui,
+              notifications : state.ui.notifications.filter(n => n.id !== id)
+            }
+        };
     });
   }
 
@@ -192,7 +332,6 @@ export class GameStoreService {
          next : dto => {
            const context = GameContextMapperService.fromDTO(dto);
            this._currentGameContext.set(context);
-           this._gameState.set(null);  // No game loaded yet
          },
          error : err => {
            console.error("Failed to load Game context.", err);
@@ -208,8 +347,99 @@ export class GameStoreService {
   beginInfluenceAssignment(gameID : number) {
     return this.http.post(this.gameURL + `/${gameID}/begin-influence-assignment`, {});
   }
-  
 
+  /* INFLUENCE_ASSIGNMENT methods */
+  // Assign influence on a Politico (REST)
+  assignInfluence(politicoID : number, value : number | null) {
+
+    const playerID = this.me()?.playerID;
+    if (!playerID)
+        return;
+
+    this.http.post(
+      this.influenceURL + '/assigned',
+      {
+        points : value,
+        playerId : this.me()?.playerID,
+        gamePoliticoId : politicoID
+      }
+    ).subscribe({
+      next : () => {
+        this._gameState.update(state => {
+          
+          if (!state)
+              return state;
+
+          const current = {...state?.me.assignedInfluences};
+          if (value === null) {
+            delete current[politicoID];
+          } else {
+            current[politicoID] = value;
+          }
+
+          return {
+            ...state,
+            me : {
+              ...state.me,
+              assignedInfluences : current
+            }
+          };
+        });
+      },
+      error : err => {
+        console.error("Failed to assign influence.", err);
+      }
+    });
+  }
+  // Confirm assignments
+  confirmInfluenceAssignment() {
+
+    const gameID = this.game()?.id;
+    if (!gameID)
+        return;
+
+    this.http.post(
+      this.gameURL + `/${this.game()?.id}/confirm-influence-assignment`,
+      {}
+    ).subscribe({
+      next : () => {
+        console.log("Influence assignment confirmed.\n");
+      },
+      error : err => {
+        console.error("Failed to confirm influence assignment.", err);
+      }
+    });
+  }
+
+  /* Redirect according to Game state */
+  routeAfterGameLoad(gameID : number) {
+    
+    const state = this.gameState();
+    if (!state || !state.me)
+        return;
+
+    // Turn 0 -> Influence Assignment
+    if (state.game.currentTurn === 0) {
+
+        // If not yet started -> redirect to Lobby (not Ready)
+        if (state.game.startedAt === null) {
+            this.router.navigate([`game/${gameID}/lobby`]);
+            return;
+        }
+        // If not yet finished with influence assignment
+        if (!this.hasConfirmedInfluenceAssignment()) {
+            this.router.navigate([`/game/${gameID}/influence-assignment`]);
+            return;
+        }
+        // Already finished and confirmed -> redirect to Lobby
+        this.router.navigate([`game/${gameID}/lobby`]);
+        return;
+    }
+
+    // Turn 1+
+    this.router.navigate([`game/${gameID}`]);
+  }
+  
   /* Game methods */
   // Initial game load (REST)
   loadGame(gameID : number) : void {
@@ -223,7 +453,8 @@ export class GameStoreService {
                   const gameState = GameStateMapperService.fromDTO(dto);
                   console.log('Mapped GameState: ', gameState);
                   this._gameState.set(gameState);
-                  this.connectToSse(gameID);
+                  this.initSSE(gameID);
+                  this.routeAfterGameLoad(gameID);
                 },
                 error : err => {
                   console.error('Failed to load Game', err);
@@ -249,7 +480,7 @@ export class GameStoreService {
                 };
             });
 
-            this.connectToSse(gameID);
+            this.initSSE(gameID);
           }
       });
   }
@@ -272,6 +503,74 @@ export class GameStoreService {
     });
   }
 
+  /* Declare Influence Methods */
+  openDeclareInfluenceModal(politicoID : number) {
+
+    this._gameState.update(state => {
+      
+      if (!state)
+          return state;
+
+      return {
+        ...state,
+        ui : {
+          ...state.ui,
+          modal : {
+            type : UiModalType.ACTION_CONFIRM,
+            payload : { politicoID }
+          }
+        }
+      };
+    });
+  }
+  closeModal() : void {
+    
+    this._gameState.update(state => {
+      
+      if (!state)
+          return state;
+
+      return {
+        ...state,
+        ui : {
+          ...state.ui,
+          modal : {
+            type : null,
+            payload : undefined
+          }
+        }
+      };
+    });
+  }
+
+  declareInfluence(value : number) {
+
+    const state = this.gameState();
+
+    if (!state)
+        return;
+
+    const politicoID = state.ui.modal.payload.politicoID;
+    const gameID = state.game.id;
+
+    this.http.post(
+      this.actionURL + '/announce', 
+      {
+        "gameID" : gameID,
+        "type" : ActionType.DECLARE_INFLUENCE,
+        "targetGamePoliticoID" : politicoID,
+        "influencePoints" : value
+      }
+    ).subscribe({
+      next : () => {
+        this.closeModal();
+      },
+      error : err => {
+        console.error("Declare influence failed.", err);
+      }
+    });
+  }
+
   /* Action methods */
   // Announce action (REST)
   announceAction(action : any) {
@@ -282,7 +581,6 @@ export class GameStoreService {
     return this.http.post(this.actionURL + '/cancel', action);
   }
 
-
   /* Phase methods */
   confirmPhaseExecution(gameID : number) {
     return this.http.post(this.gameURL + '/confirm_phase_exec/' + gameID, {});
@@ -290,7 +588,6 @@ export class GameStoreService {
   nextPhase(gameID : number) {
     return this.http.post(this.gameURL + '/next_phase/' + gameID, {});
   }
-
 
   // Clean on Game quit.
   clearGame() : void {
@@ -301,7 +598,5 @@ export class GameStoreService {
   clearCurrentGameContext() {
     this._currentGameContext.set(null);
   }
-
-
 
 }

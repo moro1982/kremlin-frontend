@@ -1,6 +1,9 @@
 <div class="board-layout">
 
     <div class="board">
+
+        <app-game-header></app-game-header>
+        
         <ng-container *ngIf="gameStore.gameState()">
             <app-politburo-pyramid
                 [ministries]="gameStore.ministries()"
@@ -17,4 +20,9 @@
     </div>
 
     <app-politico-side-panel></app-politico-side-panel>
+
+    <app-declare-influence-modal
+        *ngIf="gameStore.ui()?.modal?.type === UiModalType.ACTION_CONFIRM">
+    </app-declare-influence-modal>
+    
 </div>

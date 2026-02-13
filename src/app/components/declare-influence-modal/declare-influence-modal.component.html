@@ -1,0 +1,11 @@
+<div class="modal">
+    <h3>Declare Influence</h3>
+
+    <input type="number"
+        [(ngModel)]="value"
+        min="1"
+        max="10"
+    />
+    <button (click)="confirm()">Confirm</button>
+    <button (click)="close()">Cancel</button>
+</div>

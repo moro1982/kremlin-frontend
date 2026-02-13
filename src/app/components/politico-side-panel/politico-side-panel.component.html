@@ -24,8 +24,16 @@
             Player {{ politico.controllerPlayerID }}
         </section>
 
-        <section *ngIf="gameStore.selectedPoliticoIsMine()">
-            <span class="mine"> Under your control </span>
+        <section *ngIf="gameStore.hasAssignedInfluenceOnSelectedPolitico()">
+            <span class="mine"> You assigned influence on this Politico. </span>
         </section>
+
+        <button 
+            class="boton"
+            *ngIf="canDeclareInfluence()"
+            (click)="openDeclareInfluenceModal()"
+        >
+            Declare Influence
+        </button>
     </div>     
 </div>

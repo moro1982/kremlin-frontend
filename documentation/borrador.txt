@@ -1,0 +1,6 @@
+<button 
+    *ngFor="let v of remainingValues()"
+    (click)="assignInfluence(p.id, v)"
+>
+    {{ v }}
+</button>

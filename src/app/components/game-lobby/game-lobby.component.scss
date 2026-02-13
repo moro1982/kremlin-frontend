@@ -1,0 +1,26 @@
+.lobby {
+    width: 70%;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.player-count {
+    font-size: larger;
+    font-weight: bold;
+}
+
+.players {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+
+    li {
+        list-style: none;
+    }
+}
+
+.actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}

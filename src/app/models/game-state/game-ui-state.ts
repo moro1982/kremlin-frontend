@@ -8,7 +8,7 @@ export interface GameUiState {
 
     modal : {
         type : UiModalType | null;
-        payload? : any;
+        payload? : any | null;
     }
 
     notifications : UiNotification[];   // append only

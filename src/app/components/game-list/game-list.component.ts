@@ -1,5 +1,5 @@
 import { NgForOf, NgIf } from '@angular/common';
-import { Component, computed, OnInit } from '@angular/core';
+import { Component, computed, effect, OnInit } from '@angular/core';
 import { GameStoreService } from '../../services/game/store/game-store.service';
 import { GameListItemComponent } from '../game-list-item/game-list-item.component';
 import { FormsModule } from '@angular/forms';
@@ -17,7 +17,16 @@ export class GameListComponent implements OnInit {
   constructor( 
     public readonly gameStore : GameStoreService,
     private router : Router
-  ) { }
+  )
+  {
+    // effect(() => {
+    //     const state = this.gameStore.gameState();
+    //     if (!state)
+    //         return;
+
+    //     this.gameStore.routeAfterGameLoad(state.game.id);
+    // });
+  }
 
   maxPlayers : number = 6;
 

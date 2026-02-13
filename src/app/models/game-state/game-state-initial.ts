@@ -5,6 +5,7 @@ export const initialGameState : GameState = {
     game : {
         id : 0,
         createdAt : new Date(0),
+        startedAt : new Date(0),
         version : 0,
         updateCounter : 0,
         finished : false,

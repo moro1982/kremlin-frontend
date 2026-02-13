@@ -669,15 +669,14 @@ import { GameContextMapperService } from '../gameContextMapper/game-context-mapp
 import { GameLifecycleStatus } from '../../../enum/game-life-cycle-status';
 import { GameSummaryDto } from '../../../dto/game-summary-dto';
 import { GameSummaryMapperService } from '../gameSummaryMapper/game-summary-mapper.service';
+import { CreatePlayerRequest } from '../../../models/player-request/create-player-request';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GameStoreService {
 
-  constructor( private http : HttpClient ) { 
-    console.log('GameStoreService instance created', this);
-  }
+  constructor( private http : HttpClient ) { }
 
   // URLs
   private gameURL = 'http://localhost:8080/game/base';
@@ -741,75 +740,25 @@ export class GameStoreService {
   readonly lobbyPlayers = computed( () => this.currentGameContext()?.players ?? [] );
   readonly lifeCycleStatus = computed( () => this.currentGameContext()?.lifeCycleStatus );
 
+  // InfluenceAssignment context
+  readonly influenceAssignmentContext = computed(() => {
+    const state = this.gameState();
+    
+    if (!state)
+        return null;
+    
+    if (state.game.currentTurn !== 0)
+        return null;
 
-  /* Main methods */
+    return {
+        politicos : Object.values(state.politicos),
+        assigned : state.me?.assignedInfluences ?? {},
+        players : Object.values(state.players),
+        myPlayerID : state.me?.playerID
+    };
+  });
 
-  // Create new Game
-  createGame( maxPlayers : number ) {
-      return this.http.post<GameResponseDto>(
-        this.gameURL + `/new/max_players/${maxPlayers}`,
-        {}
-      );
-  }
-
-  // Create Player in an existing Game
-  joinGame( gameID : number ) {
-    // Call create Player endpoint.
-    return this.http.post<PlayerResponseDto>(this.playerURL + `/game/${gameID}/single`, {});
-  }
-
-  // Load games list
-  loadAvailableGames() {
-      this.http.get<GameSummaryDto[]>(this.gameURL + "/summary_list")
-               .subscribe({
-                  next : dtos => this._availableGames.set(
-                    dtos.map(GameSummaryMapperService.fromDTO)
-                  ),
-                  error : err => {
-                    console.error("Failed to load games.", err);
-                    this._availableGames.set([]);
-                  }
-                });
-  }
-
-  // Load Game context
-  loadGameContext(gameID : number) {
-    this.http
-      .get<GameContextDto>(this.gameURL + `/context/${gameID}`)
-      .subscribe({
-         next : dto => {
-           const context = GameContextMapperService.fromDTO(dto);
-           this._currentGameContext.set(context);
-           this._gameState.set(null);  // No game loaded yet
-         },
-         error : err => {
-           console.error("Failed to load Game context.", err);
-           this._currentGameContext.set(null);
-         }
-      });
-  }
-
-  // Initial game load (REST)
-  loadGame(gameID : number) : void {
-
-    console.log('loadGame called with gameID = ', gameID);
-
-    this.http.get<GameResponseDto>(this.gameURL + '/state/' + gameID)
-             .subscribe({
-                next : dto => {
-                  console.log('Raw DTO received from backend:', dto);
-                  const gameState = GameStateMapperService.fromDTO(dto);
-                  console.log('Mapped GameState: ', gameState);
-                  this._gameState.set(gameState);
-                  this.connectToSse(gameID);
-                },
-                error : err => {
-                  console.error('Failed to load Game', err);
-                  this._gameState.set(null);
-                }
-             });
-  }
-
+  /** SSE **/
   // SSE connection
   private connectToSse(gameID : number) : void {
     
@@ -834,10 +783,7 @@ export class GameStoreService {
       console.error('SSE error', err);
     };
   }
-
-
   /* SSE Event Handlers */
-
   private handleGameUpdate(event : MessageEvent) : void {
     
     const payload = JSON.parse(event.data);
@@ -855,7 +801,6 @@ export class GameStoreService {
       };
     });
   }
-
   private handleGameMessage(event : MessageEvent) : void {
 
     const message = event.data;
@@ -885,10 +830,102 @@ export class GameStoreService {
     });
   }
 
+  /* Game List methods */
+  // Create new Game
+  createGame( maxPlayers : number ) {
+      return this.http.post<GameResponseDto>(
+        this.gameURL + `/new/max_players/${maxPlayers}`,
+        {}
+      );
+  }
+  // Create Player in an existing Game
+  joinGame( gameID : number, payload: CreatePlayerRequest ) {
+    // Call create Player endpoint.
+    return this.http.post<PlayerResponseDto>(this.playerURL + `/game/${gameID}/single`, payload);
+  }
+  // Load games list
+  loadAvailableGames() {
+      this.http.get<GameSummaryDto[]>(this.gameURL + "/summary_list")
+               .subscribe({
+                  next : dtos => this._availableGames.set(
+                      dtos.map(GameSummaryMapperService.fromDTO)
+                  ),
+                  error : err => {
+                    console.error("Failed to load games.", err);
+                    this._availableGames.set([]);
+                  }
+                });
+  }
 
-  /* Facade methods */
+  /* LOBBY methods */
+  // Load Game context
+  loadGameContext(gameID : number) {
+    this.http
+      .get<GameContextDto>(this.gameURL + `/context/${gameID}`)
+      .subscribe({
+         next : dto => {
+           console.log('Game context loaded: ', dto);
+           const context = GameContextMapperService.fromDTO(dto);
+           this._currentGameContext.set(context);
+           this._gameState.set(null);  // No game loaded yet
+         },
+         error : err => {
+           console.error("Failed to load Game context.", err);
+           this._currentGameContext.set(null);
+         }
+      });
+  }
+  // Toggle Player ready
+  toggleReady(gameID : number) {
+    return this.http.post(this.gameURL + `/${gameID}/lobby/toggle-ready`, {});
+  }
+  // Begin Influence Assignment
+  beginInfluenceAssignment(gameID : number) {
+    return this.http.post(this.gameURL + `/${gameID}/begin-influence-assignment`, {});
+  }
 
-  // Game methods
+  /* INFLUENCE_ASSIGNMENT methods */
+  // Assign influence on a Politico (REST)
+  assignInfluence(politicoID : number, value : number | null) {
+    return this.http.post(
+      '/influence/assigned',
+      {
+        points : value,
+        playerId : this.me()?.playerID,
+        gamePoliticoId : politicoID
+      }
+    ).subscribe();
+  }
+  // Confirm assignments
+  confirmInfluenceAssignment() {
+    return this.http.post(
+      this.gameURL + `/${this.game()?.id}/confirm-influence-assignment`, {}
+    ).subscribe();
+  }
+  
+
+  /* Game methods */
+  // Initial game load (REST)
+  loadGame(gameID : number) : void {
+
+    console.log('loadGame called with gameID = ', gameID);
+
+    this.http.get<GameResponseDto>(this.gameURL + '/state/' + gameID)
+             .subscribe({
+                next : dto => {
+                  console.log('Raw DTO received from backend:', dto);
+                  const gameState = GameStateMapperService.fromDTO(dto);
+                  console.log('Mapped GameState: ', gameState);
+                  this._gameState.set(gameState);
+                  this.connectToSse(gameID);
+                },
+                error : err => {
+                  console.error('Failed to load Game', err);
+                  this._gameState.set(null);
+                }
+             });
+  }
+  // Start current Game (turn 1) (REST)
   startGame(gameID : number) : void {
     this.http
       .post<GameResponseDto>(this.gameURL + `/start/${gameID}`, {})
@@ -910,39 +947,6 @@ export class GameStoreService {
           }
       });
   }
-
-  // Action methods
-  announceAction(action : any) {
-    return this.http.post(this.actionURL + '/announce', action);
-  }
-
-  cancelAction(action : any) {
-    return this.http.post(this.actionURL + '/cancel', action);
-  }
-
-
-  // Phase methods
-
-  confirmPhaseExecution(gameID : number) {
-    return this.http.post(this.gameURL + '/confirm_phase_exec/' + gameID, {});
-  }
-
-  nextPhase(gameID : number) {
-    return this.http.post(this.gameURL + '/next_phase/' + gameID, {});
-  }
-
-
-  // Clean on Game quit.
-  clearGame() : void {
-    this.eventSource?.close();
-    this.eventSource = undefined;
-    this._gameState.set(null);
-  }
-
-  clearCurrentGameContext() {
-    this._currentGameContext.set(null);
-  }
-
   // Select Politico
   selectPolitico(politicoID : number) : void {
     this._gameState.update(state => {
@@ -962,6 +966,35 @@ export class GameStoreService {
     });
   }
 
+  /* Action methods */
+  // Announce action (REST)
+  announceAction(action : any) {
+    return this.http.post(this.actionURL + '/announce', action);
+  }
+  // Cancel action (REST)
+  cancelAction(action : any) {
+    return this.http.post(this.actionURL + '/cancel', action);
+  }
+
+
+  /* Phase methods */
+  confirmPhaseExecution(gameID : number) {
+    return this.http.post(this.gameURL + '/confirm_phase_exec/' + gameID, {});
+  }
+  nextPhase(gameID : number) {
+    return this.http.post(this.gameURL + '/next_phase/' + gameID, {});
+  }
+
+
+  // Clean on Game quit.
+  clearGame() : void {
+    this.eventSource?.close();
+    this.eventSource = undefined;
+    this._gameState.set(null);
+  }
+  clearCurrentGameContext() {
+    this._currentGameContext.set(null);
+  }
 }
 
 // GameStateMapperService

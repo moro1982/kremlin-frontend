@@ -1,1 +1,33 @@
-<p>influence-assignment works!</p>
+<div *ngIf="context() as ctxt">
+    
+    <h2> Influence Assignment </h2>
+
+    <p> Assigned {{ Object.keys(assigned()).length }} / 10 </p>
+
+    <ul>
+        <li *ngFor="let p of ctxt.politicos">
+            {{ p.name }}
+
+            <ng-container *ngIf="assigned()[p.id] as value; else assign">
+                -> {{ value }}
+                <button (click)="unassignInfluence(p.id)"> X </button>
+            </ng-container>
+
+            <ng-template #assign>
+                <button 
+                    *ngFor="let v of remainingValues()"
+                    (click)="assignInfluence(p.id, v)"
+                >
+                    {{ v }}
+                </button>
+            </ng-template>
+        </li>
+    </ul>
+
+    <button
+        [disabled]="!isComplete()"
+        (click)="confirmInfluenceAssignment()"
+    >
+    Confirm Assignment
+    </button>
+</div>
