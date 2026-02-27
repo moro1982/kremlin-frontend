@@ -1,10 +1,21 @@
-
-<div class="login-container">
-    <h2 class="login-title">Login</h2>
-    <p *ngIf="errorMsg" class="message"> {{ errorMsg }} </p>
-    <div class="login-inputs">
-        <input type="text" [(ngModel)]="username" placeholder="Usuario" class="login-input">
-        <input type="password" [(ngModel)]="password" placeholder="Contraseña">
+<div class="main-container">
+    <div class="input-container">
+        <h2 class="input-title">Login</h2>
+        <p *ngIf="errorMsg" class="message"> {{ errorMsg }} </p>
+        <div class="input-group">
+            <input 
+                type="text"
+                [(ngModel)]="username"
+                placeholder="Username"
+                class="input"
+            >
+            <input 
+                type="password" 
+                [(ngModel)]="password" 
+                placeholder="Contraseña"
+                class="input"
+            >
+        </div>
+        <button (click)="login()" class="boton login-btn"> Submit </button>
     </div>
-    <button (click)="login()" class="login-btn"> Iniciar sesión </button>
 </div>

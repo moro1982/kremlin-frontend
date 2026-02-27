@@ -1,33 +1,4 @@
-.login-container {
-    width: 90%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 0 auto;
-    background-color: darkred;
-}
-
-.login-inputs {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    gap: 1rem;
-    padding: 1rem 0;
-}
-
-.login-title {
-    color: darkgoldenrod;
-    margin: 0;
-    padding-top: 1rem;
-}
-
-.login-input {
-    padding: .5rem;
-}
-
 .login-btn {
-    padding: .5rem;
     background-color: darkolivegreen;
     margin-bottom: 1rem;
-    font-weight: bold;
 }

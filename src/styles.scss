@@ -1,11 +1,14 @@
 /* You can add global styles to this file, and also import other style files */
 
-@import 'normalize.css/normalize.css';
+@import '../node_modules/normalize.css/normalize.css';
 
+body {
+    // background-color: #5e0303;
+    background-color: #4a0202;
+}
 .container {
     margin: 0 auto;
 }
-
 .bloque {
     background-color: black;
     display: flex;
@@ -13,6 +16,8 @@
     align-items: center;
     gap: 2rem;
 }
+
+// Buttons
 .boton {
     background-color: grey;
     padding: .5rem 1rem;
@@ -25,7 +30,34 @@
     color: white;
 }
 
-// Influencia
+// Login and Register
+.input-container {
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 auto;
+    padding: 1rem;
+    background-color: darkred;
+}
+.input-group {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    gap: 1rem;
+    padding: 1rem 0;
+}
+.input-title {
+    color: darkgoldenrod;
+    margin: 0;
+    padding-top: 1rem;
+}
+.input {
+    padding: .5rem;
+}
+
+
+/* Influencia */
 .control-titulo {
     text-align: center;
 }

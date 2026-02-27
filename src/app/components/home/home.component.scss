@@ -7,6 +7,7 @@
 }
 
 .logo {
+    font-size: larger;
     text-decoration: none;
     color: darkgoldenrod;
     margin-left: 1rem;
@@ -20,6 +21,12 @@
 
 .nav-link {
     font-size: larger;
+    font-weight: bold;
     text-decoration: none;
     color: darkgoldenrod;
+
+    &:hover {
+        color: goldenrod;
+        transition: color .5s;
+    }
 }
