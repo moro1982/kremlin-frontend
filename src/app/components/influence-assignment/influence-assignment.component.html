@@ -1,25 +1,44 @@
-<div *ngIf="context() as ctxt">
+<div *ngIf="context() as ctxt" class="input-container">
     
-    <h2> Influence Assignment </h2>
+    <h2 class="input-title"> Influence Assignment </h2>
 
-    <p> Assigned {{ Object.keys(assigned()).length }} / 10 </p>
+    <p class="politico-count"> Assigned {{ Object.keys(assigned()).length }} / 10 </p>
 
-    <ul>
-        <li *ngFor="let p of ctxt.politicos">
-            {{ p.name }}
+    <div class="field-title">
+        <p> Politico Name </p>
+        <p> Advantage (+2) </p>
+        <p> Disadvantage (-2) </p>
+    </div>
+    <ul class="politico-list">
+        <li *ngFor="let p of ctxt.politicos" class="politico-item">
+            <div class="politico-data">
+                <span> {{ p.name }} </span>
+                <span> {{ p.advantage }} </span>
+                <span> {{ p.disadvantage }} </span>
+            </div>
 
-            <ng-container *ngIf="assigned()[p.id] as value; else assign">
-                -> {{ value }}
-                <button (click)="unassignInfluence(p.id)"> X </button>
+            <ng-container
+                *ngIf="assigned()[p.id] as value; else assign"
+            >
+                <div class="assignment">
+                    <p> Assigned value → {{ value }} </p>
+                    <button (click)="unassignInfluence(p.id)" class="boton">
+                        Cancel assignment
+                    </button>
+                </div>
             </ng-container>
 
             <ng-template #assign>
-                <button 
-                    *ngFor="let v of remainingValues()"
-                    (click)="assignInfluence(p.id, v)"
-                >
-                    {{ v }}
-                </button>
+                <div class="influence-values">
+                    <p> Possible values: </p>
+                    <button 
+                        *ngFor="let v of remainingValues()"
+                        (click)="assignInfluence(p.id, v)"
+                        class="boton"
+                    >
+                        {{ v }}
+                    </button>
+                </div>
             </ng-template>
         </li>
     </ul>
@@ -27,6 +46,7 @@
     <button
         [disabled]="!isComplete()"
         (click)="confirmInfluenceAssignment()"
+        class="boton "
     >
     Confirm Assignment
     </button>

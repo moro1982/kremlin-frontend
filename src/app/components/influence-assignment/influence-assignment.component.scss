@@ -1,0 +1,44 @@
+
+.politico-count {
+    font-weight: bold;
+}
+
+.politico-data {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+    padding: .5rem;
+}
+
+.politico-list {
+    margin: 0 auto;
+}
+
+.politico-item {
+    list-style: none;
+    padding: .5rem 0;
+}
+
+.field-title {
+    font-weight: bold;
+    color: wheat;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+}
+
+.influence-values {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+}
+
+.assignment {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+}

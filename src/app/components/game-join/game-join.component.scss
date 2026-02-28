@@ -1,0 +1,32 @@
+.game-join-container {
+    margin: 0 auto;
+    width: 80%;
+    text-align: center;
+}
+.join-input-group {
+    display: flex;
+    flex-direction: column;
+}
+.join-input-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    gap: 2rem;
+    padding: .5rem 0;
+}
+.join-input-label {
+    font-size: large;
+    font-weight: bold;
+    color: white;
+}
+.join-input {
+    min-width: 10rem;
+    max-width: 15rem;
+}
+.actions {
+    margin: 1rem 0;
+    display: flex;
+    justify-content: space-around;
+    gap: 2rem;
+}

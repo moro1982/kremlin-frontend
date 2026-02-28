@@ -1,29 +1,26 @@
-<h2>Join Game</h2>
+<div class="input-container">
 
-<div class="form">
-
-  <label>
-    Player name
-    <input [(ngModel)]="name"/>
-  </label>
-
-  <label>
-    Faction
-    <select [(ngModel)]="faction">
-      <option *ngFor="let f of factions" [value]="f">
-        {{ f }}
-      </option>
-    </select>
-  </label>
-
-  <div class="actions">
-    <button [disabled]="!canSubmit()" (click)="submit()">
-      Join
-    </button>
-
-    <button (click)="cancel()">
-      Cancel
-    </button>
+  <h2 class="input-title"> Join Game </h2>
+  
+  <div class="join-input-group">
+    <div class="join-input-row">
+      <label class="join-input-label"> Player name </label>
+      <input [(ngModel)]="name" class="input join-input"/>
+    </div>
+  
+    <div class="join-input-row">
+      <label class="join-input-label"> Faction </label>
+      <select [(ngModel)]="faction" class="input join-input">
+        <option *ngFor="let f of factions" [value]="f">
+          {{ f }}
+        </option>
+      </select>
+    </div>
   </div>
 
+  <div class="actions">
+    <button [disabled]="!canSubmit()" (click)="submit()" class="boton"> Join </button>
+    <button (click)="cancel()" class="boton"> Cancel </button>
+  </div>
 </div>
+

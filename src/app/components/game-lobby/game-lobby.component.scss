@@ -7,12 +7,14 @@
 .player-count {
     font-size: larger;
     font-weight: bold;
+    color: white;
 }
 
 .players {
     display: flex;
     flex-direction: column;
     padding: 0;
+    color: white;
 
     li {
         list-style: none;

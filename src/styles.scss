@@ -6,9 +6,17 @@ body {
     // background-color: #5e0303;
     background-color: #4a0202;
 }
+
 .container {
     margin: 0 auto;
 }
+
+.title {
+    color: white;
+    font-size: larger;
+    font-weight: bold;
+}
+
 .bloque {
     background-color: black;
     display: flex;
@@ -19,15 +27,12 @@ body {
 
 // Buttons
 .boton {
-    background-color: grey;
+    background-color: darkslategrey;
     padding: .5rem 1rem;
     color: white;
     font-weight: 600;
     height: max-content;
     width: max-content;
-}
-.titulo-boton {
-    color: white;
 }
 
 // Login and Register
@@ -39,6 +44,8 @@ body {
     margin: 0 auto;
     padding: 1rem;
     background-color: darkred;
+    color: white;
+    font-size: large;
 }
 .input-group {
     display: flex;
@@ -56,6 +63,16 @@ body {
     padding: .5rem;
 }
 
+// Utils
+.text-white {
+    color: white;
+}
+.text-gold {
+    color: darkgoldenrod;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/** LEGACY **/
 
 /* Influencia */
 .control-titulo {

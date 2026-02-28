@@ -24,8 +24,13 @@
             Player {{ politico.controllerPlayerID }}
         </section>
 
-        <section *ngIf="gameStore.hasAssignedInfluenceOnSelectedPolitico()">
-            <span class="mine"> You assigned influence on this Politico. </span>
+        <section *ngIf="gameStore.hasAssignedInfluenceOnSelectedPolitico()" class="mine">
+            <span> 
+                You assigned influence on this Politico. 
+            </span>
+            <span> 
+                Influence assigned: {{ influenceAssignedOnSelectedPolitico() }} 
+            </span>
         </section>
 
         <button 
