@@ -18,6 +18,7 @@ import { AuthService } from '../../auth/auth.service';
 import { Router } from '@angular/router';
 import { UiModalType } from '../../../enum/ui-modal-type';
 import { ActionType } from '../../../enum/action-type';
+import { Faction } from '../../../enum/faction';
 
 @Injectable({
   providedIn: 'root'
@@ -150,6 +151,55 @@ export class GameStoreService {
     return Object.values(state.players).every(p => p.ready);
   });
 
+  // Influences declared by Players on every Politico
+  declaredInfluencesByPolitico = computed(() => {
+
+    const state = this.gameState();
+    if (!state)
+        return {};
+
+    const result : Record<number, { playerID : number, value : number }[]> = {};
+
+    for (const politicoID of Object.keys(state.politicos)) {
+      const list : { playerID : number, value : number}[] = [];
+
+      for (const player of Object.values(state.players)) {
+        const declared = player.declaredInfluences?.[Number(politicoID)];
+
+        if (declared && declared > 0) {
+          list.push({ playerID : player.id, value : declared });
+        }
+      }
+
+      if (list.length > 0) {
+        result[Number(politicoID)] = list;
+      }
+    }
+
+    return result;
+  });
+
+
+  /* Player Color Map (derived from player's faction) */
+  readonly playerColorMap = computed(() => {
+    const players = this.gameState()?.players;
+    let colorMap = new Map<number, string>();
+
+    for (const playerID in players) {
+      const player = players[Number(playerID)];
+      let color = '';
+      for (let [key, value] of Object.entries(Faction)) {
+        if (key === player.factionColor) {
+          color = value;
+        }
+      }
+      if (player.factionColor !== undefined) {
+        colorMap.set(player.id, color);
+      }
+    }
+
+    return colorMap;
+  });
 
   /** SSE **/
   // Init SSE (handshake)

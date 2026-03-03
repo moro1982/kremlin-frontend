@@ -12,8 +12,11 @@ import { NgIf } from '@angular/common';
   styleUrl: './ministry-slot.component.scss'
 })
 export class MinistrySlotComponent {
+
     @Input() ministry!: GameMinistryState | undefined;
     @Input() politico!: GamePoliticoState | null;
+    @Input() declaredInfluences : { playerID : number, value : number }[] = [];
+    @Input() playerColorMap! : Map<number, string>;
     @Input() selectedPoliticoID!: number | null;
 
     @Output() politicoSelected = new EventEmitter<number>();
@@ -21,4 +24,5 @@ export class MinistrySlotComponent {
     onPoliticoSelected(politicoID : number) : void {
       this.politicoSelected.emit(politicoID);
     }
+
 }

@@ -2,6 +2,8 @@
     class="card"
     [class.selected]="selected"
     (click)="onClick()"
+    [class.controlled]="politico.controllerPlayerID"
+    [style.border-color]="getPlayerColor(this.politico.controllerPlayerID)"
 >
     <div class="header">
         <strong> {{ politico.name }} </strong>
@@ -15,5 +17,17 @@
 
     <div class="footer" *ngIf="politico.controllerPlayerID">
         Controlled by Player : {{ politico.controllerPlayerID }}
+    </div>
+
+    <div class="influence-container"
+         *ngIf="declaredInfluences"
+    >
+        <div class="influence-badge"
+             *ngFor="let inf of declaredInfluences"
+             [style.background]="getPlayerColor(inf.playerID)"
+        >
+            {{ inf.value }}
+        </div>
+
     </div>
 </div>

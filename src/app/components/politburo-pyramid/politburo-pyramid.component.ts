@@ -16,8 +16,10 @@ export class PolitburoPyramidComponent {
 
   @Input() ministries! : Record<number, GameMinistryState>;
   @Input() politicos! : Record<number, GamePoliticoState>;
+  @Input() playerColorMap! : Map<number, string>;
+  @Input() declaredInfluencesByPolitico : Record<number, { playerID : number, value : number }[]> = {};
   @Input() selectedPoliticoID! : number | null;
-
+  
   @Output() politicoSelected = new EventEmitter<number>();
 
   topLvl : GameMinistryState[] = [];
@@ -58,6 +60,18 @@ export class PolitburoPyramidComponent {
     if (!ministry.ministerID) return null;
 
     return this.politicos[ministry.ministerID] ?? null;
+  }
+
+  getDeclaredInfluencesByMinister(ministry : GameMinistryState) 
+      : { playerID : number, value : number }[]
+  {
+    const minister = this.getPoliticoForMinistry(ministry);
+    if (minister != null) {
+      const declaredInfluences = this.declaredInfluencesByPolitico[minister.id];
+      return declaredInfluences;
+    }
+
+    return [];
   }
 
   onPoliticoSelected(politicoID : number) : void {

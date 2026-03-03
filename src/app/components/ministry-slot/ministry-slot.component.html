@@ -8,6 +8,8 @@
     <app-politico-card
         *ngIf="politico"
         [politico]="politico"
+        [declaredInfluences]="declaredInfluences"
+        [playerColorMap]="playerColorMap"
         [selected]="politico.id === selectedPoliticoID"
         (selectedChange)="onPoliticoSelected($event)"
     >

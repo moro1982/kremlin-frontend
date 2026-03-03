@@ -8,6 +8,8 @@
             <app-politburo-pyramid
                 [ministries]="gameStore.ministries()"
                 [politicos]="gameStore.politicos()"
+                [playerColorMap]="gameStore.playerColorMap()"
+                [declaredInfluencesByPolitico]="gameStore.declaredInfluencesByPolitico()"
                 [selectedPoliticoID]="gameStore.ui()?.selectedPoliticoID ?? null"
                 (politicoSelected)="onPoliticoSelected($event)"
             >
