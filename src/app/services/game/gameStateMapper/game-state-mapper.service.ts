@@ -16,6 +16,7 @@ import { ActionBlockingStatus } from '../../../enum/action-blocking-status';
 import { GameUiState } from '../../../models/game-state/game-ui-state';
 import { TrialResponseDto } from '../../../dto/trial-response-dto';
 import { TrialState } from '../../../models/game-state/trial-state';
+import { PhaseExecutionStatus } from '../../../enum/phase-execution-status';
 
 @Injectable({
   providedIn: 'root'
@@ -29,6 +30,7 @@ export class GameStateMapperService {
     const players = GameStateMapperService.mapPlayers(dto.players, dto.myPlayerID);
     
     const phase : PhaseState = {
+      phaseStatus : dto.phaseStatus,
       blockingStatus : dto.blockingStatus,
       awaitingAction : dto.currentAwaitingAction
         ? GameStateMapperService.mapAction(dto.currentAwaitingAction)
@@ -41,11 +43,12 @@ export class GameStateMapperService {
         id : dto.id,
         createdAt : new Date(dto.createdAt),
         startedAt : dto.startedAt ? new Date(dto.startedAt) : null,
-        version : dto.version,
-        updateCounter : dto.updateCounter,
-        finished : dto.finished,
         currentTurn : dto.currentTurn,
-        currentPhase : dto.currentPhase
+        currentPhase : dto.currentPhase,
+        finished : dto.finished,
+        lifeCycleStatus : dto.lifeCycleStatus,
+        version : dto.version,
+        updateCounter : dto.updateCounter
       },
       phase,
       players,
@@ -129,6 +132,8 @@ export class GameStateMapperService {
 
     if (state.phase.blockingStatus !== ActionBlockingStatus.NONE) return false;
 
+    if (state.phase.phaseStatus !== PhaseExecutionStatus.OPEN_FOR_ACTIONS) return false;
+
     if (me.ready) return false; // WARNING!!! See if it affects trials, investigations, etc.
 
     return true;
@@ -145,6 +150,9 @@ export class GameStateMapperService {
     const me = state.players[state.myPlayerID];
 
     if (!me) return false;
+
+    const phaseStatus : PhaseExecutionStatus = state.phase.phaseStatus;
+    if (phaseStatus !== PhaseExecutionStatus.OPEN_FOR_ACTIONS) return false;
 
     const awaitingAction : Action | null = state.phase.awaitingAction;
     if (awaitingAction === null) return false;

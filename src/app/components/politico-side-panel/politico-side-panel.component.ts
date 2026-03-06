@@ -2,7 +2,7 @@
 import { Component, computed } from '@angular/core';
 import { GameStoreService } from '../../services/game/store/game-store.service';
 import { NgIf } from '@angular/common';
-import { PhaseType } from '../../enum/phase-type';
+import { PhaseExecutionStatus } from '../../enum/phase-execution-status';
 
 @Component({
   selector: 'app-politico-side-panel',
@@ -27,8 +27,12 @@ export class PoliticoSidePanelComponent {
     } );
 
     canDeclareInfluence = computed(() => {
-      if (!this.selectedPolitico())
+      if (this.gameStore.phaseStatus() !== PhaseExecutionStatus.OPEN_FOR_ACTIONS) {
+        return false;
+      }
+      if (!this.selectedPolitico()) {
           return false;
+      }
       if (!this.gameStore.hasAssignedInfluenceOnSelectedPolitico()) {
           return false;
       }

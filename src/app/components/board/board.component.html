@@ -3,8 +3,21 @@
     <div class="board">
 
         <app-game-header></app-game-header>
-        
+
         <ng-container *ngIf="gameStore.gameState()">
+
+            <app-phase-control
+                [gameID]="gameStore.game()?.id"
+                [phaseStatus]="gameStore.phaseStatus()"
+                [players]="gameStore.players()"
+                [readyPlayers]="gameStore.readyPlayers()"
+                [iAmReady]="gameStore.iAmReady()"
+                [allPlayersReady]="gameStore.allPlayersReady()"
+                (readyClicked)="onReadyClicked()"
+                (beginPhaseClicked)="onBeginPhaseClicked()"
+            >
+            </app-phase-control>
+
             <app-politburo-pyramid
                 [ministries]="gameStore.ministries()"
                 [politicos]="gameStore.politicos()"

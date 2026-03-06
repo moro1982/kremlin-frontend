@@ -19,6 +19,7 @@ import { Router } from '@angular/router';
 import { UiModalType } from '../../../enum/ui-modal-type';
 import { ActionType } from '../../../enum/action-type';
 import { Faction } from '../../../enum/faction';
+import { PhaseExecutionStatus } from '../../../enum/phase-execution-status';
 
 @Injectable({
   providedIn: 'root'
@@ -47,6 +48,7 @@ export class GameStoreService {
   readonly gameState = this._gameState.asReadonly();
   readonly game = computed(() => this.gameState()?.game);
   readonly phase = computed(() => this.gameState()?.phase);
+  readonly phaseStatus = computed(() => this.gameState()?.phase.phaseStatus);
   readonly players = computed(() => this.gameState()?.players ?? {});
   readonly politicos = computed(() => this.gameState()?.politicos ?? {});
   readonly ministries = computed(() => this.gameState()?.ministries ?? {});
@@ -93,7 +95,10 @@ export class GameStoreService {
   private _currentGameContext = signal<CurrentGameContext | null>(null);
   readonly currentGameContext = computed(() => this._currentGameContext());
   readonly lobbyPlayers = computed( () => this.currentGameContext()?.players ?? [] );
-  readonly lifeCycleStatus = computed( () => this.currentGameContext()?.lifeCycleStatus );
+  readonly lifeCycleStatus = computed( () => 
+    this.gameState()?.game?.lifeCycleStatus ?? 
+    this.currentGameContext()?.lifeCycleStatus
+  );
 
   // InfluenceAssignment context
   readonly influenceAssignmentContext = computed(() => {
@@ -123,6 +128,28 @@ export class GameStoreService {
       return [];
     }
   });
+
+  readonly iAmReady = computed(() => {
+    const me = this.me();
+    if (!me)
+        return false;
+    return this.readyPlayers().some(
+      ([id, _]) => Number(id) === me.playerID
+    );
+  });
+
+  readonly allPlayersReady = computed(() => {
+    return this.readyPlayers().length === Object.values(this.players()).length
+  });
+
+  readonly canMarkReady = computed(() => 
+    this.phaseStatus() === PhaseExecutionStatus.WAITING_TO_BEGIN && !this.iAmReady()
+  );
+
+  readonly canConfirmPhase = computed(() => 
+    this.phaseStatus() === PhaseExecutionStatus.OPEN_FOR_ACTIONS
+    && !this.iAmReady()
+  );
 
   // Has confirmed influence assignment?
   readonly hasConfirmedInfluenceAssignment = computed(() => {
@@ -494,14 +521,10 @@ export class GameStoreService {
   // Initial game load (REST)
   loadGame(gameID : number) : void {
 
-    console.log('loadGame called with gameID = ', gameID);
-
     this.http.get<GameResponseDto>(this.gameURL + '/state/' + gameID)
              .subscribe({
                 next : dto => {
-                  console.log('Raw DTO received from backend:', dto);
                   const gameState = GameStateMapperService.fromDTO(dto);
-                  console.log('Mapped GameState: ', gameState);
                   this._gameState.set(gameState);
                   this.initSSE(gameID);
                   this.routeAfterGameLoad(gameID);
@@ -551,6 +574,14 @@ export class GameStoreService {
         }
       };
     });
+  }
+  // Mark Player ready
+  markPlayerReady(gameID : number) {
+    return this.http.post(this.gameURL + `/${gameID}/playerReady`, {});
+  }
+  // Begin current phase
+  beginPhase(gameID : number) {
+    return this.http.post(this.gameURL + `/begin_phase/${gameID}`, {});
   }
 
   /* Declare Influence Methods */

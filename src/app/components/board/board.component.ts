@@ -6,6 +6,7 @@ import { NgIf } from '@angular/common';
 import { GameHeaderComponent } from "../game-header/game-header.component";
 import { DeclareInfluenceModalComponent } from "../declare-influence-modal/declare-influence-modal.component";
 import { UiModalType } from '../../enum/ui-modal-type';
+import { PhaseControlComponent } from "../phase-control/phase-control.component";
 
 @Component({
   selector: 'app-board',
@@ -15,7 +16,8 @@ import { UiModalType } from '../../enum/ui-modal-type';
     PolitburoPyramidComponent,
     PoliticoSidePanelComponent,
     GameHeaderComponent,
-    DeclareInfluenceModalComponent
+    DeclareInfluenceModalComponent,
+    PhaseControlComponent
 ],
   templateUrl: './board.component.html',
   styleUrl: './board.component.scss'
@@ -28,6 +30,24 @@ export class BoardComponent {
 
   onPoliticoSelected(politicoID : number) : void {
     this.gameStore.selectPolitico(politicoID);
+  }
+
+  onReadyClicked() {
+    const gameID = this.gameStore.game()?.id;
+    
+    if (!gameID)
+        return;
+
+    this.gameStore.markPlayerReady(gameID).subscribe();
+  }
+
+  onBeginPhaseClicked() {
+    const gameID = this.gameStore.game()?.id;
+    
+    if (!gameID)
+        return;
+
+    this.gameStore.beginPhase(gameID).subscribe();
   }
 
 }

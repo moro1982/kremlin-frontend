@@ -1,16 +1,17 @@
 <div class="game-header" *ngIf="game()">
       
     <div class="left">
-      <span class="game-id">Game #{{ game()?.id }}</span>
+      <span class="game-id"> Game #{{ game()?.id }} </span>
+      <span class="my-player-name"> Player: {{ myPlayerName() }} </span>
     </div>
 
     <div class="center">
-      <span class="turn">Turn {{ turn() }}</span>
-      <span class="phase">Phase: {{ phase() }}</span>
+      <span class="turn"> Turn {{ turn() }} </span>
+      <span class="phase"> Phase: {{ phase() }} </span>
     </div>
 
     <div class="right">
-      <span class="status">{{ lifeCycleStatus() }}</span>
+      <span class="status"> {{ lifeCycleStatus() }} </span>
     </div>
 
 </div>

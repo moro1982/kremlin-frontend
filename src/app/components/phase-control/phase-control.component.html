@@ -1,0 +1,30 @@
+<div 
+    *ngIf="phaseStatus === PhaseExecutionStatus.WAITING_TO_BEGIN"
+    class="phase-control"
+>
+    <div *ngIf="isWaitingToBegin() && !iAmReady" class="ready">
+        <span class="label"> Press Ready to begin </span>
+        <button
+            (click)="onReadyClick()"
+            class="boton"
+        >
+            Ready
+        </button>
+    </div>
+
+    <span *ngIf="isWaitingToBegin() && iAmReady" class="waiting">
+        Waiting for players ( {{ readyCount() }} / {{ totalPlayers() }} )
+    </span>
+
+    <button
+        *ngIf="canBeginPhase()"
+        (click)="onBeginPhaseClick()"
+        class="boton"
+    >
+        Begin Phase
+    </button>
+
+    <span *ngIf="isResolving()" class="resolving">
+        Resolving actions...
+    </span>
+</div>

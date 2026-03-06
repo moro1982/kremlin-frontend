@@ -1,0 +1,21 @@
+.phase-control {
+    background-color: wheat;
+    padding: 1rem 0 1rem 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+}
+.ready {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    font-size: large;
+    font-weight: bold;
+}
+.waiting, .resolving {
+    font-size: large;
+    font-weight: bold;
+}
+

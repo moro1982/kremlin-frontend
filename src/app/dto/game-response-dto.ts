@@ -1,4 +1,6 @@
 import { ActionBlockingStatus } from "../enum/action-blocking-status";
+import { GameLifecycleStatus } from "../enum/game-life-cycle-status";
+import { PhaseExecutionStatus } from "../enum/phase-execution-status";
 import { PhaseType } from "../enum/phase-type";
 import { ActionInstanceDto } from "./action-instance-dto";
 import { GameMinistryResponseDto } from "./game-ministry-response-dto";
@@ -12,7 +14,9 @@ export interface GameResponseDto {
     startedAt: string;
     currentTurn: number;
     currentPhase: PhaseType;
+    phaseStatus : PhaseExecutionStatus;
     finished: boolean;
+    lifeCycleStatus: GameLifecycleStatus;
     
     version: number;
     updateCounter : number;
