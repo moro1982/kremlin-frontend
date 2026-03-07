@@ -35,7 +35,8 @@ export class GameStateMapperService {
       awaitingAction : dto.currentAwaitingAction
         ? GameStateMapperService.mapAction(dto.currentAwaitingAction)
         : null,
-      announcedActions : dto.announcedActions.map(GameStateMapperService.mapAction)
+      announcedActions : dto.announcedActions.map(GameStateMapperService.mapAction),
+      possibleActionsByPhase : dto.possibleActionsByPhase
     };
 
     return {

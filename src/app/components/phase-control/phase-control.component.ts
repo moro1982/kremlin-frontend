@@ -23,12 +23,17 @@ export class PhaseControlComponent {
 
   @Output() readyClicked = new EventEmitter<void>();
   @Output() beginPhaseClicked = new EventEmitter<void>();
+  @Output() resolveActionsClicked = new EventEmitter<void>();
 
   readyCount = computed( () => this.readyPlayers.length ?? 0);
   totalPlayers = computed( () => Object.entries(this.players).length );
 
   isWaitingToBegin() : boolean {
     return this.phaseStatus === PhaseExecutionStatus.WAITING_TO_BEGIN;
+  }
+
+  isOpenForActions() : boolean {
+    return this.phaseStatus === PhaseExecutionStatus.OPEN_FOR_ACTIONS;
   }
 
   isResolving() : boolean {
@@ -39,11 +44,18 @@ export class PhaseControlComponent {
     return this.allPlayersReady && this.isWaitingToBegin();
   }
 
+  canResolveActions() : boolean {
+    return this.allPlayersReady && this.isOpenForActions(); 
+  }
+
   onReadyClick() {
     this.readyClicked.emit();
   }
   onBeginPhaseClick() {
     this.beginPhaseClicked.emit();
+  }
+  onResolveActionsClick() {
+    this.resolveActionsClicked.emit();
   }
 
 }

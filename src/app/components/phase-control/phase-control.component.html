@@ -1,3 +1,4 @@
+<!-- WAITING_TO_BEGIN -->
 <div 
     *ngIf="phaseStatus === PhaseExecutionStatus.WAITING_TO_BEGIN"
     class="phase-control"
@@ -23,7 +24,37 @@
     >
         Begin Phase
     </button>
+</div>
 
+<!-- OPEN_FOR_ACTIONS -->
+<div *ngIf="phaseStatus === PhaseExecutionStatus.OPEN_FOR_ACTIONS"
+     class="phase-control"
+>
+    <div *ngIf="isOpenForActions() && !iAmReady" class="ready">
+        <span class="label"> Press Ready to end action announcements </span>
+        <button
+            (click)="onReadyClick()"
+            class="boton"
+        >
+            Ready
+        </button>
+    </div>
+
+    <span *ngIf="isOpenForActions() && iAmReady" class="waiting">
+        Waiting for players to resume action announcements ( {{ readyCount() }} / {{ totalPlayers() }} )
+    </span>
+
+    <button
+        *ngIf="canResolveActions()"
+        (click)="onResolveActionsClick()"
+        class="boton"
+    >
+        Resolve Actions
+    </button>
+</div>
+
+<!-- RESOLVING_ACTIONS -->
+<div>
     <span *ngIf="isResolving()" class="resolving">
         Resolving actions...
     </span>

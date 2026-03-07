@@ -5,7 +5,6 @@
         <app-game-header></app-game-header>
 
         <ng-container *ngIf="gameStore.gameState()">
-
             <app-phase-control
                 [gameID]="gameStore.game()?.id"
                 [phaseStatus]="gameStore.phaseStatus()"
@@ -15,6 +14,7 @@
                 [allPlayersReady]="gameStore.allPlayersReady()"
                 (readyClicked)="onReadyClicked()"
                 (beginPhaseClicked)="onBeginPhaseClicked()"
+                (resolveActionsClicked)="onResolveActionsClicked()"
             >
             </app-phase-control>
 
@@ -29,7 +29,7 @@
             </app-politburo-pyramid>
         </ng-container>
         
-        <p *ngIf="!gameStore.gameState()">
+        <p *ngIf="!gameStore.gameState()" class="no-game">
             No game loaded.
         </p>
     </div>
@@ -37,7 +37,13 @@
     <app-politico-side-panel></app-politico-side-panel>
 
     <app-declare-influence-modal
-        *ngIf="gameStore.ui()?.modal?.type === UiModalType.ACTION_CONFIRM">
+        *ngIf="modalType() === UiModalType.ACTION_CONFIRM && 
+               modalPayload().actionType === ActionType.DECLARE_INFLUENCE">
     </app-declare-influence-modal>
+
+    <app-hospital-modal
+        *ngIf="modalType() === UiModalType.ACTION_CONFIRM && 
+               modalPayload().actionType === ActionType.SEND_HOSPITAL">
+    </app-hospital-modal>
     
 </div>

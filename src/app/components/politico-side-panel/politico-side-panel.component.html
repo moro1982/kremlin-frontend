@@ -33,12 +33,21 @@
             </span>
         </section>
 
-        <button 
-            class="boton"
-            *ngIf="canDeclareInfluence()"
-            (click)="openDeclareInfluenceModal()"
-        >
-            Declare Influence
-        </button>
+        <div class="actions">
+            <button 
+                class="boton"
+                *ngIf="canDeclareInfluence()"
+                (click)="openDeclareInfluenceModal()"
+            >
+                Declare Influence
+            </button>
+            <button 
+                class="boton"
+                *ngIf="canAnnounceAction(ActionType.SEND_HOSPITAL)"
+                (click)="openHospitalModal()"
+            >
+                Send to Hospital
+            </button>
+        </div>
     </div>     
 </div>

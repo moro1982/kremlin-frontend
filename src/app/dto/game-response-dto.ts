@@ -1,4 +1,5 @@
 import { ActionBlockingStatus } from "../enum/action-blocking-status";
+import { ActionType } from "../enum/action-type";
 import { GameLifecycleStatus } from "../enum/game-life-cycle-status";
 import { PhaseExecutionStatus } from "../enum/phase-execution-status";
 import { PhaseType } from "../enum/phase-type";
@@ -29,6 +30,7 @@ export interface GameResponseDto {
     blockingStatus: ActionBlockingStatus;
     currentAwaitingAction?: ActionInstanceDto;
     announcedActions : ActionInstanceDto[];
+    possibleActionsByPhase : ActionType[];
 
     trial : TrialResponseDto;
 

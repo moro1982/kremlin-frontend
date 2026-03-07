@@ -74,6 +74,9 @@ export class GameStoreService {
   readonly canAnnounceAction = computed(() => 
     this.me()?.canAnnounceAction ?? false
   );
+  readonly canRespondAction = computed(() => 
+    this.me()?.canRespondAction ?? false
+  );
   readonly blockingStatus = computed(() => 
     this.phase()?.blockingStatus ?? 'NONE'
   );
@@ -205,7 +208,6 @@ export class GameStoreService {
 
     return result;
   });
-
 
   /* Player Color Map (derived from player's faction) */
   readonly playerColorMap = computed(() => {
@@ -584,9 +586,9 @@ export class GameStoreService {
     return this.http.post(this.gameURL + `/begin_phase/${gameID}`, {});
   }
 
-  /* Declare Influence Methods */
+  /* Modals */
   openDeclareInfluenceModal(politicoID : number) {
-
+    const type = ActionType.DECLARE_INFLUENCE;
     this._gameState.update(state => {
       
       if (!state)
@@ -598,7 +600,29 @@ export class GameStoreService {
           ...state.ui,
           modal : {
             type : UiModalType.ACTION_CONFIRM,
-            payload : { politicoID }
+            payload : { "politicoID" : politicoID, 
+                        "actionType" : type }
+          }
+        }
+      };
+    });
+  }
+  openHospitalModal(politicoID : number) {
+
+    const type = ActionType.SEND_HOSPITAL;
+    this._gameState.update(state => {
+      
+      if (!state)
+          return state;
+
+      return {
+        ...state,
+        ui : {
+          ...state.ui,
+          modal : {
+            type : UiModalType.ACTION_CONFIRM,
+            payload : { "politicoID" : politicoID, 
+                        "actionType" : type }
           }
         }
       };
@@ -623,6 +647,7 @@ export class GameStoreService {
       };
     });
   }
+
 
   declareInfluence(value : number) {
 
@@ -655,11 +680,27 @@ export class GameStoreService {
   /* Action methods */
   // Announce action (REST)
   announceAction(action : any) {
-    return this.http.post(this.actionURL + '/announce', action);
+    this.http.post(this.actionURL + '/announce', action)
+             .subscribe({
+               next : () => {
+                 this.closeModal();
+               },
+               error : err => {
+                 console.error("Action announcement failed.", err);
+               }
+             });
   }
   // Cancel action (REST)
   cancelAction(action : any) {
-    return this.http.post(this.actionURL + '/cancel', action);
+    this.http.post(this.actionURL + '/cancel', action)
+             .subscribe({
+               next : () => {
+                 this.closeModal();
+               },
+               error : err => {
+                 console.error("Failed to cancel action: " + action.type, err);
+               }
+             });
   }
 
   /* Phase methods */

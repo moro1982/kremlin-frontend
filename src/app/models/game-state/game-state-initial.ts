@@ -1,4 +1,6 @@
 import { ActionBlockingStatus } from "../../enum/action-blocking-status";
+import { GameLifecycleStatus } from "../../enum/game-life-cycle-status";
+import { PhaseExecutionStatus } from "../../enum/phase-execution-status";
 import { GameState } from "./game-state";
 
 export const initialGameState : GameState = {
@@ -6,17 +8,20 @@ export const initialGameState : GameState = {
         id : 0,
         createdAt : new Date(0),
         startedAt : new Date(0),
+        currentTurn : 0,
+        currentPhase : null,
+        finished : false,
+        lifeCycleStatus : GameLifecycleStatus.NONE,
         version : 0,
         updateCounter : 0,
-        finished : false,
-        currentTurn : 0,
-        currentPhase : null
     },
     
     phase : {
+        phaseStatus : PhaseExecutionStatus.NONE,
         blockingStatus : ActionBlockingStatus.NONE,
         awaitingAction : null,
-        announcedActions : []
+        announcedActions : [],
+        possibleActionsByPhase : []
     },
 
     players : {},
