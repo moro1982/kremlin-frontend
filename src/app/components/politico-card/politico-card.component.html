@@ -22,12 +22,17 @@
     <div class="influence-container"
          *ngIf="declaredInfluences"
     >
-        <div class="influence-badge"
+        <div class="badge"
              *ngFor="let inf of declaredInfluences"
              [style.background]="getPlayerColor(inf.playerID)"
         >
             {{ inf.value }}
         </div>
+    </div>
 
+    <div class="health-container">
+        <div class="badge at-hospital" *ngIf="this.atHospital()">
+            CURE
+        </div>
     </div>
 </div>

@@ -1,7 +1,8 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, computed, EventEmitter, Input, Output } from '@angular/core';
 import { GamePoliticoState } from '../../models/game-state/game-politico-state';
 import { NgIf, NgForOf } from '@angular/common';
 import { GameStoreService } from '../../services/game/store/game-store.service';
+import { GamePoliticoStatus } from '../../enum/game-politico-status';
 
 @Component({
   selector: 'app-politico-card',
@@ -18,6 +19,10 @@ export class PoliticoCardComponent {
     @Input() selected = false;
 
     @Output() selectedChange = new EventEmitter<number>();
+
+    atHospital = computed(() => 
+      this.politico.status == GamePoliticoStatus.AT_HOSPITAL
+    );
 
     onClick() : void {
       this.selectedChange.emit(this.politico.id);
