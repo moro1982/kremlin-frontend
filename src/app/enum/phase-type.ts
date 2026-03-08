@@ -1,5 +1,6 @@
 
 export enum PhaseType {
+    NONE = 'NONE',
     CURES = 'CURES',
     PURGE = 'PURGE',
     SPY_INVESTIGATION = 'SPY_INVESTIGATION',

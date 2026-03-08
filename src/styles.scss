@@ -63,6 +63,31 @@ body {
     padding: .5rem;
 }
 
+// Modals
+.modal {
+    color: white;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+
+    h3 {
+        margin: 0;
+    }
+
+    input {
+        padding: .5rem;
+    }
+}
+.modal-buttons {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+}
+
 // Utils
 .text-white {
     color: white;
