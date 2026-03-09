@@ -39,6 +39,8 @@ export class InfluenceAssignmentComponent implements OnInit {
       }
     }
 
+    Object = Object;
+
     context = this.store.influenceAssignmentContext;
     assigned = computed( () => this.context()?.assigned ?? {} );
     
@@ -48,18 +50,14 @@ export class InfluenceAssignmentComponent implements OnInit {
     );
 
     isComplete = computed( () => Object.keys(this.assigned()).length === 10 );
-    
-    Object = Object;
 
-
+    // REST API METHODS
     assignInfluence(politicoID : number, value : number) {
       this.store.assignInfluence(politicoID, value);
     }
-    
     unassignInfluence(politicoID : number) {
       this.store.assignInfluence(politicoID, null);
     }
-
     confirmInfluenceAssignment() {
       if (!this.isComplete())
           return;

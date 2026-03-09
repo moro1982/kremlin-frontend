@@ -80,7 +80,7 @@ export class GameStoreService {
   readonly blockingStatus = computed(() => 
     this.phase()?.blockingStatus ?? 'NONE'
   );
-  // Did I assign influence on selected Politico?
+  // Check if I have assigned influence on selected Politico (used to enable/disable declare button in UI)
   readonly hasAssignedInfluenceOnSelectedPolitico = computed(() => {
       const politico = this.selectedPolitico();
       const me = this.me();
@@ -94,7 +94,7 @@ export class GameStoreService {
   private readonly _availableGames = signal<GameSummary[]>([]);
   readonly availableGames = this._availableGames.asReadonly();
 
-  // Current Game context
+  // Current Game context (used in Lobby and Influence Assignment, contains less info than full GameState)
   private _currentGameContext = signal<CurrentGameContext | null>(null);
   readonly currentGameContext = computed(() => this._currentGameContext());
   readonly lobbyPlayers = computed( () => this.currentGameContext()?.players ?? [] );
@@ -103,7 +103,7 @@ export class GameStoreService {
     this.currentGameContext()?.lifeCycleStatus
   );
 
-  // InfluenceAssignment context
+  // InfluenceAssignment context (used in Influence Assignment component, contains only info relevant to that phase)
   readonly influenceAssignmentContext = computed(() => {
     const state = this.gameState();
     
@@ -121,6 +121,7 @@ export class GameStoreService {
     };
   });
 
+  /* Ready Players' selectors */
   readonly readyPlayers = computed(() => {
     
     const players = this.gameState()?.players;
@@ -131,7 +132,6 @@ export class GameStoreService {
       return [];
     }
   });
-
   readonly iAmReady = computed(() => {
     const me = this.me();
     if (!me)
@@ -140,21 +140,14 @@ export class GameStoreService {
       ([id, _]) => Number(id) === me.playerID
     );
   });
-
   readonly allPlayersReady = computed(() => {
     return this.readyPlayers().length === Object.values(this.players()).length
   });
-
   readonly canMarkReady = computed(() => 
     this.phaseStatus() === PhaseExecutionStatus.WAITING_TO_BEGIN && !this.iAmReady()
   );
 
-  readonly canConfirmPhase = computed(() => 
-    this.phaseStatus() === PhaseExecutionStatus.OPEN_FOR_ACTIONS
-    && !this.iAmReady()
-  );
-
-  // Has confirmed influence assignment?
+  // Check if I have confirmed influence assignment (assigned 10 influences and marked ready)
   readonly hasConfirmedInfluenceAssignment = computed(() => {
     const state = this.gameState();
     const me = state?.me;
@@ -169,6 +162,7 @@ export class GameStoreService {
     return assignedCount === 10 && isReady;
   });
 
+  // Check if influence assignment phase is finished (all players ready with 10 assigned influences)
   readonly influenceAssignmentFinished = computed(() => {
     const state = this.gameState();
     
@@ -230,6 +224,13 @@ export class GameStoreService {
     return colorMap;
   });
 
+  // Check if I can confirm phase execution (used to enable/disable button in UI)
+  readonly canConfirmPhase = computed(() => 
+    this.phaseStatus() === PhaseExecutionStatus.OPEN_FOR_ACTIONS
+    && !this.iAmReady()
+  );
+
+  
   /** SSE **/
   // Init SSE (handshake)
   private initSSE(gameID : number) {
