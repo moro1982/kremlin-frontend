@@ -34,16 +34,37 @@
         </p>
     </div>
 
-    <app-politico-side-panel></app-politico-side-panel>
-
-    <app-declare-influence-modal
-        *ngIf="modalType() === UiModalType.ACTION_CONFIRM && 
-               modalPayload().actionType === ActionType.DECLARE_INFLUENCE">
-    </app-declare-influence-modal>
-
-    <app-hospital-modal
-        *ngIf="modalType() === UiModalType.ACTION_CONFIRM && 
-               modalPayload().actionType === ActionType.SEND_HOSPITAL">
-    </app-hospital-modal>
+    <div class="player-panel">
+        <div class="side-panel">
+            <app-politico-side-panel></app-politico-side-panel>
+        
+            <app-declare-influence-modal
+                *ngIf="modalType() === UiModalType.ACTION_CONFIRM && 
+                       modalPayload().actionType === ActionType.DECLARE_INFLUENCE">
+            </app-declare-influence-modal>
+        
+            <app-hospital-modal
+                *ngIf="modalType() === UiModalType.ACTION_CONFIRM && 
+                       modalPayload().actionType === ActionType.SEND_HOSPITAL">
+            </app-hospital-modal>
+        </div>
+        
+        <div class="influence-panel">
+            <div class="my-assigned-influence">
+                <h3 class="title text-center"> Influence </h3>
+                <ul>
+                    <div class="influence-table table-header"> 
+                        <span>Politico ID</span>
+                        <span>Assigned Influence</span>
+                    </div>
+                    <li class="influence-table" 
+                        *ngFor="let influence of myAssignedInfluences()">
+                        <div> {{ influence[0] }} </div>
+                        <div> {{ influence[1] }} </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
     
 </div>

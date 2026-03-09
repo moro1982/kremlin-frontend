@@ -1,5 +1,5 @@
 .side-panel {
-    width: 18rem;
+    width: 20rem;
     padding: 1rem;
     background: #111;
     color: #eee;
@@ -34,4 +34,11 @@ section {
     color: gold;
     font-weight: bold;
     margin-bottom: 1rem;
+}
+
+.actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .5rem;
 }

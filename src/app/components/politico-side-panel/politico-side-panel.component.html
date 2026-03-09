@@ -19,11 +19,6 @@
             <strong>Ministry:</strong> {{ ministry.name }}
         </section>
 
-        <section *ngIf="politico.controllerPlayerID">
-            <strong>Controlled by:</strong>
-            Player {{ politico.controllerPlayerID }}
-        </section>
-
         <section *ngIf="gameStore.hasAssignedInfluenceOnSelectedPolitico()" class="mine">
             <span> 
                 You assigned influence on this Politico. 
@@ -31,6 +26,13 @@
             <span> 
                 Influence assigned: {{ influenceAssignedOnSelectedPolitico() }} 
             </span>
+        </section>
+        <section *ngIf="politico.controllerPlayerID">
+            <strong>Controlled by:</strong>
+            Player {{ politico.controllerPlayerID }}
+        </section>
+        <section *ngIf="politico.controllerPlayerID === myPlayerID()" class="mine">
+            <strong>You control this Politico.</strong>
         </section>
 
         <div class="actions">

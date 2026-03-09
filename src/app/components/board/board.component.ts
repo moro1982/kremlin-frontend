@@ -2,7 +2,7 @@ import { Component, computed } from '@angular/core';
 import { GameStoreService } from '../../services/game/store/game-store.service';
 import { PolitburoPyramidComponent } from "../politburo-pyramid/politburo-pyramid.component";
 import { PoliticoSidePanelComponent } from "../politico-side-panel/politico-side-panel.component";
-import { NgIf } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 import { GameHeaderComponent } from "../game-header/game-header.component";
 import { DeclareInfluenceModalComponent } from "../declare-influence-modal/declare-influence-modal.component";
 import { UiModalType } from '../../enum/ui-modal-type';
@@ -15,6 +15,7 @@ import { ActionType } from '../../enum/action-type';
   standalone : true,
   imports: [
     NgIf,
+    NgFor,
     PolitburoPyramidComponent,
     PoliticoSidePanelComponent,
     GameHeaderComponent,
@@ -32,6 +33,21 @@ export class BoardComponent {
   UiModalType = UiModalType;
   ActionType = ActionType;
 
+  gameState = computed(() => this.gameStore.gameState());
+
+  politicos = computed(() => {
+    return this.gameState()?.politicos ?? [];
+  });
+
+  myAssignedInfluences = computed(() => {
+    const assignedInfluences = this.gameState()?.me.assignedInfluences ?? [];
+    return Object.entries(assignedInfluences);
+  });
+  declaredInfluences = computed(() => {
+    const declaredInfluences = this.gameStore.declaredInfluencesByPolitico();
+    return Object.entries(declaredInfluences);
+  });
+  
   modalType = computed(() => {
     return this.gameStore.ui()?.modal?.type
   });

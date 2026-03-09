@@ -20,6 +20,7 @@ export class PoliticoSidePanelComponent {
     ActionType = ActionType;
 
     selectedPolitico = computed( () => this.gameStore.selectedPolitico() );
+    myPlayerID = computed( () => this.gameStore.me()?.playerID );
     
     influenceAssignedOnSelectedPolitico = computed( () => {
       const politicoID = this.selectedPolitico()?.id;
