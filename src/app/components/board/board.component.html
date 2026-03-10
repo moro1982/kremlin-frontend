@@ -47,6 +47,11 @@
                 *ngIf="modalType() === UiModalType.ACTION_CONFIRM && 
                        modalPayload().actionType === ActionType.SEND_HOSPITAL">
             </app-hospital-modal>
+
+            <app-cancel-modal
+                *ngIf="modalType() === UiModalType.ACTION_CONFIRM && 
+                       modalPayload().actionType === null">
+            </app-cancel-modal>
         </div>
         <div class="influence-panel">
             <h3 class="title text-center"> My Assigned Influences </h3>
@@ -68,8 +73,9 @@
                 <div class="action-table table-header"> 
                     <span> Action Type </span>
                     <span> Target Politico </span>
+                    <span> Cancel </span>
                 </div>
-                <li class="influence-table" 
+                <li class="action-table" 
                     *ngFor="let action of announcedActions()"
                 >
                     <div class="cell text-left"> 
@@ -78,6 +84,13 @@
                     <div class="cell text-center">
                         {{ politicos()[Number(action.targetPoliticoID)].name }} 
                     </div>
+                    <button 
+                        *ngIf="canCancelAction(action.id)"
+                        class="boton"
+                        (click)="openCancelActionModal(action.id)"
+                    >
+                        X
+                    </button>
                 </li>
             </ul>
         </div>

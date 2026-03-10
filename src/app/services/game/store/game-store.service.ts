@@ -230,6 +230,11 @@ export class GameStoreService {
     && !this.iAmReady()
   );
 
+  readonly politicosControlledByMe = computed(() => {
+    return Object.values(
+      this.politicos()).filter(p => p.controllerPlayerID === this.me()?.playerID
+    );
+  });
   
   /** SSE **/
   // Init SSE (handshake)
@@ -629,6 +634,25 @@ export class GameStoreService {
       };
     });
   }
+  openCancelModal(actionID : number) {
+    const actionType = null;
+    this._gameState.update(state => {
+      if (!state)
+          return state;
+
+      return {
+        ...state,
+        ui : {
+          ...state.ui,
+          modal : {
+            type : UiModalType.ACTION_CONFIRM,
+            payload : { "actionID" : actionID, 
+                        "actionType" : actionType }
+          }
+        }
+      };
+    });
+  }
   closeModal() : void {
     
     this._gameState.update(state => {
@@ -650,6 +674,8 @@ export class GameStoreService {
   }
 
 
+  /* Action methods */
+  // Declare influence (REST)
   declareInfluence(value : number) {
 
     const state = this.gameState();
@@ -677,8 +703,6 @@ export class GameStoreService {
       }
     });
   }
-
-  /* Action methods */
   // Announce action (REST)
   announceAction(action : any) {
     this.http.post(this.actionURL + '/announce', action)
@@ -692,14 +716,14 @@ export class GameStoreService {
              });
   }
   // Cancel action (REST)
-  cancelAction(action : any) {
-    this.http.post(this.actionURL + '/cancel', action)
+  cancelAction(actionID : number, gameID : number) {
+    this.http.post(this.actionURL + `/cancel/${gameID}/${actionID}`, {})
              .subscribe({
                next : () => {
                  this.closeModal();
                },
                error : err => {
-                 console.error("Failed to cancel action: " + action.type, err);
+                 console.error("Failed to cancel action: " + actionID, err);
                }
              });
   }

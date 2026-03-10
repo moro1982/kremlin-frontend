@@ -9,6 +9,8 @@ import { UiModalType } from '../../enum/ui-modal-type';
 import { PhaseControlComponent } from "../phase-control/phase-control.component";
 import { HospitalModalComponent } from "../hospital-modal/hospital-modal.component";
 import { ActionType } from '../../enum/action-type';
+import { PhaseExecutionStatus } from '../../enum/phase-execution-status';
+import { CancelModalComponent } from '../cancel-modal/cancel-modal.component';
 
 @Component({
   selector: 'app-board',
@@ -21,7 +23,8 @@ import { ActionType } from '../../enum/action-type';
     GameHeaderComponent,
     DeclareInfluenceModalComponent,
     PhaseControlComponent,
-    HospitalModalComponent
+    HospitalModalComponent,
+    CancelModalComponent
 ],
   templateUrl: './board.component.html',
   styleUrl: './board.component.scss'
@@ -86,6 +89,38 @@ export class BoardComponent {
     if (!gameID)
         return;
     this.gameStore.confirmPhaseExecution(gameID).subscribe();
+  }
+
+  // Should be in a future ActionComponent or similar.
+  canCancelAction(actionID : number) : boolean {
+    if (this.gameStore.phaseStatus() !== PhaseExecutionStatus.OPEN_FOR_ACTIONS) {
+      return false;
+    }
+    if (this.announcedActions().length === 0) {
+      return false;
+    }
+    const found = this.announcedActions()
+                      .find( announcedAction => announcedAction.id === actionID );
+    if (!found) return false;
+    switch(found.type) {
+      case ActionType.SEND_HOSPITAL:
+        const controlledByMe = 
+          this.gameStore.politicosControlledByMe()
+                        .filter(p => p.id === found.targetPoliticoID);
+        if (controlledByMe.length === 0) {
+          return false;
+        }
+        break;
+        // Different action types might have different cancellation rules 
+        // (** to be implemented **)
+      default:
+        break;
+    }
+    return true;
+  }
+
+  openCancelActionModal(actionID : number) : void {
+    this.gameStore.openCancelModal(actionID);
   }
 
 }

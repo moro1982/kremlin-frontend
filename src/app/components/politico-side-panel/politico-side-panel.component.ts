@@ -24,6 +24,8 @@ export class PoliticoSidePanelComponent {
     });
     selectedPolitico = computed( () => this.gameStore.selectedPolitico() );
     myPlayerID = computed( () => this.gameStore.me()?.playerID );
+    // announcedActions = computed( () => this.gameStore.phase()?.announcedActions ?? [] );
+    
     
     influenceAssignedOnSelectedPolitico = computed( () => {
       const politicoID = this.selectedPolitico()?.id;
