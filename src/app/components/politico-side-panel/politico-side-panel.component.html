@@ -28,11 +28,11 @@
             </span>
         </section>
         <section *ngIf="politico.controllerPlayerID">
-            <strong>Controlled by:</strong>
-            Player {{ politico.controllerPlayerID }}
+            <strong>Controlled by: </strong>
+            <span> {{ players()[Number(politico.controllerPlayerID)]?.name }} </span>
         </section>
         <section *ngIf="politico.controllerPlayerID === myPlayerID()" class="mine">
-            <strong>You control this Politico.</strong>
+            <strong> You control this Politico. </strong>
         </section>
 
         <div class="actions">

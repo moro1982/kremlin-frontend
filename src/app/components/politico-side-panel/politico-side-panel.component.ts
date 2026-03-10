@@ -17,8 +17,11 @@ export class PoliticoSidePanelComponent {
 
     constructor(public readonly gameStore : GameStoreService) { }
 
+    Number = Number;
     ActionType = ActionType;
-
+    players = computed(() => {
+      return this.gameStore.gameState()?.players ?? [];
+    });
     selectedPolitico = computed( () => this.gameStore.selectedPolitico() );
     myPlayerID = computed( () => this.gameStore.me()?.playerID );
     

@@ -48,22 +48,38 @@
                        modalPayload().actionType === ActionType.SEND_HOSPITAL">
             </app-hospital-modal>
         </div>
-        
         <div class="influence-panel">
-            <div class="my-assigned-influence">
-                <h3 class="title text-center"> Influence </h3>
-                <ul>
-                    <div class="influence-table table-header"> 
-                        <span>Politico ID</span>
-                        <span>Assigned Influence</span>
+            <h3 class="title text-center"> My Assigned Influences </h3>
+            <ul>
+                <div class="influence-table table-header"> 
+                    <span> Politico </span>
+                    <span> Assigned Influence </span>
+                </div>
+                <li class="influence-table" 
+                    *ngFor="let influence of myAssignedInfluences()">
+                    <div class="cell text-left"> {{ politicos()[Number(influence[0])].name }} </div>
+                    <div class="cell text-center"> {{ influence[1] }} </div>
+                </li>
+            </ul>
+        </div>
+        <div class="announced-actions">
+            <h3 class="title text-center"> Announced Actions </h3>
+            <ul>
+                <div class="action-table table-header"> 
+                    <span> Action Type </span>
+                    <span> Target Politico </span>
+                </div>
+                <li class="influence-table" 
+                    *ngFor="let action of announcedActions()"
+                >
+                    <div class="cell text-left"> 
+                        {{ action.type }} 
                     </div>
-                    <li class="influence-table" 
-                        *ngFor="let influence of myAssignedInfluences()">
-                        <div> {{ influence[0] }} </div>
-                        <div> {{ influence[1] }} </div>
-                    </li>
-                </ul>
-            </div>
+                    <div class="cell text-center">
+                        {{ politicos()[Number(action.targetPoliticoID)].name }} 
+                    </div>
+                </li>
+            </ul>
         </div>
     </div>
     

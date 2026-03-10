@@ -32,20 +32,24 @@ export class BoardComponent {
 
   UiModalType = UiModalType;
   ActionType = ActionType;
+  Number = Number;
 
   gameState = computed(() => this.gameStore.gameState());
 
   politicos = computed(() => {
     return this.gameState()?.politicos ?? [];
   });
+  players = computed(() => {
+    return this.gameState()?.players ?? [];
+  });
 
   myAssignedInfluences = computed(() => {
     const assignedInfluences = this.gameState()?.me.assignedInfluences ?? [];
     return Object.entries(assignedInfluences);
   });
-  declaredInfluences = computed(() => {
-    const declaredInfluences = this.gameStore.declaredInfluencesByPolitico();
-    return Object.entries(declaredInfluences);
+  announcedActions = computed(() => {
+    const actions = this.gameState()?.phase.announcedActions ?? [];
+    return actions;
   });
   
   modalType = computed(() => {
