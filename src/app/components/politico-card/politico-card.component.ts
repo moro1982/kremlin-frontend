@@ -15,13 +15,17 @@ export class PoliticoCardComponent {
 
     @Input() politico! : GamePoliticoState;
     @Input() declaredInfluences : { playerID : number, value : number }[] = [];
-    @Input() playerColorMap! : Map<number, string>;;
+    @Input() playerColorMap! : Map<number, string>;
     @Input() selected = false;
 
     @Output() selectedChange = new EventEmitter<number>();
 
     atHospital = computed(() => 
       this.politico.status == GamePoliticoStatus.AT_HOSPITAL
+    );
+
+    inSiberia = computed(() => 
+      this.politico.status == GamePoliticoStatus.IN_SIBERIA
     );
 
     onClick() : void {

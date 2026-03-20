@@ -64,3 +64,31 @@
         </app-ministry-slot>
     </div>
 </div>
+
+<div class="inactive-states">
+    <div class="siberia">
+        <h3 class="text-center"> SIBERIA </h3>
+        <app-politico-card
+            *ngFor="let politico of politicosInSiberia()"
+            [politico]="politico"
+            [playerColorMap]="playerColorMap"
+            [declaredInfluences]="getDeclaredInfluencesByPoliticoID(politico.id)"
+            [selected]="politico.id == selectedPoliticoID"
+            (selectedChange)="onPoliticoSelected($event)"
+        >
+        </app-politico-card>
+    </div>
+    
+    <div class="exile">
+        <h3 class="text-center"> EXILE </h3>
+        <app-politico-card
+            *ngFor="let politico of politicosInExile()"
+            [politico]="politico"
+            [playerColorMap]="playerColorMap"
+            [declaredInfluences]="getDeclaredInfluencesByPoliticoID(politico.id)"
+            [selected]="politico.id == selectedPoliticoID"
+            (selectedChange)="onPoliticoSelected($event)"
+        >
+        </app-politico-card>
+    </div>
+</div>

@@ -592,6 +592,7 @@ export class GameStoreService {
     return this.http.post(this.gameURL + `/begin_phase/${gameID}`, {});
   }
 
+
   /* Modals */
   openDeclareInfluenceModal(politicoID : number) {
     const type = ActionType.DECLARE_INFLUENCE;
@@ -628,6 +629,25 @@ export class GameStoreService {
           modal : {
             type : UiModalType.ACTION_CONFIRM,
             payload : { "politicoID" : politicoID, 
+                        "actionType" : type }
+          }
+        }
+      };
+    });
+  }
+  openPurgeModal(politicoID : number) {
+
+    const type = ActionType.PURGE_ATTEMPT;
+    this._gameState.update(state => {
+      if (!state)
+          return state;
+      return {
+        ...state,
+        ui : {
+          ...state.ui,
+          modal : {
+            type : UiModalType.ACTION_CONFIRM,
+            payload : { "politicoID" : politicoID,
                         "actionType" : type }
           }
         }

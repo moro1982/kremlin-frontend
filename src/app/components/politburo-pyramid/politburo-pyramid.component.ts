@@ -1,14 +1,16 @@
-import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
+import { Component, computed, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
 import { GameMinistryState } from '../../models/game-state/game-ministry-state';
 import { GamePoliticoState } from '../../models/game-state/game-politico-state';
 import { MinistrySlotComponent } from "../ministry-slot/ministry-slot.component";
 import { MinistryType } from '../../enum/ministry-type';
 import { NgForOf } from '@angular/common';
+import { PoliticoCardComponent } from "../politico-card/politico-card.component";
+import { GamePoliticoStatus } from '../../enum/game-politico-status';
 
 @Component({
   selector: 'app-politburo-pyramid',
   standalone : true,
-  imports: [MinistrySlotComponent, NgForOf],
+  imports: [MinistrySlotComponent, NgForOf, PoliticoCardComponent],
   templateUrl: './politburo-pyramid.component.html',
   styleUrl: './politburo-pyramid.component.scss'
 })
@@ -27,6 +29,8 @@ export class PolitburoPyramidComponent {
   secondLvl : GameMinistryState[] = [];
   candidateLvl : GameMinistryState[] = [];
   peopleLvl : GameMinistryState[] = [];
+  inSiberia : GamePoliticoState[] = [];
+  inExile : GamePoliticoState[] = [];
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['ministries'] && this.ministries) {
@@ -34,6 +38,16 @@ export class PolitburoPyramidComponent {
     }
   }
 
+  readonly politicosInSiberia = computed(() => {
+    return Object.values(this.politicos)
+                 .filter(p => p.status == GamePoliticoStatus.IN_SIBERIA);
+  });
+
+  readonly politicosInExile = computed(() => {
+    return Object.values(this.politicos)
+                 .filter( p => p.status == GamePoliticoStatus.IN_EXILE);
+  });
+  
   private buildLevels(): void {
 
     const all = Object.values(this.ministries);
@@ -72,6 +86,10 @@ export class PolitburoPyramidComponent {
     }
 
     return [];
+  }
+
+  getDeclaredInfluencesByPoliticoID(politicoID : number) : { playerID : number, value : number }[] {
+    return this.declaredInfluencesByPolitico[politicoID] ?? [];
   }
 
   onPoliticoSelected(politicoID : number) : void {

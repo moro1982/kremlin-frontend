@@ -11,3 +11,18 @@
     align-items: center;
     gap: 1rem;
 }
+
+.inactive-states {
+    display: flex;
+    justify-content: space-around;
+    color: white;
+}
+
+.siberia, .exile {
+    border: solid 1px white;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    h3 {
+        margin: 0;
+    }
+}
