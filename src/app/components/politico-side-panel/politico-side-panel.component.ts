@@ -86,6 +86,12 @@ export class PoliticoSidePanelComponent {
           }
           return true;
         case ActionType.PURGE_ATTEMPT:
+          if (controllerID !== this.gameStore.me()?.playerID) {
+              return false;
+          }
+          if (this.selectedPolitico()?.ministryID) {
+            
+          }
           break;
         case ActionType.EXILE_ESCAPE:
           break;

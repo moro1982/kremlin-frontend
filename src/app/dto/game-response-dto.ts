@@ -1,6 +1,7 @@
 import { ActionBlockingStatus } from "../enum/action-blocking-status";
 import { ActionType } from "../enum/action-type";
 import { GameLifecycleStatus } from "../enum/game-life-cycle-status";
+import { MinistryType } from "../enum/ministry-type";
 import { PhaseExecutionStatus } from "../enum/phase-execution-status";
 import { PhaseType } from "../enum/phase-type";
 import { ActionInstanceDto } from "./action-instance-dto";
@@ -31,6 +32,7 @@ export interface GameResponseDto {
     currentAwaitingAction?: ActionInstanceDto;
     announcedActions : ActionInstanceDto[];
     possibleActionsByPhase : ActionType[];
+    authorizedMinistry: Map<ActionType, MinistryType>;
 
     trial : TrialResponseDto;
 

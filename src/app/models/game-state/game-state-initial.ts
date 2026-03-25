@@ -21,7 +21,8 @@ export const initialGameState : GameState = {
         blockingStatus : ActionBlockingStatus.NONE,
         awaitingAction : null,
         announcedActions : [],
-        possibleActionsByPhase : []
+        possibleActionsByPhase : [],
+        authorizedMinistry : null
     },
 
     players : {},

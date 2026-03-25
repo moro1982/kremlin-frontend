@@ -534,6 +534,7 @@ export class GameStoreService {
                 next : dto => {
                   const gameState = GameStateMapperService.fromDTO(dto);
                   this._gameState.set(gameState);
+                  console.log(this.gameState());
                   this.initSSE(gameID);
                   this.routeAfterGameLoad(gameID);
                 },

@@ -1,4 +1,4 @@
-import { Injectable, numberAttribute } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { GameState } from '../../../models/game-state/game-state';
 import { GameResponseDto } from '../../../dto/game-response-dto';
 import { ActionInstanceDto } from '../../../dto/action-instance-dto';
@@ -36,7 +36,8 @@ export class GameStateMapperService {
         ? GameStateMapperService.mapAction(dto.currentAwaitingAction)
         : null,
       announcedActions : dto.announcedActions.map(GameStateMapperService.mapAction),
-      possibleActionsByPhase : dto.possibleActionsByPhase
+      possibleActionsByPhase : dto.possibleActionsByPhase,
+      authorizedMinistry : dto.authorizedMinistry
     };
 
     return {
