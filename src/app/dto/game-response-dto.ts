@@ -32,7 +32,7 @@ export interface GameResponseDto {
     currentAwaitingAction?: ActionInstanceDto;
     announcedActions : ActionInstanceDto[];
     possibleActionsByPhase : ActionType[];
-    authorizedMinistry: Map<ActionType, MinistryType>;
+    authorizedMinistryAndActions: Map<MinistryType, Set<ActionType>>;
 
     trial : TrialResponseDto;
 

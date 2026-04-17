@@ -10,5 +10,5 @@ export interface PhaseState {
     awaitingAction : Action | null;
     announcedActions : Action[];
     possibleActionsByPhase : ActionType[];
-    authorizedMinistry : Map<ActionType, MinistryType> | null;
+    authorizedMinistryAndActions : Map<MinistryType, Set<ActionType>> | null;
 }

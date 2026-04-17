@@ -37,7 +37,7 @@ export class GameStateMapperService {
         : null,
       announcedActions : dto.announcedActions.map(GameStateMapperService.mapAction),
       possibleActionsByPhase : dto.possibleActionsByPhase,
-      authorizedMinistry : dto.authorizedMinistry
+      authorizedMinistryAndActions : dto.authorizedMinistryAndActions
     };
 
     return {

@@ -22,7 +22,7 @@ export const initialGameState : GameState = {
         awaitingAction : null,
         announcedActions : [],
         possibleActionsByPhase : [],
-        authorizedMinistry : null
+        authorizedMinistryAndActions : null
     },
 
     players : {},
