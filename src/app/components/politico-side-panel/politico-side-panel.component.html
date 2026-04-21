@@ -50,6 +50,23 @@
             >
                 Send to Hospital
             </button>
+            <button
+                class="boton"
+                *ngIf="canAnnounceAction(ActionType.PURGE_ATTEMPT)"
+                (click)="openPurgeModal()"
+            >
+                Attempt Purge
+            </button>
+        </div>
+
+        <div *ngIf="authorizedMinistryAndActions() as authorized">
+            {{ authorized.ministry }}
+            <div *ngFor="let action of authorized.actions">
+                {{ action }}
+            </div>
+        </div>
+        <div *ngIf="selectedPoliticoMinistry()">
+            {{ selectedPoliticoMinistry()?.name }}
         </div>
     </div>     
 </div>
