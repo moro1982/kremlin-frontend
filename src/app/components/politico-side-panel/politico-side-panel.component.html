@@ -59,9 +59,9 @@
             </button>
         </div>
 
-        <div *ngIf="authorizedMinistryAndActions() as authorized">
-            {{ authorized.ministry }}
-            <div *ngFor="let action of authorized.actions">
+        <div *ngIf="authorized() as auth">
+            {{ auth.ministry }}
+            <div *ngFor="let action of auth.actions">
                 {{ action }}
             </div>
         </div>

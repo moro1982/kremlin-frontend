@@ -6,6 +6,7 @@ import { PhaseExecutionStatus } from '../../enum/phase-execution-status';
 import { ActionType } from '../../enum/action-type';
 import { GamePoliticoStatus } from '../../enum/game-politico-status';
 import { MinistryType } from '../../enum/ministry-type';
+import { ActionBlockingStatus } from '../../enum/action-blocking-status';
 
 @Component({
   selector: 'app-politico-side-panel',
@@ -27,17 +28,11 @@ export class PoliticoSidePanelComponent {
       return this.gameStore.gameState()?.ministries ?? [];
     });
     selectedPolitico = computed( () => this.gameStore.selectedPolitico() );
-    selectedPoliticoMinistry = computed( () => {
-      const politico = this.selectedPolitico();
-      const ministries = this.ministries();
-      if (!politico || politico.ministryID === null) {
-        return null;
-      }
-      return ministries[politico.ministryID] ?? null;
-    });
+    selectedPoliticoMinistry = computed( () => this.gameStore.selectedPoliticoMinistry());
+    phase = computed(() => this.gameStore.gameState()?.phase);
     myPlayerID = computed( () => this.gameStore.me()?.playerID );
     
-    rawAuthorizedMinistryAndActions = computed(() => {
+    rawAuthorized = computed(() => {
       const raw = this.gameStore.gameState()?.phase?.authorizedMinistryAndActions;
 
       if (!raw)
@@ -50,8 +45,8 @@ export class PoliticoSidePanelComponent {
         ])
       );
     });
-    authorizedMinistryAndActions = computed(() => {
-      const map = this.rawAuthorizedMinistryAndActions();
+    authorized = computed(() => {
+      const map = this.rawAuthorized();
       const iterator = map.entries().next();
       return iterator.done ? null : {
           ministry : iterator.value[0],
@@ -113,7 +108,7 @@ export class PoliticoSidePanelComponent {
           if (controllerID !== this.gameStore.me()?.playerID) {
               return false;
           }
-          if (this.selectedPolitico()?.status !== GamePoliticoStatus.ACTIVE) {
+          if (this.selectedPolitico()?.status !== GamePoliticoStatus.AT_HOSPITAL) {
               return false;
           }
           return true;
@@ -124,8 +119,15 @@ export class PoliticoSidePanelComponent {
           if (this.selectedPolitico()?.ministryID === null) {
               return false;
           }
-
-          break;
+          if (this.selectedPoliticoMinistry()?.name !== this.authorized()?.ministry) {
+            return false;
+          }
+          if (this.phase()?.awaitingAction || 
+              this.phase()?.blockingStatus !== ActionBlockingStatus.NONE
+             ) {
+            return false;
+          }
+          return true;
         case ActionType.EXILE_ESCAPE:
           break;
         case ActionType.EXILE_RETURN:
@@ -161,7 +163,10 @@ export class PoliticoSidePanelComponent {
     }
 
     openPurgeModal() {
-      
+      const selectedPoliticoID = this.selectedPolitico()?.id;
+      if (selectedPoliticoID) {
+        this.gameStore.openPurgeModal(selectedPoliticoID);
+      }
     }
 
 }

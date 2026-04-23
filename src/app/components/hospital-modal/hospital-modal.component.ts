@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, computed } from '@angular/core';
 import { GameStoreService } from '../../services/game/store/game-store.service';
 import { ActionType } from '../../enum/action-type';
 
@@ -13,6 +13,7 @@ export class HospitalModalComponent {
   constructor(private gameStore : GameStoreService) { }
 
   ActionType = ActionType;
+  targetPoliticoID = computed( () => this.gameStore.gameState()?.ui.modal.payload.politicoID );
 
   sendToHospital() {
     const state = this.gameStore.gameState();

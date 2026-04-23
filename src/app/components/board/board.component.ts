@@ -11,6 +11,7 @@ import { HospitalModalComponent } from "../hospital-modal/hospital-modal.compone
 import { ActionType } from '../../enum/action-type';
 import { PhaseExecutionStatus } from '../../enum/phase-execution-status';
 import { CancelModalComponent } from '../cancel-modal/cancel-modal.component';
+import { PurgeModalComponent } from "../purge-modal/purge-modal.component";
 
 @Component({
   selector: 'app-board',
@@ -24,7 +25,8 @@ import { CancelModalComponent } from '../cancel-modal/cancel-modal.component';
     DeclareInfluenceModalComponent,
     PhaseControlComponent,
     HospitalModalComponent,
-    CancelModalComponent
+    CancelModalComponent,
+    PurgeModalComponent
 ],
   templateUrl: './board.component.html',
   styleUrl: './board.component.scss'

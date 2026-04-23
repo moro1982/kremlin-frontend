@@ -1,11 +1,20 @@
 <div class="modal">
     <h3>Purge Attempt</h3>
-
-    <select name="targetPolitico" id="targetPolitico">
+    <p> Accusing Minister: {{ accusingMinister()?.name }} </p>
+    
+    <!-- Politicos that can be purged -->
+    <select name="" id="">
+        <option value="" disabled selected>Select a target politico</option>
+        <option *ngFor="let politico of possibleTargets()" [value]="politico.id">
+            {{ politico.name }}
+        </option>
+    </select>
+    
+    <!-- <select name="targetPolitico" id="targetPolitico">
         <option value="">
             
         </option>
-    </select>
+    </select> -->
 
     <div class="modal-buttons">
         <button class="boton" (click)="confirm()">Confirm</button>

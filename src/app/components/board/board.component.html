@@ -48,6 +48,11 @@
                        modalPayload().actionType === ActionType.SEND_HOSPITAL">
             </app-hospital-modal>
 
+            <app-purge-modal
+                *ngIf="modalType() === UiModalType.ACTION_CONFIRM &&
+                       modalPayload().actionType === ActionType.PURGE_ATTEMPT">
+            </app-purge-modal>
+
             <app-cancel-modal
                 *ngIf="modalType() === UiModalType.ACTION_CONFIRM && 
                        modalPayload().actionType === null">

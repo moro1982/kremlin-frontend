@@ -648,7 +648,7 @@ export class GameStoreService {
           ...state.ui,
           modal : {
             type : UiModalType.ACTION_CONFIRM,
-            payload : { "politicoID" : politicoID,
+            payload : { "accusingMinisterID" : politicoID,
                         "actionType" : type }
           }
         }
