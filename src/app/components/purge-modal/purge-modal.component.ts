@@ -3,11 +3,13 @@ import { GameStoreService } from '../../services/game/store/game-store.service';
 import { MinistryType } from '../../enum/ministry-type';
 import { GamePoliticoStatus } from '../../enum/game-politico-status';
 import { NgFor } from '@angular/common';
+import { ActionType } from '../../enum/action-type';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-purge-modal',
   standalone: true,
-  imports: [NgFor],
+  imports: [NgFor, FormsModule],
   templateUrl: './purge-modal.component.html',
   styleUrl: './purge-modal.component.scss'
 })
@@ -43,10 +45,29 @@ export class PurgeModalComponent {
                                p.status === GamePoliticoStatus.AT_HOSPITAL
                  );
   });
+  value = "";
 
-  confirm() {
+  confirmPurge() {
 
+    const state = this.gameStore.gameState();
+
+    if (!state)
+        return;
+
+    const gameID = state.game.id;
+
+    const action = {
+      "gameID" : gameID,
+      "type" : ActionType.PURGE_ATTEMPT,
+      "actingGamePoliticoID" : this.accusingMinisterID(),
+      "targetGamePoliticoID" : this.value ? Number(this.value) : null
+    };
+
+    console.log("Announcing action: ", action);
+    
+    this.gameStore.announceAction( action );
   }
+
   close() {
     this.gameStore.closeModal();
   }
