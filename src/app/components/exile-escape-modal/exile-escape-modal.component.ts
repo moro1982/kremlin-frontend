@@ -3,34 +3,35 @@ import { GameStoreService } from '../../services/game/store/game-store.service';
 import { ActionType } from '../../enum/action-type';
 
 @Component({
-  selector: 'app-hospital-modal',
+  selector: 'app-exile-escape-modal',
   standalone: true,
-  templateUrl: './hospital-modal.component.html',
-  styleUrl: './hospital-modal.component.scss'
+  templateUrl: './exile-escape-modal.component.html',
+  styleUrl: './exile-escape-modal.component.scss'
 })
-export class HospitalModalComponent {
-  
+export class ExileEscapeModalComponent {
+
   constructor(private gameStore : GameStoreService) { }
 
   ActionType = ActionType;
-  targetPoliticoID = computed( () => this.gameStore.gameState()?.ui.modal.payload.politicoID );
+  targetPoliticoID = computed( () => this.gameStore.gameState()?.ui.modal.payload.politicoID);
 
-  sendToHospital() {
+  confirmExile() {
     const state = this.gameStore.gameState();
-    if (!state)
-        return;
+    if (!state) {
+      return;
+    }
     const politicoID = state.ui.modal.payload.politicoID;
     const gameID = state.game.id;
     this.gameStore.announceAction(
       {
         "gameID" : gameID,
-        "type" : ActionType.SEND_HOSPITAL,
+        "type" : ActionType.EXILE_ESCAPE,
         "targetGamePoliticoID" : politicoID
       }
     );
   }
-
   close() {
     this.gameStore.closeModal();
   }
+  
 }

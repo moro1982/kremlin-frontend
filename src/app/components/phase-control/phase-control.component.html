@@ -27,20 +27,45 @@
 </div>
 
 <!-- OPEN_FOR_ACTIONS -->
-<div *ngIf="phaseStatus === PhaseExecutionStatus.OPEN_FOR_ACTIONS"
-     class="phase-control"
->
-    <div *ngIf="isOpenForActions() && !iAmReady" class="ready">
+<div *ngIf="isOpenForActions()" class="phase-control">
+
+    <!-- RESOLVE AWAITING ACTION AND CONTINUE PHASE -->
+    <div *ngIf="existsAwaitingAction()" class="ready">
+        <div *ngIf="!iAmReady" class="ready">
+            <span class="label"> Press Ready to resolve awaiting action and continue phase </span>
+            <button
+                (click)="onReadyClick()"
+                class="boton"
+            >
+                Ready to Resolve Awaiting Action
+            </button>
+        </div>
+        <div *ngIf="iAmReady" class="waiting">
+            <span>
+                Waiting for players to be ready to resolve awaiting action ( {{ readyCount() }} / {{ totalPlayers() }} )
+            </span>
+            <button
+                *ngIf="canResolveAwaitingAction()"
+                class="boton"
+                (click)="onResolveAwaitingActionClick()"
+            >
+                Resolve Awaiting Action and Continue Phase
+            </button>
+        </div>
+    </div> 
+    
+    <!-- RESOLVE PENDING ACTIONS AND END PHASE -->
+    <div *ngIf="!existsAwaitingAction() && !iAmReady" class="ready">
         <span class="label"> Press Ready to end action announcements </span>
         <button
             (click)="onReadyClick()"
             class="boton"
         >
-            Ready
+            Ready to End Action Announcements
         </button>
     </div>
 
-    <span *ngIf="isOpenForActions() && iAmReady" class="waiting">
+    <span *ngIf="!existsAwaitingAction() && iAmReady" class="waiting">
         Waiting for players to resume action announcements ( {{ readyCount() }} / {{ totalPlayers() }} )
     </span>
 

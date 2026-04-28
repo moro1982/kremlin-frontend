@@ -7,6 +7,8 @@ import { ActionType } from '../../enum/action-type';
 import { GamePoliticoStatus } from '../../enum/game-politico-status';
 import { MinistryType } from '../../enum/ministry-type';
 import { ActionBlockingStatus } from '../../enum/action-blocking-status';
+import { GameStatus } from '../../enum/game-status';
+import { ActionStatus } from '../../enum/action-status';
 
 @Component({
   selector: 'app-politico-side-panel',
@@ -129,7 +131,29 @@ export class PoliticoSidePanelComponent {
           }
           return true;
         case ActionType.EXILE_ESCAPE:
-          break;
+          if (controllerID !== this.gameStore.me()?.playerID) {
+            return false;
+          }
+          if (
+              this.selectedPolitico()?.status === GamePoliticoStatus.INACTIVE ||
+              this.selectedPolitico()?.status === GamePoliticoStatus.IN_EXILE ||
+              this.selectedPolitico()?.status === GamePoliticoStatus.IN_SIBERIA
+             ) 
+          {
+            return false;
+          }
+          if (
+              this.phase()?.blockingStatus === ActionBlockingStatus.FAILED_PURGE_BLOCK ||
+              this.phase()?.blockingStatus === ActionBlockingStatus.NONE ||
+              this.phase()?.awaitingAction?.status !== ActionStatus.ANNOUNCED
+             )
+          {
+            return false;
+          }
+          if (this.selectedPolitico()?.id !== this.phase()?.awaitingAction?.targetPoliticoID) {
+            return false;
+          }
+          return true;
         case ActionType.EXILE_RETURN:
           break;
         case ActionType.BEGIN_INVESTIGATION:
@@ -166,6 +190,13 @@ export class PoliticoSidePanelComponent {
       const selectedPoliticoID = this.selectedPolitico()?.id;
       if (selectedPoliticoID) {
         this.gameStore.openPurgeModal(selectedPoliticoID);
+      }
+    }
+
+    openExileEscapeModal() {
+      const selectedPoliticoID = this.selectedPolitico()?.id;
+      if (selectedPoliticoID) {
+        this.gameStore.openExileEscapeModal(selectedPoliticoID);
       }
     }
 

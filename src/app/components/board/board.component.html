@@ -7,6 +7,8 @@
         <ng-container *ngIf="gameStore.gameState()">
             <app-phase-control
                 [gameID]="gameStore.game()?.id"
+                [awaitingAction]="gameStore.phase()?.awaitingAction ?? undefined"
+                [blockingStatus]="gameStore.phase()?.blockingStatus"
                 [phaseStatus]="gameStore.phaseStatus()"
                 [players]="gameStore.players()"
                 [readyPlayers]="gameStore.readyPlayers()"
@@ -14,6 +16,7 @@
                 [allPlayersReady]="gameStore.allPlayersReady()"
                 (readyClicked)="onReadyClicked()"
                 (beginPhaseClicked)="onBeginPhaseClicked()"
+                (resolveAwaitingActionClicked)="onResolveAwaitingActionClicked()"
                 (resolveActionsClicked)="onResolveActionsClicked()"
             >
             </app-phase-control>
@@ -52,6 +55,11 @@
                 *ngIf="modalType() === UiModalType.ACTION_CONFIRM &&
                        modalPayload().actionType === ActionType.PURGE_ATTEMPT">
             </app-purge-modal>
+
+            <app-exile-escape-modal
+                *ngIf="modalType() === UiModalType.ACTION_CONFIRM &&
+                       modalPayload().actionType === ActionType.EXILE_ESCAPE">
+            </app-exile-escape-modal>
 
             <app-cancel-modal
                 *ngIf="modalType() === UiModalType.ACTION_CONFIRM && 

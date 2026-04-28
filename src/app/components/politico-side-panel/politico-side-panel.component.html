@@ -57,6 +57,13 @@
             >
                 Attempt Purge
             </button>
+            <button
+                class="boton"
+                *ngIf="canAnnounceAction(ActionType.EXILE_ESCAPE)"
+                (click)="openExileEscapeModal()"
+            >
+                Exile Escape
+            </button>
         </div>
 
         <div *ngIf="authorized() as auth">

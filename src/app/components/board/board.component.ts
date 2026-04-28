@@ -12,6 +12,7 @@ import { ActionType } from '../../enum/action-type';
 import { PhaseExecutionStatus } from '../../enum/phase-execution-status';
 import { CancelModalComponent } from '../cancel-modal/cancel-modal.component';
 import { PurgeModalComponent } from "../purge-modal/purge-modal.component";
+import { ExileEscapeModalComponent } from "../exile-escape-modal/exile-escape-modal.component";
 
 @Component({
   selector: 'app-board',
@@ -26,7 +27,8 @@ import { PurgeModalComponent } from "../purge-modal/purge-modal.component";
     PhaseControlComponent,
     HospitalModalComponent,
     CancelModalComponent,
-    PurgeModalComponent
+    PurgeModalComponent,
+    ExileEscapeModalComponent
 ],
   templateUrl: './board.component.html',
   styleUrl: './board.component.scss'
@@ -67,25 +69,24 @@ export class BoardComponent {
   onPoliticoSelected(politicoID : number) : void {
     this.gameStore.selectPolitico(politicoID);
   }
-
   onReadyClicked() {
     const gameID = this.gameStore.game()?.id;
-    
     if (!gameID)
         return;
-
     this.gameStore.markPlayerReady(gameID).subscribe();
   }
-
   onBeginPhaseClicked() {
     const gameID = this.gameStore.game()?.id;
-    
     if (!gameID)
         return;
-
     this.gameStore.beginPhase(gameID).subscribe();
   }
-
+  onResolveAwaitingActionClicked() {
+    const gameID = this.gameStore.game()?.id;
+    if (!gameID)
+        return;
+    this.gameStore.resolveAwaitingAction(gameID).subscribe();
+  }
   onResolveActionsClicked() {
     const gameID = this.gameStore.game()?.id;
     if (!gameID)

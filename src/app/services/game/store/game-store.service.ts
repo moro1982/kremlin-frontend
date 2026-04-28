@@ -598,10 +598,8 @@ export class GameStoreService {
   openDeclareInfluenceModal(politicoID : number) {
     const type = ActionType.DECLARE_INFLUENCE;
     this._gameState.update(state => {
-      
       if (!state)
           return state;
-
       return {
         ...state,
         ui : {
@@ -615,14 +613,12 @@ export class GameStoreService {
       };
     });
   }
-  openHospitalModal(politicoID : number) {
 
+  openHospitalModal(politicoID : number) {
     const type = ActionType.SEND_HOSPITAL;
     this._gameState.update(state => {
-      
       if (!state)
           return state;
-
       return {
         ...state,
         ui : {
@@ -636,8 +632,8 @@ export class GameStoreService {
       };
     });
   }
-  openPurgeModal(politicoID : number) {
 
+  openPurgeModal(politicoID : number) {
     const type = ActionType.PURGE_ATTEMPT;
     this._gameState.update(state => {
       if (!state)
@@ -655,6 +651,28 @@ export class GameStoreService {
       };
     });
   }
+
+  openExileEscapeModal(politicoID : number) {
+    const type = ActionType.EXILE_ESCAPE;
+    this._gameState.update( state => {
+      if(!state)
+        return state;
+      return {
+        ...state,
+        ui : {
+          ...state.ui,
+          modal : {
+            type : UiModalType.ACTION_CONFIRM,
+            payload : {
+              "politicoID" : politicoID,
+              "actionType" : type
+            }
+          }
+        }
+      };
+    });
+  }
+
   openCancelModal(actionID : number) {
     const actionType = null;
     this._gameState.update(state => {
@@ -674,6 +692,7 @@ export class GameStoreService {
       };
     });
   }
+
   closeModal() : void {
     
     this._gameState.update(state => {
@@ -750,6 +769,9 @@ export class GameStoreService {
   }
 
   /* Phase methods */
+  resolveAwaitingAction(gameID : number) {
+    return this.http.post(this.gameURL + '/resolve_awaiting/' + gameID, {});
+  }
   confirmPhaseExecution(gameID : number) {
     return this.http.post(this.gameURL + '/confirm_phase_exec/' + gameID, {});
   }

@@ -32,8 +32,8 @@ export class GameStateMapperService {
     const phase : PhaseState = {
       phaseStatus : dto.phaseStatus,
       blockingStatus : dto.blockingStatus,
-      awaitingAction : dto.currentAwaitingAction
-        ? GameStateMapperService.mapAction(dto.currentAwaitingAction)
+      awaitingAction : dto.awaitingAction
+        ? GameStateMapperService.mapAction(dto.awaitingAction)
         : null,
       announcedActions : dto.announcedActions.map(GameStateMapperService.mapAction),
       possibleActionsByPhase : dto.possibleActionsByPhase,

@@ -29,7 +29,7 @@ export interface GameResponseDto {
     readyPlayers : number[];
     
     blockingStatus: ActionBlockingStatus;
-    currentAwaitingAction?: ActionInstanceDto;
+    awaitingAction?: ActionInstanceDto;
     announcedActions : ActionInstanceDto[];
     possibleActionsByPhase : ActionType[];
     authorizedMinistryAndActions: Map<MinistryType, Set<ActionType>>;
