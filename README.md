@@ -26,5 +26,11 @@ Hasta aquí, la explicación de las reglas necesarias para comprender lo desarro
 
 El frontend está estructurado en torno a la construcción y actualización constante del estado del juego, a partir de su consulta via HTTP al backend. Éste retorna un DTO con el estado del juego (Game), el cual será utilizado para construir el estado en el frontend (GameState).
 
-Para la circulación de los datos del estado GameState a lo ancho y largo del sitio, utilizamos un servicio centralizado (GameStore) para realizar las acciones requeridas por los diferentes componentes. Es como el orquestador que intermedia entre el estado del juego y los componentes del frontend. En el desarrollo de este servicio, y alo largo de los componentes, se utilizaron Signals, a fin de llevar un control más simplificado del estado y de los cambios realizados en el mismo.
+Para la circulación de los datos del estado GameState a lo ancho y largo del sitio, utilizamos, em primer lugar, un servicio centralizado (GameStore) que nos permita realizar las acciones requeridas por los diferentes componentes. Es como el orquestador que intermedia entre el estado del juego y los componentes del frontend. 
+
+En el desarrollo de este servicio, y a lo largo de los componentes, se utilizaron Signals, a fin de llevar un control más simplificado del estado y de los cambios realizados en el mismo.
+
+Para el manejo de JWT, se utiliza un interceptor, a fin de mantener el token "vivo" y la sesión se mantenga activa.
+
+Para el manejo de notificaciones, utilizamos SSE como arquitectura integrada al backend, via el uso de EventSource.
 
