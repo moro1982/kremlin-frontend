@@ -13,6 +13,7 @@ import { PhaseExecutionStatus } from '../../enum/phase-execution-status';
 import { CancelModalComponent } from '../cancel-modal/cancel-modal.component';
 import { PurgeModalComponent } from "../purge-modal/purge-modal.component";
 import { ExileEscapeModalComponent } from "../exile-escape-modal/exile-escape-modal.component";
+import { InvestigationModalComponent } from "../investigation-modal/investigation-modal.component";
 
 @Component({
   selector: 'app-board',
@@ -28,7 +29,8 @@ import { ExileEscapeModalComponent } from "../exile-escape-modal/exile-escape-mo
     HospitalModalComponent,
     CancelModalComponent,
     PurgeModalComponent,
-    ExileEscapeModalComponent
+    ExileEscapeModalComponent,
+    InvestigationModalComponent
 ],
   templateUrl: './board.component.html',
   styleUrl: './board.component.scss'

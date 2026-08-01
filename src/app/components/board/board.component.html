@@ -61,6 +61,11 @@
                        modalPayload().actionType === ActionType.EXILE_ESCAPE">
             </app-exile-escape-modal>
 
+            <app-investigation-modal
+                *ngIf="modalType() === UiModalType.ACTION_CONFIRM &&
+                       modalPayload().actionType === ActionType.BEGIN_INVESTIGATION">
+            </app-investigation-modal>
+
             <app-cancel-modal
                 *ngIf="modalType() === UiModalType.ACTION_CONFIRM && 
                        modalPayload().actionType === null">

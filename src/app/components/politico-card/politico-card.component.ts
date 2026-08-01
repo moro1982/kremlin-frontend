@@ -28,19 +28,24 @@ export class PoliticoCardComponent {
       this.politico.status == GamePoliticoStatus.IN_SIBERIA
     );
 
+    investigationsCount = computed(() => this.politico.investigations.count);
+
+    investigated = computed(() => {
+      return this.politico.investigations.count > 0 && 
+             this.politico.investigations.immuneUntilTurn === null;
+    });
+
     onClick() : void {
       this.selectedChange.emit(this.politico.id);
     }
 
     getPlayerColor(player_id : number | undefined) : string {
-      
       if (player_id !== undefined) {
         const color = this.playerColorMap.get(player_id);
         if (color !== undefined) {
           return color;
         }
       }
-      
       return '#666';
     }
 

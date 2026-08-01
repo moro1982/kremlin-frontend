@@ -1,0 +1,17 @@
+<div class="modal">
+    <h3>Investigations</h3>
+    <p> Accusing Minister: {{ acussingMinister()?.name }} </p>
+
+    <!-- Politicos that can be investigated -->
+    <select [(ngModel)]="value">
+        <option value="" disabled selected> Select a target politico </option>
+        <option *ngFor="let politico of possibleTargets()" [value]="politico.id">
+            {{ politico.name }}
+        </option>
+    </select>
+
+    <div class="modal-buttons">
+        <button class="boton" (click)="beginInvestigation()"> Begin Investigation </button>
+        <button class="boton" (click)="close()"> Cancel </button>
+    </div>
+</div>

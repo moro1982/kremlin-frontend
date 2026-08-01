@@ -35,4 +35,11 @@
             CURE
         </div>
     </div>
+
+    <div class="investigation-container">
+        <div class="badge investigated" *ngIf="this.investigated()">
+            <div *ngFor="let i of [].constructor(this.investigationsCount)">
+                ?
+            </div>
+        </div>
 </div>

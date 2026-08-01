@@ -7,39 +7,26 @@
   cursor: pointer;
   transition: all 0.2s;
   position: relative;
-
   &:hover {
     transform: scale(1.02);
   }
-
   &.selected {
     border-color: gold;
     box-shadow: 0 0 8px gold;
   }
-
   &.controlled {
     border-width: 4px;
   }
-
 }
 
-.influence-container {
-  position: absolute;
-  bottom: -1.5rem;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: .5rem;
+.header {
+  font-size: 1.1rem;
+  margin-bottom: 6px;
 }
-
-.health-container {
-  position: absolute;
-  right: -.5rem;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: .5rem;
+.footer {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  opacity: 0.8;
 }
 
 .badge {
@@ -56,18 +43,40 @@
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.6);
 }
 
+// Badge containers (position)
+.influence-container {
+  position: absolute;
+  bottom: -1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: .5rem;
+}
+.health-container {
+  position: absolute;
+  right: -.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+.investigation-container {
+  position: absolute;
+  right: -.5rem;
+  top: 10%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+// Badge types
 .at-hospital {
   background-color: darkcyan;
   padding: .25rem;
 }
-
-.header {
-  font-size: 1.1rem;
-  margin-bottom: 6px;
-}
-
-.footer {
-  margin-top: 6px;
-  font-size: 0.8rem;
-  opacity: 0.8;
+.investigated {
+  background-color: darkolivegreen;
+  padding: .25rem;
 }

@@ -64,6 +64,13 @@
             >
                 Exile Escape
             </button>
+            <button
+                class="boton"
+                *ngIf="canAnnounceAction(ActionType.BEGIN_INVESTIGATION)"
+                (click)="openBeginInvestigationModal()"
+            >
+                Begin Investigation
+            </button>
         </div>
 
         <div *ngIf="authorized() as auth">
@@ -71,9 +78,6 @@
             <div *ngFor="let action of auth.actions">
                 {{ action }}
             </div>
-        </div>
-        <div *ngIf="selectedPoliticoMinistry()">
-            {{ selectedPoliticoMinistry()?.name }}
         </div>
     </div>     
 </div>

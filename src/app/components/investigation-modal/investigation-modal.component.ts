@@ -2,63 +2,61 @@ import { Component, computed } from '@angular/core';
 import { GameStoreService } from '../../services/game/store/game-store.service';
 import { MinistryType } from '../../enum/ministry-type';
 import { GamePoliticoStatus } from '../../enum/game-politico-status';
-import { NgFor } from '@angular/common';
 import { ActionType } from '../../enum/action-type';
+import { NgFor } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-purge-modal',
+  selector: 'app-investigation-modal',
   standalone: true,
   imports: [NgFor, FormsModule],
-  templateUrl: './purge-modal.component.html',
-  styleUrl: './purge-modal.component.scss'
+  templateUrl: './investigation-modal.component.html',
+  styleUrl: './investigation-modal.component.scss'
 })
-export class PurgeModalComponent {
-    
-  constructor(private gameStore : GameStoreService) { }
-
+export class InvestigationModalComponent {
+  constructor(private gameStore : GameStoreService){ }
   politicos = computed(() => this.gameStore.gameState()?.politicos);
-  accusingMinisterID = computed( () => {
+  accusingMinisterID = computed(() => {
     return this.gameStore.gameState()?.ui.modal.payload.accusingMinisterID ?? null;
-  } );
-  accusingMinister = computed( () => {
+  });
+  acussingMinister = computed(() => {
     const politicos = this.politicos();
     const ministerID = this.accusingMinisterID();
-    if ( politicos && ministerID !== null) {
-      return politicos[ministerID];
+    if (politicos && ministerID !== null) {
+      return this.politicos()?.[ministerID];
     }
     return null;
   });
-  // Politicos that can be purged
+
+  // Politicos that can be investigated
   possibleTargets = computed(() => {
     const politicos = this.politicos();
     const ministries = this.gameStore.gameState()?.ministries;
     const accuserID = this.accusingMinisterID();
     const possibleTargets = Object.values(ministries ?? {})
-                                  .filter( m => m.name !== MinistryType.PEOPLE )
+                                  .filter( m => m.name !== MinistryType.PEOPLE && 
+                                                m.name !== MinistryType.CANDIDATE )
                                   .filter( m => m.ministerID !== accuserID );
     return Object.values(politicos ?? {})
                  .filter( p => p.ministryID !== null && 
-                          possibleTargets.some( m => m.id === p.ministryID )
+                               possibleTargets.some( m => m.id === p.ministryID )
                  )
                  .filter( p => p.status === GamePoliticoStatus.ACTIVE ||
                                p.status === GamePoliticoStatus.AT_HOSPITAL
                  );
   });
+
+  // Selected target for investigation
   value = "";
 
-  confirmPurge() {
-
+  beginInvestigation() {
     const state = this.gameStore.gameState();
-
-    if (!state)
+    if(!state)
         return;
-
     const gameID = state.game.id;
-
     const action = {
       "gameID" : gameID,
-      "type" : ActionType.PURGE_ATTEMPT,
+      "type" : ActionType.BEGIN_INVESTIGATION,
       "actingGamePoliticoID" : this.accusingMinisterID(),
       "targetGamePoliticoID" : this.value ? Number(this.value) : null
     };
@@ -66,7 +64,7 @@ export class PurgeModalComponent {
     /**************** DEBUG ******************/
     console.log("Announcing action: ", action);
     /*****************************************/
-    
+
     this.gameStore.announceAction( action );
   }
 
