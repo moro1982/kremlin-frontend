@@ -14,7 +14,11 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './investigation-modal.component.scss'
 })
 export class InvestigationModalComponent {
+  
   constructor(private gameStore : GameStoreService){ }
+  
+  Number = Number;
+  
   politicos = computed(() => this.gameStore.gameState()?.politicos);
   accusingMinisterID = computed(() => {
     return this.gameStore.gameState()?.ui.modal.payload.accusingMinisterID ?? null;

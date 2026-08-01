@@ -10,6 +10,13 @@
         </option>
     </select>
 
+    <div>
+        <p> 
+            Investigations on {{ politicos()?.[Number(this.value)]?.name }} :
+            <span> {{ politicos()?.[Number(this.value)]?.investigations?.count }} </span>
+        </p>
+    </div>
+
     <div class="modal-buttons">
         <button class="boton" (click)="beginInvestigation()"> Begin Investigation </button>
         <button class="boton" (click)="close()"> Cancel </button>
