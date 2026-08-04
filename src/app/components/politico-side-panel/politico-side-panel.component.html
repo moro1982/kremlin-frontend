@@ -71,6 +71,13 @@
             >
                 Begin Investigation
             </button>
+            <button 
+                class="boton"
+                *ngIf="canAnnounceAction(ActionType.CONDEMNATION)"
+                (click)="openCondemnationModal()"
+            >
+                Condemn Candidate
+            </button>
         </div>
 
         <div *ngIf="authorized() as auth">

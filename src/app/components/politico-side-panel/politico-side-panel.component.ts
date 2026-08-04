@@ -182,7 +182,24 @@ export class PoliticoSidePanelComponent {
         case ActionType.CAST_TRIAL_VOTE:
           break;
         case ActionType.CONDEMNATION:
-          break;
+          if (controllerID !== this.gameStore.me()?.playerID) {
+              return false;
+          }
+          if (this.selectedPolitico()?.ministryID === null) {
+              return false;
+          }
+          if (this.selectedPoliticoMinistry()?.name !== this.authorized()?.ministry) {
+            return false;
+          }
+          if (this.selectedPolitico()?.status !== GamePoliticoStatus.ACTIVE) {
+              return false;
+          }
+          if (this.phase()?.awaitingAction || 
+              this.phase()?.blockingStatus !== ActionBlockingStatus.NONE
+             ) {
+            return false;
+          }
+          return true;
         case ActionType.NEGATE_CONDEMNATION:
           break;
       }
@@ -214,6 +231,13 @@ export class PoliticoSidePanelComponent {
       const selectedPoliticoID = this.selectedPolitico()?.id;
       if (selectedPoliticoID) {
         this.gameStore.openBeginInvestigationModal(selectedPoliticoID);
+      }
+    }
+
+    openCondemnationModal() {
+      const selectedPoliticoID = this.selectedPolitico()?.id;
+      if (selectedPoliticoID) {
+        this.gameStore.openCondemnationModal(selectedPoliticoID);
       }
     }
 

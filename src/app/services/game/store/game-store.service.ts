@@ -673,6 +673,27 @@ export class GameStoreService {
     });
   }
 
+  openCondemnationModal(politicoID : number) {
+    const type = ActionType.CONDEMNATION;
+    this._gameState.update(state => {
+      if(!state)
+        return state;
+      return {
+        ...state,
+        ui : {
+          ...state.ui,
+          modal : {
+            type : UiModalType.ACTION_CONFIRM,
+            payload : {
+              "accusingMinisterID" : politicoID,
+              "actionType" : type
+            }
+          }
+        }
+      };
+    });
+  }
+
   openExileEscapeModal(politicoID : number) {
     const type = ActionType.EXILE_ESCAPE;
     this._gameState.update( state => {

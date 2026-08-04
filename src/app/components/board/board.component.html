@@ -66,6 +66,11 @@
                        modalPayload().actionType === ActionType.BEGIN_INVESTIGATION">
             </app-investigation-modal>
 
+            <app-condemnation-modal
+                *ngIf="modalType() === UiModalType.ACTION_CONFIRM &&
+                       modalPayload().actionType === ActionType.CONDEMNATION">
+            </app-condemnation-modal>
+
             <app-cancel-modal
                 *ngIf="modalType() === UiModalType.ACTION_CONFIRM && 
                        modalPayload().actionType === null">
