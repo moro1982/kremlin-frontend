@@ -78,6 +78,13 @@
             >
                 Condemn Candidate
             </button>
+            <button 
+                class="boton"
+                *ngIf="canAnnounceAction(ActionType.NEGATE_CONDEMNATION)"
+                (click)="openNegateCondemnationModal()"
+            >
+                Negate Condemnation
+            </button>
         </div>
 
         <div *ngIf="authorized() as auth">

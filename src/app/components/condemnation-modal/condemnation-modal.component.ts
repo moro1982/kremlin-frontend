@@ -49,16 +49,16 @@ export class CondemnationModalComponent {
 
   condemnCandidate() {
     const state = this.gameStore.gameState();
-      if(!state)
-          return;
-      const gameID = state.game.id;
-      const action = {
-        "gameID" : gameID,
-        "type" : ActionType.CONDEMNATION,
-        "actingGamePoliticoID" : this.accusingMinisterID(),
-        "targetGamePoliticoID" : this.value ? Number(this.value) : null
-      };  
-      this.gameStore.announceAction(action);
+    if(!state)
+        return;
+    const gameID = state.game.id;
+    const action = {
+      "gameID" : gameID,
+      "type" : ActionType.CONDEMNATION,
+      "actingGamePoliticoID" : this.accusingMinisterID(),
+      "targetGamePoliticoID" : this.value ? Number(this.value) : null
+    };  
+    this.gameStore.announceAction(action);
   }
   
   close() {

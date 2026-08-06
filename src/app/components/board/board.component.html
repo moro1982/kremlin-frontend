@@ -71,6 +71,11 @@
                        modalPayload().actionType === ActionType.CONDEMNATION">
             </app-condemnation-modal>
 
+            <app-negate-condemnation-modal
+                *ngIf="modalType() === UiModalType.ACTION_CONFIRM &&
+                       modalPayload().actionType === ActionType.NEGATE_CONDEMNATION">
+            </app-negate-condemnation-modal>
+
             <app-cancel-modal
                 *ngIf="modalType() === UiModalType.ACTION_CONFIRM && 
                        modalPayload().actionType === null">

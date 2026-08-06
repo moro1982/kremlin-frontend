@@ -15,6 +15,7 @@ import { PurgeModalComponent } from "../purge-modal/purge-modal.component";
 import { ExileEscapeModalComponent } from "../exile-escape-modal/exile-escape-modal.component";
 import { InvestigationModalComponent } from "../investigation-modal/investigation-modal.component";
 import { CondemnationModalComponent } from "../condemnation-modal/condemnation-modal.component";
+import { NegateCondemnationModalComponent } from "../negate-condemnation-modal/negate-condemnation-modal.component";
 
 @Component({
   selector: 'app-board',
@@ -32,7 +33,8 @@ import { CondemnationModalComponent } from "../condemnation-modal/condemnation-m
     PurgeModalComponent,
     ExileEscapeModalComponent,
     InvestigationModalComponent,
-    CondemnationModalComponent
+    CondemnationModalComponent,
+    NegateCondemnationModalComponent
 ],
   templateUrl: './board.component.html',
   styleUrl: './board.component.scss'

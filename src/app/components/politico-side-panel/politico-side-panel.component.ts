@@ -33,6 +33,12 @@ export class PoliticoSidePanelComponent {
     selectedPoliticoMinistry = computed( () => this.gameStore.selectedPoliticoMinistry());
     phase = computed(() => this.gameStore.gameState()?.phase);
     myPlayerID = computed( () => this.gameStore.me()?.playerID );
+    top4ministries : MinistryType[] = [
+      MinistryType.PARTY_CHIEF,
+      MinistryType.KGB_HERO,
+      MinistryType.FOREIGN,
+      MinistryType.DEFENSE
+    ];
     
     rawAuthorized = computed(() => {
       const raw = this.gameStore.gameState()?.phase?.authorizedMinistryAndActions;
@@ -201,7 +207,26 @@ export class PoliticoSidePanelComponent {
           }
           return true;
         case ActionType.NEGATE_CONDEMNATION:
-          break;
+          if (controllerID !== this.gameStore.me()?.playerID) {
+              return false;
+          }
+          if (this.selectedPolitico()?.ministryID === null) {
+              return false;
+          }
+          if (this.selectedPolitico()?.status !== GamePoliticoStatus.ACTIVE) {
+              return false;
+          }
+          if (!this.top4ministries.some(m => m === this.selectedPoliticoMinistry()?.name)) {
+            return false;
+          }
+          if (this.phase()?.awaitingAction === null || 
+              this.phase()?.awaitingAction?.type !== ActionType.CONDEMNATION ||
+              this.phase()?.awaitingAction?.status !== ActionStatus.ANNOUNCED ||
+              this.phase()?.blockingStatus !== ActionBlockingStatus.AWAITING_CONDEMNATION_RESPONSE
+             ) {
+            return false;
+          }
+          return true;
       }
       return false;
     }
@@ -238,6 +263,13 @@ export class PoliticoSidePanelComponent {
       const selectedPoliticoID = this.selectedPolitico()?.id;
       if (selectedPoliticoID) {
         this.gameStore.openCondemnationModal(selectedPoliticoID);
+      }
+    }
+
+    openNegateCondemnationModal() {
+      const selectedPoliticoID = this.selectedPolitico()?.id;
+      if (selectedPoliticoID) {
+        this.gameStore.openNegateCondemnationModal(selectedPoliticoID);
       }
     }
 

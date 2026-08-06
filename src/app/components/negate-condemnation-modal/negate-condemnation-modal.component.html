@@ -1,0 +1,8 @@
+<div class="modal">
+    <h3> Negate Condemnation </h3>
+    <p> Target Politico: {{ this.targetedMinister()?.name }} </p>
+    <p> Negator: {{ this.negatorMinister()?.name }} </p>
+    <p> Negator will age 5 years after Negation. </p>
+    <button class="boton" (click)="negateCondemnation()"> Negate Condemnation </button>
+    <button class="boton" (click)="close()"> Cancel </button>
+</div>
