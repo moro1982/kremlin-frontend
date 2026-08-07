@@ -16,6 +16,7 @@ import { ExileEscapeModalComponent } from "../exile-escape-modal/exile-escape-mo
 import { InvestigationModalComponent } from "../investigation-modal/investigation-modal.component";
 import { CondemnationModalComponent } from "../condemnation-modal/condemnation-modal.component";
 import { NegateCondemnationModalComponent } from "../negate-condemnation-modal/negate-condemnation-modal.component";
+import { GamePoliticoState } from '../../models/game-state/game-politico-state';
 
 @Component({
   selector: 'app-board',
@@ -102,28 +103,52 @@ export class BoardComponent {
 
   // Should be in a future ActionComponent or similar.
   canCancelAction(actionID : number) : boolean {
-    if (this.gameStore.phaseStatus() !== PhaseExecutionStatus.OPEN_FOR_ACTIONS) {
-      return false;
-    }
-    if (this.announcedActions().length === 0) {
-      return false;
-    }
-    const found = this.announcedActions()
-                      .find( announcedAction => announcedAction.id === actionID );
-    if (!found) return false;
-    switch(found.type) {
+    if (this.gameStore.phaseStatus() !== PhaseExecutionStatus.OPEN_FOR_ACTIONS)
+        return false;
+    if (this.announcedActions().length === 0)
+        return false;
+    const announced = this.announcedActions()
+                          .find( announcedAction => announcedAction.id === actionID );
+    if (!announced) 
+        return false;
+      
+    let myTargetPoliticos : GamePoliticoState[] = [];
+    let myActingPoliticos : GamePoliticoState[] = [];
+    switch(announced.type) {
       case ActionType.SEND_HOSPITAL:
-        const controlledByMe = 
-          this.gameStore.politicosControlledByMe()
-                        .filter(p => p.id === found.targetPoliticoID);
-        if (controlledByMe.length === 0) {
-          return false;
-        }
-        break;
-        // Different action types might have different cancellation rules 
-        // (** to be implemented **)
+          myTargetPoliticos = 
+            this.gameStore.politicosControlledByMe()
+                          .filter(p => p.id === announced.targetPoliticoID);
+          if (myTargetPoliticos.length === 0) {
+              return false;
+          }
+          break;
+      case ActionType.PURGE_ATTEMPT:
+          myActingPoliticos = 
+            this.gameStore.politicosControlledByMe()
+                          .filter(p => p.id === announced.actingPoliticoID);
+          if (myActingPoliticos.length === 0) {
+              return false;
+          }
+          break;
+      case ActionType.BEGIN_INVESTIGATION:
+          myActingPoliticos = 
+            this.gameStore.politicosControlledByMe()
+                          .filter(p => p.id === announced.actingPoliticoID);
+          if (myActingPoliticos.length === 0) {
+              return false;
+          }
+          break;
+      case ActionType.CONDEMNATION:
+          myActingPoliticos = 
+            this.gameStore.politicosControlledByMe()
+                          .filter(p => p.id === announced.actingPoliticoID);
+          if (myActingPoliticos.length === 0) {
+              return false;
+          }
+          break;
       default:
-        break;
+          break;
     }
     return true;
   }
